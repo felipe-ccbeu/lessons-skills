@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "google-slides": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "C:\\Users\\felipe.fadel\\google-slides-mcp\\build\\index.js"
+      ],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-google-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-google-client-secret",
+        "GOOGLE_REFRESH_TOKEN": "your-google-refresh-token"
+      }
+    }
+  }
+}
