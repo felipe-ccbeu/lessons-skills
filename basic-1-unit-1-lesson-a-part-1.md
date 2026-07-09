@@ -5,6 +5,11 @@
 - Nº de slides: 24
 - Título no Google Slides: "Cópia de American Empower A1 - Unit 1 LA"
 - Curso/nível: Basic 1 (iniciante, A1), material baseado no livro didático "American Empower"
+- **Atualização (2026-07-09):** re-extraído com transcrição de imagem via visão. Todo
+  trecho marcado "Transcrito da imagem do livro:" não existe como texto no Google
+  Slides — foi lido diretamente da página escaneada do livro didático embutida na
+  imagem. Isso desbloqueou o conteúdo real de quase todos os slides com "LOOK!",
+  exercícios do livro e diálogos, que antes só tinham o título do slide capturado.
 
 ## Conteúdo por slide
 
@@ -37,34 +42,91 @@
 ### Slide 7 — Livro p.8: Listen and Repeat (Pair work)
 - Texto do slide: "Books - p. 8 / Listen and Repeat! / Pair work / 2. Use your name in the conversation! / 3. Change pairs!"
 - Notas do apresentador: "Gesture the actions of the exercises, like Listen and Repeat."
-- Elementos visuais: imagem recortada da página do livro (o diálogo-modelo) à esquerda; instruções numeradas (2 e 3) organizadas em caixas de texto à direita da imagem, replicando os passos do exercício do livro.
+- Transcrito da imagem do livro (recorte à esquerda + contexto completo da página capturado via visão):
+  - **a** [ícone áudio] Listen. Then say *Hi, I'm …* or *Hello, I'm …* and say your name.
+    - Foto 1: "Hi, I'm Rubén."
+    - Foto 2: "Hello, I'm Harumi."
+  - **b** [ícone áudio] Read and listen to conversations 1–3. Match the conversations with groups (a/b/c) — *ver diálogos completos transcritos no Slide 8/9 abaixo, é a mesma imagem/exercício*.
+  - **d** ⟩⟩ Now go to Grammar Focus 1A Part 1 on p. 116.
+  - **e** Sound and spelling — *I'm, we're*
+    1. [ícone áudio] Listen to the sound of *I'm* and *we're*: a) I am  b) I'm  c) we are  d) we're
+    2. [ícone fala] Practice saying *I'm* and *we're*.
+  - **f** [ícone fala] Practice the conversations in 1b.
+    1. Work in pairs. Practice Conversation 1.
+    2. Work in groups of three. Practice Conversation 2.
+    3. Work with a new partner. Practice Conversation 3.
+  - **g** [ícone fala] Practice the conversations in 1b again. Use your own name.
 - Observação didática: instrução de multimodalidade para o professor (usar gestos) — reforça que a aula é conduzida com apoio não-verbal para alunos iniciantes.
 
 ### Slide 8 — Livro p.8: Match a conversa às pessoas
 - Texto do slide: "Books p. 8 / Match the conversation and the people"
+- Transcrito da imagem do livro (foto de grupo com 3 balões de diálogo numerados, pessoas identificadas por letra a/b/c e por nome Kelly/Michael):
+  - **Conversa 1** (pessoa "a"):
+    - V: Hi, I'm Vilma. What's your name?
+    - C: I'm Camila.
+    - V: Hi, Camila. Nice to meet you.
+  - **Conversa 2** (pessoa "b" = Michael):
+    - H: Hello, I'm Harumi.
+    - K: Hi, I'm Katia.
+    - P: And I'm Pablo. Hi.
+    - H: Are you from the U.S.?
+    - P: No, we're from Ecuador.
+  - **Conversa 3** (pessoa "c"):
+    - L: Hi, Rubén. How are you?
+    - R: Hi, Li. I'm fine. How are you?
+    - L: Fine, thanks.
+  - Pessoas nomeadas na foto: Kelly, Michael (os outros aparecem só como letras a/b/c).
 
 ### Slide 9 — Livro p.8: Praticar a conversa
 - Texto do slide: "Books p. 8 / Practice the conversation!"
+- Transcrito da imagem: mesma foto/diálogos do Slide 8 (ver acima) — este slide reaproveita a mesma imagem, agora com instrução de prática em vez de matching.
 
 ### Slide 10 — Livro p.8: Completar lacunas gramaticais
-- Texto do slide: "Books p. 8 / Look at the conversation and complete / 'm / 're / Are / are"
+- Texto do slide: "Books p. 8 / Look at the conversation and complete / 'm / 're / Are / are" (as 4 palavras são balões de resposta reais, não parte da imagem)
+- Transcrito da imagem do livro:
+  - **c** Complete the sentences in the chart.
+
+    | I/we | you |
+    |---|---|
+    | I ___ Camila. (= *I am* …) | ___ you from the U.S.? |
+    | We ___ from Ecuador. (= *we are* …) | How ___ you? |
+
 - Observação didática: introduz a lacuna gramatical (contrações de "to be") a partir do próprio texto/conversa já praticada — abordagem indutiva (o aluno primeiro usou a língua, depois analisa a forma).
 
 ### Slide 11 — LOOK! (destaque gramatical)
 - Texto do slide: "LOOK!"
-- Elementos visuais: palavra "LOOK!" em destaque (fonte grande, negrito, cor rosa/magenta vibrante) sobre fundo com textura/imagem de página de livro; múltiplas imagens recortadas da página do livro ao redor do texto, mostrando a regra gramatical, no formato de "flashcard" visual.
+- Transcrito da imagem do livro (3 recortes/flashcards):
+  1. Ilustração (Estátua da Liberdade) com balão: "**I'm** from New York." (contração em negrito)
+  2. Tabela "Affirmative (+)":
+     | | Affirmative (+) |
+     |---|---|
+     | I | *I'm* fine. |
+     | you | *You're* right. |
+     | we | *We're* from the U.S. |
+     | you | *You're* John and Hannah. |
+  3. Caixa "Tip": *I am* → *I'm* / *You are* → *You're* / *We are* → *We're*
 - Observação didática: uso de um slide-template recorrente ("LOOK!") como sinalizador visual consistente de "atenção: regra gramatical explícita a seguir" — cria uma convenção reconhecível ao longo do curso.
 
 ### Slide 12 — Livro p.117: Exercício 1A(a)
-- Texto do slide: "Book p. 117 - Exercise 1A a / We're students. / You're Roberto. / I'm fine, thanks / We're from Mexico."
-- Elementos visuais: imagem da página do livro à esquerda; frases-exemplo destacadas em rosa/negrito, listadas verticalmente à direita, cada uma em sua própria caixa de texto.
+- Texto do slide: "Book p. 117 - Exercise 1A a" + as 4 respostas rosa em negrito, que são texto real do Slides (não da imagem): "We're students. / You're Roberto. / I'm fine, thanks / We're from Mexico."
+- Transcrito da imagem do livro (o enunciado e as frases-fonte só existem na imagem):
+  - **1A** *be: I / you / we*
+  - **Part 1: Affirmative and questions**
+  - **a** Write sentences with *'re* or *'m*.
+    1. I am from New York. → *I'm from New York.* (exemplo dado, cinza)
+    2. We are students. → **We're students.** (resposta em rosa no Slides)
+    3. You are Roberto. → **You're Roberto.**
+    4. I am fine, thanks. → **I'm fine, thanks.**
+    5. We are from Mexico. → **We're from Mexico.**
 - Observação didática: exemplos isolados e destacados visualmente antes da checagem formal da regra — reforça a exposição a modelos de uso antes da metalinguagem.
 
 ### Slide 13 — Livro p.8: Exercício E
 - Texto do slide: "Books p. 8 - Exercise E / Listen and repeat!"
+- Transcrito da imagem do livro: mesmo bloco "e Sound and spelling — I'm, we're" descrito no Slide 7 (item **e**) — este slide isola esse exercício específico.
 
 ### Slide 14 — Livro p.8: Sublinhar perguntas
 - Texto do slide: "Book p. 8 - Underline the questions"
+- Transcrito da imagem: recortes da mesma foto de diálogos do Slide 8/9 (sem texto novo além do já transcrito lá) — a atividade pede para o aluno sublinhar, na própria conversa já vista, quais linhas são perguntas.
 - Observação didática: exercício de identificação/consciência sintática (reconhecer estrutura interrogativa no texto) antes de produzir perguntas.
 
 ### Slide 15 — Qual é a diferença? (comparação visual)
@@ -74,12 +136,29 @@
 
 ### Slide 16 — LOOK! (segundo destaque gramatical)
 - Texto do slide: "LOOK!"
-- Elementos visuais: mesmo template do slide 11 (fundo com textura, texto "LOOK!" em destaque rosa).
+- Transcrito da imagem do livro (3 recortes/flashcards):
+  1. Ilustração (dois rapazes conversando, um com camiseta "I ❤ New York"): "**Are you** from New York?" (contração/inversão em negrito)
+  2. Tabela "Yes/No questions (?)" com respostas curtas:
+
+     | Yes/No questions (?) | | Short answers | |
+     |---|---|---|---|
+     | **Am** I | at home? | Yes, you **are**. | No, you're **not**. |
+     | **Are** you | OK? | Yes, I **am**. | No, I'm **not**. |
+     | **Are** we | in Los Angeles? | Yes, you **are**. | No, you're **not**. |
+     | **Are** you | students? | Yes, we **are**. | No, we're **not**. |
+  3. Ilustração (casal parado ao lado de um táxi): "Are **you** from the U.S.?" / "Yes, **we're** from the U.S."
 - Observação didática: reforça a regra de formação de perguntas logo após o contraste do slide 15 — sequência "observe o contraste → aqui está a regra".
 
 ### Slide 17 — Livro p.117: Exercício 1A(b) — pares
-- Texto do slide: "Book p. 117 - Exercise 1A b / Are we in Ecuador? / Am I OK? / What's your name? / Are you from the US.? / Ask and answer in pairs!"
-- Observação didática: transição de reconhecimento (sublinhar, completar) para produção controlada em pares.
+- Texto do slide: "Book p. 117 - Exercise 1A b" + as 4 respostas rosa em negrito, texto real do Slides: "Are we in Ecuador? / Am I OK? / What's your name? / Are you from the US.? / Ask and answer in pairs!"
+- Transcrito da imagem do livro (o enunciado e as palavras embaralhadas só existem na imagem):
+  - **b** Put the words in the correct order to make questions.
+    1. you / are / how ? → *How are you?* (exemplo dado, cinza)
+    2. are / from / the U.S. / you ? → **Are you from the US.?**
+    3. we / in / Ecuador / are ? → **Are we in Ecuador?**
+    4. OK / I / am ? → **Am I OK?**
+    5. name / your / what's ? → **What's your name?**
+- Observação didática: transição de reconhecimento (sublinhar, completar) para produção controlada em pares. É um exercício de reordenar palavras embaralhadas — formato que não existe ainda entre os templates do deck mestre.
 
 ### Slide 18 — Pergunte e responda em pares (com respostas-modelo)
 - Texto do slide: "Ask and answer in pairs! / 1. What's your name? Ex.: I am _____ / 2. Are you from the U.S.? Yes, I am! No, I'm not / 3. Are we in CCBEU? Yes, we are! No, We're not / 4. Are you OK? Yes, I am! No, I'm not"
@@ -120,7 +199,7 @@
 - **Fechamento (slides 21-24)**: recap organizado por categoria gramatical/funcional, celebração motivacional, atribuição de tarefa de casa, e transição para atividade lúdica final.
 
 ## Padrões didáticos identificados
-- **Slide-template "LOOK!" recorrente**: usado sempre que uma regra gramatical é destacada explicitamente (slides 11 e 16), com identidade visual fixa (cor rosa/magenta, negrito, fundo com textura de página de livro). Cria uma "âncora visual" que o aluno passa a reconhecer como "hora de prestar atenção na regra".
+- **Slide-template "LOOK!" recorrente**: usado sempre que uma regra gramatical é destacada explicitamente (slides 11 e 16), com identidade visual fixa (cor rosa/magenta, negrito, fundo com textura de página de livro). Cria uma "âncora visual" que o aluno passa a reconhecer como "hora de prestar atenção na regra". Com a transcrição de imagem, agora sabemos que cada "LOOK!" é, na prática, 3 flashcards: um exemplo ilustrado, uma tabela de referência, e uma caixa "Tip" com a regra resumida.
 - **Abordagem indutiva**: o conteúdo gramatical (contrações de "to be", formação de perguntas) é sempre extraído de um diálogo/exercício que o aluno já praticou, e só depois é nomeado/destacado (ex.: slides 7→10→11; slides 14→15→16).
 - **Contraste mínimo (minimal pairs)**: comparação lado a lado de frases quase idênticas para destacar a diferença estrutural relevante (slide 15: afirmativa vs. interrogativa).
 - **Progressão de controle decrescente na prática oral**: perguntas fixas com respostas-modelo → lacunas abertas → produção livre em entrevista (slides 18, 19, 20).
@@ -128,10 +207,11 @@
 - **Contextualização local**: uso do nome da própria escola (CCBEU) como exemplo de pergunta/resposta, tornando a prática pessoalmente relevante para o aluno.
 - **Sinalização de transição de modo**: expressões como "BOOKS CLOSED!" marcam explicitamente mudanças de modalidade (do livro para o jogo), ajudando alunos iniciantes a se situarem no fluxo da aula.
 - **Reforço multimodal**: recomendação de gestos físicos para os verbos de instrução (Listen, Repeat), relevante para o nível iniciante (A1) onde a compreensão de instruções em inglês ainda é limitada.
+- **Exercício de reordenar palavras (slide 17b)**: formato "put the words in the correct order" não capturado na primeira extração — padrão didático de produção controlada de perguntas a partir de palavras soltas, distinto de completar lacunas.
 
 ## Estilo e tom
 - Tom caloroso, motivacional e informal (uso de exclamações, emoji de foguete, expressões como "Yes! We did it!" e "WELCOME!!").
 - Densidade de texto por slide é baixa: cada slide carrega uma instrução curta ou poucas frases-modelo; o conteúdo pedagógico mais denso (como orientações de condução da aula) fica nas notas do apresentador, não no slide visível — os slides funcionam como "apoio visual mínimo", roteiro real está nas notas e no livro físico.
-- Uso consistente de imagens recortadas diretamente das páginas do livro didático como referência visual, em vez de recriar o conteúdo em texto puro — mantém o aluno ancorado ao material físico (livro) enquanto usa a tela como guia de navegação.
+- Uso consistente de imagens recortadas diretamente das páginas do livro didático como referência visual, em vez de recriar o conteúdo em texto puro — mantém o aluno ancorado ao material físico (livro) enquanto usa a tela como guia de navegação. **Com a transcrição via visão, agora sabemos que essas imagens carregam a maior parte do conteúdo pedagógico denso da aula (enunciados, tabelas, frases-fonte) — mais do que os slides "visíveis" sugeriam antes.**
 - Elementos lúdicos pontuais (vídeo-timer, GIF, jogo final) intercalados no que é, no geral, uma aula estruturada em torno do livro didático — equilibra estrutura formal com momentos de leveza.
 - Nenhuma tradução para português aparece nos slides voltados ao aluno; o português aparece só nas notas do apresentador, direcionadas ao professor.

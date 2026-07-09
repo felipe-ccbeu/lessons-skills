@@ -38,7 +38,23 @@ insumo de uma skill futura que vai gerar novos slides a partir dele.
    bem, chame `get_page` (presentationId, pageObjectId) para inspecionar os elementos
    da página individualmente (posição, tipo de shape, texto por caixa).
 
-5. **Analisar a didática**, não só o conteúdo. Ao ler os slides e notas, identifique:
+5. **Transcreva imagens que contêm texto pedagógico, não pule essa etapa.** Muitas aulas
+   usam recortes de página de livro didático como imagem — o texto real do exercício
+   (o diálogo, a frase-base, o enunciado) frequentemente só existe como pixel dentro
+   dessa imagem, não como texto do Slides. `get_page` retorna o `contentUrl` de cada
+   imagem; para qualquer imagem que pareça conter texto de exercício (não decorativa —
+   fotos de pessoas, ícones e ilustrações puramente visuais não precisam disso), baixe o
+   arquivo (`curl`/download para um arquivo temporário) e leia-o com a ferramenta de
+   leitura de imagem para transcrever o texto visível. Isso é viável e vale o esforço —
+   sem esse passo, exercícios inteiros (frases-base de contração, diálogos com lacuna,
+   tabelas de conjugação) ficam invisíveis para a skill de geração de slides, mesmo
+   quando o conteúdo é perfeitamente legível na imagem.
+   - Pule a transcrição só se a imagem for claramente decorativa (foto de rosto, ícone,
+     textura de fundo) — não gaste uma chamada de leitura nessas.
+   - Ao transcrever, preserve a estrutura visual (tabela, lista numerada, colunas) em
+     Markdown equivalente, não só o texto corrido.
+
+6. **Analisar a didática**, não só o conteúdo. Ao ler os slides e notas, identifique:
    - **Estrutura da aula**: introdução/gancho, desenvolvimento, prática, fechamento/recap.
    - **Progressão**: como um conceito prepara o próximo; se há escalonamento de
      dificuldade.
@@ -51,7 +67,7 @@ insumo de uma skill futura que vai gerar novos slides a partir dele.
    - **Elementos visuais recorrentes**: uso de imagens, ícones, cores para categorizar
      informação, se cada slide segue um template repetido.
 
-6. **Produzir o documento de saída** em Markdown com esta estrutura:
+7. **Produzir o documento de saída** em Markdown com esta estrutura:
 
    ```markdown
    # <Título da aula>
@@ -63,8 +79,12 @@ insumo de uma skill futura que vai gerar novos slides a partir dele.
    ## Conteúdo por slide
    ### Slide N — <título/tema do slide>
    - Texto do slide: ...
+   - Texto transcrito de imagem: ... (marcar claramente como transcrição, ex.:
+     "Transcrito da imagem do livro:" seguido do conteúdo — quem ler o documento
+     depois precisa saber que essa parte não veio do texto nativo do Slides)
    - Notas do apresentador: ...
-   - Elementos visuais: ...
+   - Elementos visuais: ... (só o que sobrar de puramente visual/decorativo depois
+     de transcrever o que tinha texto)
 
    (repetir para cada slide, ou agrupar slides que formam um mesmo bloco temático)
 
@@ -81,10 +101,9 @@ insumo de uma skill futura que vai gerar novos slides a partir dele.
    - <observações sobre voz, densidade de texto, uso de exemplos/analogias>
    ```
 
-7. Salvar o documento como arquivo Markdown (ex.: `<slug-da-aula>.md`) no diretório
+8. Salvar o documento como arquivo Markdown (ex.: `<slug-da-aula>.md`) no diretório
    que o usuário indicar (ou perguntar onde salvar, se não tiver sido dito) para que
-   a skill de geração de slides (a ser criada depois, usando `mcp-google-slides` para
-   escrita) possa consumi-lo depois.
+   a skill de geração de slides (`arrange-lessons`) possa consumi-lo depois.
 
 ## Observações
 
@@ -93,4 +112,11 @@ insumo de uma skill futura que vai gerar novos slides a partir dele.
 - Se a apresentação tiver muitos slides (>30), processe em lotes e avise o usuário
   do progresso, em vez de tentar carregar tudo de uma vez em uma única resposta.
 - Não invente conteúdo que não esteja nos slides ou notas; se algo for ambíguo,
-  descreva a ambiguidade em vez de assumir.
+  descreva a ambiguidade em vez de assumir. Isso vale igualmente para transcrição de
+  imagem: se um trecho estiver ilegível (baixa resolução, cortado, borrado), diga
+  isso explicitamente em vez de adivinhar o texto.
+- Baixar e ler cada imagem com texto custa uma chamada de ferramenta a mais por
+  imagem — para aulas com muitas imagens de livro, isso é o principal custo de tempo
+  da extração, mas é o que destrava o conteúdo real dos exercícios. Não pule essa
+  etapa para "economizar tempo": o documento de saída fica incompleto de um jeito
+  que só aparece depois, na hora de gerar os slides novos.
