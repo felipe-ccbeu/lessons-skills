@@ -120,3 +120,9 @@ insumo de uma skill futura que vai gerar novos slides a partir dele.
   da extração, mas é o que destrava o conteúdo real dos exercícios. Não pule essa
   etapa para "economizar tempo": o documento de saída fica incompleto de um jeito
   que só aparece depois, na hora de gerar os slides novos.
+- **O `contentUrl` de uma imagem retornado por `get_page` só baixa certo com o
+  parâmetro `?key=...` da URL original intacto.** Baixar sem esse parâmetro (ex.:
+  copiar só a parte antes do `?`) retorna erro 400 do Google — e se você não checar o
+  arquivo baixado antes de tentar ler, isso falha silenciosamente ou produz uma
+  transcrição vazia/errada. Sempre baixe a URL completa como veio no JSON, e confira
+  o tamanho do arquivo baixado antes de tentar ler.

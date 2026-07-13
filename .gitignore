@@ -1,2 +1,11 @@
 .mcp.json
 tstdin
+
+# Google OAuth credentials — never commit these
+.scripts/gdrive_upload/token.json
+.scripts/gdrive_upload/client_secret*.json
+**/client_secret*.json
+
+# Python bytecode cache
+__pycache__/
+*.pyc

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Change Places — Sentence Transform</title>
+
+<style>
+:root {
+  --ccbeu-blue: #0448DF;
+  --ccbeu-pink: #FD3682;
+  --ccbeu-white: #FFFFFF;
+  --ink-strong: #000000;
+  --ink: #0E1116;
+  --ink-muted: #6B7280;
+  --ink-footer: #9AA1AC;
+  --surface: #FFFFFF;
+  --surface-zebra: #F7F8FB;
+  --border-hair: #ECEDF0;
+  --tint-pink-soft: #FFF4F8;
+  --tint-blue-bubble: #F2F5FF;
+  --tint-pink-bubble: #FFEDF4;
+  --tint-avatar: #ECEDF0;
+  --img-safe: #EEF1F8;
+  --answer-yes: #1F8A5B;
+  --answer-no: #D64545;
+  --font-title: 'Poppins', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+html, body { margin: 0; }
+.stage { position: relative; width: 100vw; height: 100vh; background: #2b2f36; overflow: hidden; }
+.cp-canvas { position: absolute; top: 0; left: 0; }
+.cp-card { position: absolute; left: 91px; width: 1120px; height: 88px; background: var(--tint-pink-soft); border-radius: 4px; overflow: hidden; }
+.cp-bar { height: 4px; background: var(--ccbeu-pink); }
+.cp-label { position: absolute; left: 10px; top: 17px; width: 211px; font-family: var(--font-title); font-weight: 800; font-size: 24pt; color: var(--ccbeu-pink); }
+.cp-content { position: absolute; left: 306px; top: 17px; width: 662px; font-family: var(--font-title); font-weight: 500; font-size: 24pt; color: var(--ink); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;0,800;1,400;1,700&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+  <div class="cp-canvas" style="width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);">
+
+    <div style="position: absolute; left: 91px; top: 75px; width: 502px; height: 26px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ccbeu-blue);"><span style="width: 7px; height: 7px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;"></span>{{BREADCRUMB}}</div>
+
+    <h1 style="position: absolute; left: 128px; top: 124px; width: 1120px; height: 41px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 24pt; color: var(--ccbeu-blue);">{{TITLE}}</h1>
+
+    <div class="cp-card" style="top: 239px;">
+      <div class="cp-bar"></div>
+      <div class="cp-label">{{ROW1_LABEL}}</div>
+      <div class="cp-content">{{ROW1_SENTENCE}}</div>
+    </div>
+
+    <div class="cp-card" style="top: 381px;">
+      <div class="cp-bar"></div>
+      <div class="cp-label">{{ROW2_LABEL}}</div>
+      <div class="cp-content">{{ROW2_SENTENCE}}</div>
+    </div>
+
+    <div class="cp-card" style="top: 523px;">
+      <div class="cp-bar"></div>
+      <div class="cp-label">{{ROW3_LABEL}}</div>
+      <div class="cp-content">{{ROW3_SENTENCE}}</div>
+    </div>
+
+    <div style="position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);">CCBEU English Center</div>
+  </div>
+</div>
+
+</body></html>

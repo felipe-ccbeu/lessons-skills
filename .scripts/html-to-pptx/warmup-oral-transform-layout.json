@@ -1,0 +1,222 @@
+{
+  "slideWidth": 1280,
+  "slideHeight": 720,
+  "backgroundColor": "FFFFFF",
+  "shapes": [
+    {
+      "type": "ellipse",
+      "x": 80,
+      "y": 66,
+      "w": 10,
+      "h": 10,
+      "fill": "FD3682"
+    }
+  ],
+  "texts": [
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 62,
+      "w": 139.8,
+      "h": 18,
+      "valign": "middle",
+      "runs": [
+        {
+          "text": "{{BREADCRUMB}}",
+          "color": "0448DF",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 12,
+          "letterSpacing": 0.96
+        }
+      ]
+    },
+    {
+      "selector": "h1",
+      "x": 80,
+      "y": 124,
+      "w": 911,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{TITLE}}",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "p",
+      "x": 80,
+      "y": 207,
+      "w": 1120,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{INSTRUCTION}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 24
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-n",
+      "x": 80,
+      "y": 304,
+      "w": 22,
+      "h": 25,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "1",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 16
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-t",
+      "x": 118,
+      "y": 300,
+      "w": 168.58,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{SENTENCE1}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 22.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-n",
+      "x": 80,
+      "y": 359,
+      "w": 22,
+      "h": 25,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "2",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 16
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-t",
+      "x": 118,
+      "y": 355,
+      "w": 173.19,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{SENTENCE2}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 22.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-n",
+      "x": 80,
+      "y": 414,
+      "w": 22,
+      "h": 25,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "3",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 16
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-t",
+      "x": 118,
+      "y": 410,
+      "w": 173.36,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{SENTENCE3}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 22.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-n",
+      "x": 80,
+      "y": 469,
+      "w": 22,
+      "h": 25,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "4",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 16
+        }
+      ]
+    },
+    {
+      "selector": "span.wu-t",
+      "x": 118,
+      "y": 465,
+      "w": 174,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{SENTENCE4}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 22.6667
+        }
+      ]
+    },
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 636,
+      "w": 127.36,
+      "h": 15,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "CCBEU English Center",
+          "color": "9AA1AC",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 12
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,528 @@
+{
+  "slideWidth": 1280,
+  "slideHeight": 720,
+  "backgroundColor": "FFFFFF",
+  "shapes": [
+    {
+      "type": "ellipse",
+      "x": 80,
+      "y": 66,
+      "w": 10,
+      "h": 10,
+      "fill": "FD3682"
+    }
+  ],
+  "texts": [
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 62,
+      "w": 139.8,
+      "h": 18,
+      "valign": "middle",
+      "runs": [
+        {
+          "text": "{{BREADCRUMB}}",
+          "color": "0448DF",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 12,
+          "letterSpacing": 0.96
+        }
+      ]
+    },
+    {
+      "selector": "h1",
+      "x": 80,
+      "y": 124,
+      "w": 1120,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{TITLE}}",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "p",
+      "x": 80,
+      "y": 207,
+      "w": 1120,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{INSTRUCTION_PRE}}  {{INSTRUCTION_POST}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 16
+        }
+      ]
+    },
+    {
+      "selector": "span",
+      "x": 259.42,
+      "y": 207,
+      "w": 170.92,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{INSTRUCTION_HL}}",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 16
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-n",
+      "x": 80,
+      "y": 282,
+      "w": 34,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "1",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 13.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-orig",
+      "x": 114,
+      "y": 280.5,
+      "w": 545,
+      "h": 23,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW1_ORIG}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-arrow",
+      "x": 659,
+      "y": 282,
+      "w": 48,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "→",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-new",
+      "x": 707,
+      "y": 277.5,
+      "w": 493,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW1_POST}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.pk",
+      "x": 707,
+      "y": 278.5,
+      "w": 127.83,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW1_HL}}",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-n",
+      "x": 80,
+      "y": 351,
+      "w": 34,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "2",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 13.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-orig",
+      "x": 114,
+      "y": 349.5,
+      "w": 545,
+      "h": 23,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW2_ORIG}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-arrow",
+      "x": 659,
+      "y": 351,
+      "w": 48,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "→",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-new",
+      "x": 707,
+      "y": 346.5,
+      "w": 493,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW2_POST}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.pk",
+      "x": 707,
+      "y": 347.5,
+      "w": 131.47,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW2_HL}}",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-n",
+      "x": 80,
+      "y": 420,
+      "w": 34,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "3",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 13.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-orig",
+      "x": 114,
+      "y": 418.5,
+      "w": 545,
+      "h": 23,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW3_ORIG}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-arrow",
+      "x": 659,
+      "y": 420,
+      "w": 48,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "→",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-new",
+      "x": 707,
+      "y": 415.5,
+      "w": 493,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW3_POST}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.pk",
+      "x": 707,
+      "y": 416.5,
+      "w": 132.11,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW3_HL}}",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-n",
+      "x": 80,
+      "y": 489,
+      "w": 34,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "4",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 13.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-orig",
+      "x": 114,
+      "y": 487.5,
+      "w": 545,
+      "h": 23,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW4_ORIG}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-arrow",
+      "x": 659,
+      "y": 489,
+      "w": 48,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "→",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-new",
+      "x": 707,
+      "y": 484.5,
+      "w": 493,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW4_POST}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.pk",
+      "x": 707,
+      "y": 485.5,
+      "w": 133.45,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW4_HL}}",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-n",
+      "x": 80,
+      "y": 558,
+      "w": 34,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "5",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 13.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-orig",
+      "x": 114,
+      "y": 556.5,
+      "w": 545,
+      "h": 23,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW5_ORIG}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-arrow",
+      "x": 659,
+      "y": 558,
+      "w": 48,
+      "h": 20,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "→",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.ex-new",
+      "x": 707,
+      "y": 553.5,
+      "w": 493,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW5_POST}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "span.pk",
+      "x": 707,
+      "y": 554.5,
+      "w": 132.94,
+      "h": 27,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW5_HL}}",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 636,
+      "w": 127.36,
+      "h": 15,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "CCBEU English Center",
+          "color": "9AA1AC",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 12
+        }
+      ]
+    }
+  ]
+}

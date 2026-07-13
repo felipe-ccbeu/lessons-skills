@@ -1,0 +1,140 @@
+{
+  "slideWidth": 1280,
+  "slideHeight": 720,
+  "backgroundColor": "FFFFFF",
+  "shapes": [
+    {
+      "type": "ellipse",
+      "x": 80,
+      "y": 66,
+      "w": 10,
+      "h": 10,
+      "fill": "FD3682"
+    },
+    {
+      "type": "rect",
+      "x": 80,
+      "y": 270,
+      "w": 439,
+      "h": 300,
+      "fill": "EEF1F8",
+      "rectRadius": 0.063
+    },
+    {
+      "type": "rect",
+      "x": 542,
+      "y": 270,
+      "w": 439,
+      "h": 300,
+      "fill": "EEF1F8",
+      "rectRadius": 0.063
+    }
+  ],
+  "texts": [
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 62,
+      "w": 139.8,
+      "h": 18,
+      "valign": "middle",
+      "runs": [
+        {
+          "text": "{{BREADCRUMB}}",
+          "color": "0448DF",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 12,
+          "letterSpacing": 0.96
+        }
+      ]
+    },
+    {
+      "selector": "h1",
+      "x": 80,
+      "y": 124,
+      "w": 835,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{TITLE}}",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "p",
+      "x": 80,
+      "y": 210,
+      "w": 835,
+      "h": 24.25,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{INSTRUCTION}}",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 270,
+      "w": 439,
+      "h": 300,
+      "valign": "middle",
+      "runs": [
+        {
+          "text": "PHOTO 1",
+          "color": "9AA1AC",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 14.6667,
+          "letterSpacing": 1.17333
+        }
+      ]
+    },
+    {
+      "selector": "div",
+      "x": 542,
+      "y": 270,
+      "w": 439,
+      "h": 300,
+      "valign": "middle",
+      "runs": [
+        {
+          "text": "PHOTO 2",
+          "color": "9AA1AC",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 14.6667,
+          "letterSpacing": 1.17333
+        }
+      ]
+    },
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 636,
+      "w": 127.36,
+      "h": 15,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "CCBEU English Center",
+          "color": "9AA1AC",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 12
+        }
+      ]
+    }
+  ]
+}

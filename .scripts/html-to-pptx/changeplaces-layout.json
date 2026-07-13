@@ -1,0 +1,222 @@
+{
+  "slideWidth": 1280,
+  "slideHeight": 720,
+  "backgroundColor": "FFFFFF",
+  "shapes": [
+    {
+      "type": "ellipse",
+      "x": 91,
+      "y": 84.5,
+      "w": 7,
+      "h": 7,
+      "fill": "FD3682"
+    },
+    {
+      "type": "rect",
+      "x": 91,
+      "y": 239,
+      "w": 1120,
+      "h": 88,
+      "fill": "FFF4F8",
+      "rectRadius": 0.042
+    },
+    {
+      "type": "rect",
+      "x": 91,
+      "y": 239,
+      "w": 1120,
+      "h": 4,
+      "fill": "FD3682"
+    },
+    {
+      "type": "rect",
+      "x": 91,
+      "y": 381,
+      "w": 1120,
+      "h": 88,
+      "fill": "FFF4F8",
+      "rectRadius": 0.042
+    },
+    {
+      "type": "rect",
+      "x": 91,
+      "y": 381,
+      "w": 1120,
+      "h": 4,
+      "fill": "FD3682"
+    },
+    {
+      "type": "rect",
+      "x": 91,
+      "y": 523,
+      "w": 1120,
+      "h": 88,
+      "fill": "FFF4F8",
+      "rectRadius": 0.042
+    },
+    {
+      "type": "rect",
+      "x": 91,
+      "y": 523,
+      "w": 1120,
+      "h": 4,
+      "fill": "FD3682"
+    }
+  ],
+  "texts": [
+    {
+      "selector": "div",
+      "x": 91,
+      "y": 75,
+      "w": 502,
+      "h": 26,
+      "valign": "middle",
+      "runs": [
+        {
+          "text": "LESSON 1 · PRACTICE THE GRAMMAR",
+          "color": "0448DF",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 12,
+          "letterSpacing": 0.72
+        }
+      ]
+    },
+    {
+      "selector": "h1",
+      "x": 128,
+      "y": 124,
+      "w": 1120,
+      "h": 41,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "Change the sentences:",
+          "color": "0448DF",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div.cp-label",
+      "x": 101,
+      "y": 256,
+      "w": 211,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "Affirmative:",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div.cp-content",
+      "x": 397,
+      "y": 256,
+      "w": 662,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "Felipe is Brazilian.",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div.cp-label",
+      "x": 101,
+      "y": 398,
+      "w": 211,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "Negative:",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div.cp-content",
+      "x": 397,
+      "y": 398,
+      "w": 662,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "Felipe is not Brazilian.",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div.cp-label",
+      "x": 101,
+      "y": 540,
+      "w": 211,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "Question:",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div.cp-content",
+      "x": 397,
+      "y": 540,
+      "w": 662,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "Is Felipe Brazilian?",
+          "color": "0E1116",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 636,
+      "w": 127.36,
+      "h": 15,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "CCBEU English Center",
+          "color": "9AA1AC",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 12
+        }
+      ]
+    }
+  ]
+}

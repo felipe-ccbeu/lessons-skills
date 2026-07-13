@@ -1,0 +1,341 @@
+{
+  "slideWidth": 1280,
+  "slideHeight": 720,
+  "backgroundColor": "FFFFFF",
+  "shapes": [
+    {
+      "type": "ellipse",
+      "x": 80,
+      "y": 66,
+      "w": 10,
+      "h": 10,
+      "fill": "FD3682"
+    }
+  ],
+  "texts": [
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 62,
+      "w": 139.8,
+      "h": 18,
+      "valign": "middle",
+      "runs": [
+        {
+          "text": "{{BREADCRUMB}}",
+          "color": "0448DF",
+          "bold": false,
+          "fontFamily": "Poppins",
+          "fontSizePx": 12,
+          "letterSpacing": 0.96
+        }
+      ]
+    },
+    {
+      "selector": "h1",
+      "x": 80,
+      "y": 201,
+      "w": 1120,
+      "h": 48,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{TITLE}}",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 32
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-n",
+      "x": 80,
+      "y": 308.5,
+      "w": 36,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "1",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-q",
+      "x": 116,
+      "y": 304.5,
+      "w": 468,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW1_QUESTION}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-yes",
+      "x": 584,
+      "y": 308.5,
+      "w": 300,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW1_YES}}",
+          "color": "1F8A5B",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-no",
+      "x": 884,
+      "y": 308.5,
+      "w": 316,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW1_NO}}",
+          "color": "D64545",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-n",
+      "x": 80,
+      "y": 387.5,
+      "w": 36,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "2",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-q",
+      "x": 116,
+      "y": 383.5,
+      "w": 468,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW2_QUESTION}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-yes",
+      "x": 584,
+      "y": 387.5,
+      "w": 300,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW2_YES}}",
+          "color": "1F8A5B",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-no",
+      "x": 884,
+      "y": 387.5,
+      "w": 316,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW2_NO}}",
+          "color": "D64545",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-n",
+      "x": 80,
+      "y": 466.5,
+      "w": 36,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "3",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-q",
+      "x": 116,
+      "y": 462.5,
+      "w": 468,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW3_QUESTION}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-yes",
+      "x": 584,
+      "y": 466.5,
+      "w": 300,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW3_YES}}",
+          "color": "1F8A5B",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-no",
+      "x": 884,
+      "y": 466.5,
+      "w": 316,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW3_NO}}",
+          "color": "D64545",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-n",
+      "x": 80,
+      "y": 545.5,
+      "w": 36,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "4",
+          "color": "FD3682",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 14.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-q",
+      "x": 116,
+      "y": 541.5,
+      "w": 468,
+      "h": 29,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW4_QUESTION}}",
+          "color": "0E1116",
+          "bold": true,
+          "fontFamily": "Poppins",
+          "fontSizePx": 18.6667
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-yes",
+      "x": 584,
+      "y": 545.5,
+      "w": 300,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW4_YES}}",
+          "color": "1F8A5B",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div.pr-no",
+      "x": 884,
+      "y": 545.5,
+      "w": 316,
+      "h": 21,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "{{ROW4_NO}}",
+          "color": "D64545",
+          "bold": true,
+          "fontFamily": "Inter",
+          "fontSizePx": 17.3333
+        }
+      ]
+    },
+    {
+      "selector": "div",
+      "x": 80,
+      "y": 636,
+      "w": 127.36,
+      "h": 15,
+      "valign": "top",
+      "runs": [
+        {
+          "text": "CCBEU English Center",
+          "color": "9AA1AC",
+          "bold": false,
+          "fontFamily": "Inter",
+          "fontSizePx": 12
+        }
+      ]
+    }
+  ]
+}

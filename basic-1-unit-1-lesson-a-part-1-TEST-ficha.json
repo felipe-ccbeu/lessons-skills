@@ -1,0 +1,151 @@
+{
+  "lesson": "Basic 1 - Unit 1 - Lesson A (part 1) [TEST]",
+  "source": "https://docs.google.com/presentation/d/1-q-9gLFdpJC3MElK2i7VkQiEsJCOqYBqzuepjXQ0bDM/edit",
+  "slides": [
+    {
+      "sourceSlide": 6,
+      "template": "Objectives",
+      "note": "Fonte original tinha só 1 objetivo (USE). OBJ2 e OBJ3 foram derivados pelo humano a partir do conteúdo real da aula (slides 17-20, inteiramente sobre perguntas Yes/No e falar de onde a pessoa é) — autorizado explicitamente, não é conteúdo inventado sem base.",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1",
+        "OBJ1_VERB": "USE",
+        "OBJ1_PRE": "greetings and introductions to introduce yourself in a",
+        "OBJ1_HL": "first day of class",
+        "OBJ1_POST": "conversation.",
+        "OBJ2_VERB": "ASK",
+        "OBJ2_TEXT": "and answer simple Yes/No questions about yourself.",
+        "OBJ3_VERB": "TALK",
+        "OBJ3_TEXT": "about your name and where you're from."
+      }
+    },
+    {
+      "sourceSlide": 7,
+      "template": "ListenAndRepeat",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · SPEAKING",
+        "STEP1": "Listen and Repeat! Pair work.",
+        "STEP2": "Use your name in the conversation!",
+        "STEP3_PRE": "Change",
+        "STEP3_HL": "pairs!",
+        "TIP": "Listen. Then say Hi, I'm … or Hello, I'm … and say your name.",
+        "DIALOGUE_LINE1": "Hi, I'm Rubén.",
+        "DIALOGUE_LINE2": "Hello, I'm Harumi."
+      }
+    },
+    {
+      "sourceSlide": 10,
+      "template": "CompleteTheChart",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "TITLE": "Look and complete:",
+        "GROUP1_LABEL": "I / We",
+        "GROUP1_ROW1_SENTENCE": "I _____ Camila.",
+        "GROUP1_ROW1_ANSWER": "'m",
+        "GROUP1_ROW2_SENTENCE": "We _____ from Ecuador.",
+        "GROUP1_ROW2_ANSWER": "'re",
+        "GROUP2_LABEL": "You",
+        "GROUP2_ROW1_SENTENCE": "_____ you from the U.S.?",
+        "GROUP2_ROW1_ANSWER": "Are",
+        "GROUP2_ROW2_SENTENCE": "How _____ you?",
+        "GROUP2_ROW2_ANSWER": "are"
+      }
+    },
+    {
+      "sourceSlide": 12,
+      "template": "WarmupOralTransform",
+      "note": "Template não tem campo de resposta (é atividade oral sem gabarito escrito), mas a fonte tinha 4 respostas visíveis. Usado apenas para as frases-base; respostas ficam de fora — ver gap notado no relatório final sobre perda de informação aqui.",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "TITLE": "Write sentences with 're or 'm",
+        "INSTRUCTION": "Rewrite each sentence using the contracted form of the verb.",
+        "SENTENCE1": "We are students.",
+        "SENTENCE2": "You are Roberto.",
+        "SENTENCE3": "I am fine, thanks.",
+        "SENTENCE4": "We are from Mexico."
+      }
+    },
+    {
+      "sourceSlide": 15,
+      "template": "Comparative",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "TITLE": "What's the difference?",
+        "LEFT_HL": "You are",
+        "LEFT_TEXT": "from the U.S.A.",
+        "RIGHT_HL": "Are you",
+        "RIGHT_TEXT": "from the U.S.A?"
+      }
+    },
+    {
+      "sourceSlide": 18,
+      "template": "PracticeQaBadges",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · PRACTICE",
+        "TITLE": "Ask and answer in pairs!",
+        "ROW1_QUESTION": "What's your name?",
+        "ROW1_YES": "I am ______.",
+        "ROW1_NO": "",
+        "ROW2_QUESTION": "Are you from the U.S.?",
+        "ROW2_YES": "Yes, I am!",
+        "ROW2_NO": "No, I'm not.",
+        "ROW3_QUESTION": "Are we in CCBEU?",
+        "ROW3_YES": "Yes, we are!",
+        "ROW3_NO": "No, we're not.",
+        "ROW4_QUESTION": "Are you OK?",
+        "ROW4_YES": "Yes, I am!",
+        "ROW4_NO": "No, I'm not."
+      },
+      "note": "ROW1 não tem par Yes/No no original (é uma pergunta aberta com exemplo de resposta), então ROW1_NO ficou vazio — template tem esse campo mas a fonte não tinha conteúdo pra ele; não inventado."
+    },
+    {
+      "sourceSlide": 19,
+      "template": "Fluency1",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · FLUENCY",
+        "TITLE": "Talk in pairs!",
+        "INSTRUCTION": "Ask and answer questions. Change pairs when the teacher claps.",
+        "Q1": "What's your name?",
+        "Q2": "Are you ok?",
+        "Q3": "Are you from the U.S.?",
+        "Q4_PRE": "Are you from",
+        "Q5": "Are we in Canada?",
+        "Q6": "",
+        "Q7": "",
+        "Q8_PRE": "Are we in"
+      },
+      "note": "Template espera 4+4 perguntas em duas colunas; fonte tinha 6 perguntas (2 com blank aberto). Mapeado nos 8 slots disponíveis deixando 2 vazios — sem inventar perguntas extra para preencher."
+    },
+    {
+      "sourceSlide": 21,
+      "template": "LessonComplete",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · LESSON COMPLETE",
+        "COL1_HEADER": "Affirmatives",
+        "COL1_T1": "I'm", "COL1_D1": "= I am",
+        "COL1_T2": "You're", "COL1_D2": "= You are",
+        "COL1_T3": "We're", "COL1_D3": "= We are",
+        "COL2_HEADER": "Questions",
+        "COL2_T1": "Am I…?", "COL2_D1": "",
+        "COL2_T2": "Are you…?", "COL2_D2": "",
+        "COL2_T3": "Are we…?", "COL2_D3": "",
+        "COL3_HEADER": "Wh-Questions",
+        "COL3_T1": "What's your name?", "COL3_D1": "",
+        "COL3_T2": "How are you?", "COL3_D2": "",
+        "COL3_T3": "Are you from Brazil?", "COL3_D3": "",
+        "COL4_HEADER": "Other Words",
+        "COL4_T1": "Hi / Hello", "COL4_D1": "",
+        "COL4_T2": "Fine, thanks", "COL4_D2": "",
+        "COL4_T3": "Nice to meet you", "COL4_D3": ""
+      },
+      "note": "Template tem 4 colunas x 3 itens = 12 slots. Fonte tinha 3+3+3+5=14 itens (5 'other words': Hi, Hello, Fine, Thanks, Nice to meet you). Comprimidos 'Hi/Hello' numa linha e 'Fine, thanks' junto — ver gap notado no relatório final, já que o catálogo explicitamente desaconselha comprimir itens de recap numa linha."
+    }
+  ],
+  "gaps": [
+    { "sourceSlides": [1, 2, 3, 4, 5], "reason": "Capa, welcome, ice breaker em grupo, orientação sobre o livro — nenhum template SectionTransition/CoverImage existe para cartões de abertura não-drill." },
+    { "sourceSlides": [8, 9, 14], "reason": "Foto de grupo com 3 diálogos numerados (match/practice/underline) — gap já documentado: 'multi-person photo + numbered dialogue matching' e 'teacher-drawn annotation over a book image'." },
+    { "sourceSlides": [13], "reason": "Exercício de pronúncia/sound-and-spelling (Listen to the sound of I'm and we're) — nenhum template de listening/pronúncia existe." },
+    { "sourceSlides": [17], "reason": "Word-order scramble (Put the words in the correct order to make questions) — gap já documentado, sem template." },
+    { "sourceSlides": [20], "reason": "Interview livre reaproveitando perguntas já vistas, sem conteúdo novo de gramática — mais próximo de SectionTransition (que não existe) do que de qualquer template de drill." },
+    { "sourceSlides": [22, 23, 24], "reason": "Celebração, assign homework, transição para jogo sem livro — SectionTransition (gap conhecido) cobriria os três." }
+  ]
+}
