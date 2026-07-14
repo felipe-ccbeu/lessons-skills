@@ -22,12 +22,33 @@ always fixed, never a token, never touched.
 ## 1. Objectives
 **File:** `objectives.html`
 **Role:** blue full-bleed opening slide — "Today you will be able to…" — lists 3
-skill objectives (USE/ASK/TALK-style bold lead-in + sentence) plus 4 skill pills
-(Listening/Speaking/Reading/Writing) at the bottom.
+skill objectives (verb lead-in + sentence, not necessarily USE/ASK/TALK — any
+short bold verb/imperative works, see below) plus 4 skill seals
+(Listening/Speaking/Reading/Writing, each a real icon with a plain text label
+underneath) at the bottom, plus the CCBEU wordmark+star footer mark.
 **Background:** solid blue (`#0448DF`), all text white.
-**Notable:** the 4 skill pills use a translucent white fill (16% opacity "glass"
-effect over the blue) — this is already handled correctly by the pipeline's alpha
-capture, don't flatten it to solid white when editing.
+**Fixed 2026-07-14** (found while running the pipeline end-to-end on a test
+lesson — see `basic-1-unit-1-lesson-a-part-1/` for the ficha that surfaced
+these):
+- The 4 skill labels used to sit inside a translucent "glass" pill
+  (`rgba(255,255,255,0.16)` background). That pill has been removed — the
+  reference design has plain text under each icon, no pill. Don't reintroduce
+  a background fill on `.seal-pill`.
+- The Reading icon asset was a closed book with a single page; replaced with
+  an open-book (two-page) icon to match the other three templates using this
+  same icon family and the reference design.
+- The breadcrumb dot was 10×10px in this template specifically, inconsistent
+  with the 8×8px dot every other template uses — fixed to 8×8px.
+- This template previously had **no footer at all** (every other template has
+  the "CCBEU English Center" text/logo credit at bottom-left) — added the same
+  wordmark+star footer mark now used everywhere (see "Footer mark" below).
+**Objective line length — read before filling:** each of the 3 objective lines
+must render as a single line, no wrap. `OBJ1` in particular has 3 slots
+(`OBJ1_PRE`/`OBJ1_HL`/`OBJ1_POST`) that together with `OBJ1_VERB` can run long
+— if the lesson's natural phrasing doesn't fit on one line, compress the
+wording (shorter connective words, cut a redundant clause) rather than letting
+it wrap. The verb doesn't have to be USE/ASK/TALK; any short, all-caps-styled
+imperative that's true to the lesson content works (e.g. "GREET", "PRACTICE").
 
 ## 2. GettingStarted
 **File:** `getting-started.html`
@@ -158,6 +179,66 @@ template; don't assume 3 everywhere.
 3, duplicate/remove a `.term` block in the filled HTML (copy the whole
 `<div class="term">...</div>` unit, don't just add text) rather than cramming
 two items into one line.
+
+---
+
+## Pipeline capabilities (extract.js / build.js)
+
+`extract.js` and `build.js` are the two scripts that turn a filled HTML
+template into the `.pptx` (see `../SKILL.md` step 3). What they can and can't
+capture from the HTML directly shapes what you can put in a template — a few
+load-bearing facts, most discovered 2026-07-14 while running the pipeline
+end-to-end on a test lesson:
+
+- **`<img>` support was added 2026-07-14.** Before that date, `extract.js` had
+  no handling for `<img>` tags at all — every image (skill icons, photo
+  placeholders, any logo) silently disappeared from the generated `.pptx`,
+  with no error or warning. It's fixed now: `extract.js` resolves each
+  `<img>`'s rendered `src` to a data URI and records its on-screen box;
+  `build.js` draws it via `addImage`, containing (not stretching) it inside
+  that box to preserve the image's own aspect ratio. If you're ever
+  troubleshooting "an image is in the HTML but missing from the deck," check
+  whether these two scripts are older than 2026-07-14 first.
+- **Inline SVG is still not supported** — only `<img>` (raster: PNG/JPEG/etc,
+  referenced via `src` or a bundler manifest ref). An inline `<svg>` element
+  gets walked as a generic DOM node: its `<text>` children get treated as
+  plain text (ignoring the SVG's own coordinate system, so multi-word text
+  wraps character-by-character into a stacked mess) and shape children
+  (`<polygon>`, `<circle>`, etc.) are silently dropped. Don't try to add a
+  vector graphic as inline SVG to save the size of a base64 PNG — rasterize it
+  to a PNG first (e.g. render it with Playwright and screenshot just the SVG
+  element, the same way `objectives.html`'s Reading icon was fixed) and use
+  that as an `<img>` instead.
+- **Fixed: text glued to a stacked (not just side-by-side) icon.** A flex
+  container laid out in a column (icon above a label, e.g. `.seal` in
+  `objectives.html`) used to get its label text measured against the
+  *container's* full box (icon height included), not just the label's own
+  line — the label rendered vertically centered across the icon+label stack
+  instead of anchored under the icon. `extract.js` only checked for this
+  "non-text sibling takes up space" case on the X axis (a leading icon in a
+  flex *row*); it now checks both axes. If a template's icon+label pairing
+  still looks off after this fix, check whether the container is laid out on
+  a third axis pattern this fix doesn't cover yet.
+- **Fixed: `border-radius` on a very short/thin pill-shaped bar.** A
+  fully-rounded bar (`border-radius: 999px`, the usual "pill" convention)
+  used to convert to a nonsense `rectRadius` in the output — `extract.js` read
+  `getComputedStyle().borderRadius`, which reports the *literal CSS value*
+  (`999px`), not the radius actually rendered (clamped to half the shorter
+  side at paint time by the browser). For an 88×6px accent bar this became a
+  `rectRadius` of 10.4 inches, wildly exceeding pptxgenjs's own max and
+  distorting the shape. `extract.js` now clamps the radius itself (mirroring
+  the browser's own clamp) before converting px→inches.
+
+## Footer mark
+
+`objectives.html` had no footer at all until 2026-07-14, when a wordmark+star
+logo `<img>` mark was added to it (see its entry above). The other 17
+templates still use the original plain "CCBEU English Center" text credit —
+that has NOT been changed and is still the current, intended footer for all
+of them. Don't swap a template's text footer for a logo image on your own
+initiative while filling a lesson; if the brand wants that change rolled out
+to the rest of the catalog, that's a separate, deliberate template-editing
+task, not something to improvise mid-lesson-generation.
 
 ---
 

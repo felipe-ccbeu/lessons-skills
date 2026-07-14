@@ -116,6 +116,27 @@ function addSlideFromLayout(pptx, layout) {
     });
   }
 
+  for (const img of layout.images || []) {
+    if (!img.dataUri) continue;
+    const boxW = img.w * PX_TO_IN, boxH = img.h * PX_TO_IN;
+    // Contain (not stretch) inside the element's own box, mirroring the
+    // `object-fit: contain` an <img> would normally need in CSS to avoid
+    // distortion — the raw <img> box in these templates is sized by layout,
+    // not by the image's own aspect ratio, so drawing at the box's exact w/h
+    // would squash/stretch a non-matching source image (e.g. the CCBEU
+    // wordmark logo, which is much wider than tall).
+    const naturalRatio = img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : boxW / boxH;
+    const boxRatio = boxW / boxH;
+    let w = boxW, h = boxH, x = img.x * PX_TO_IN, y = img.y * PX_TO_IN;
+    if (naturalRatio > boxRatio) {
+      h = boxW / naturalRatio;
+      y += (boxH - h) / 2;
+    } else if (naturalRatio < boxRatio) {
+      w = boxH * naturalRatio;
+      x += (boxW - w) / 2;
+    }
+    slide.addImage({ data: img.dataUri, x, y, w, h });
+  }
 }
 
 async function build(layoutPaths, outPath) {

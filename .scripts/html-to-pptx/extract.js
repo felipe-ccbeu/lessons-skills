@@ -32,6 +32,37 @@ async function extract(htmlPath, rootSelector) {
   // Let web fonts finish swapping/reflowing before we measure anything.
   await page.waitForTimeout(150);
 
+  // Resolve every <img> src (blob: URL from the bundler's manifest unpacking,
+  // or a plain relative/data: src) to a data: URI up front, in-page, so the
+  // synchronous walk below can just read el.__dataUri off each element. Must
+  // happen after the bundler's own DOMContentLoaded unpacking (which turns
+  // manifest refs into blob: URLs) — the waitForTimeout above already covers
+  // that since the bundler runs on DOMContentLoaded, well before this.
+  await page.evaluate(async () => {
+    const imgs = Array.from(document.querySelectorAll("img"));
+    await Promise.all(
+      imgs.map(async (img) => {
+        if (!img.currentSrc) return;
+        if (img.currentSrc.startsWith("data:")) {
+          img.__dataUri = img.currentSrc;
+          return;
+        }
+        try {
+          const res = await fetch(img.currentSrc);
+          const blob = await res.blob();
+          img.__dataUri = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        } catch (err) {
+          console.warn("Failed to resolve image src to data URI:", img.currentSrc, err);
+        }
+      })
+    );
+  });
+
   const data = await page.evaluate((rootSel) => {
     function findRoot() {
       if (rootSel) return document.querySelector(rootSel);
@@ -205,6 +236,7 @@ async function extract(htmlPath, rootSelector) {
 
     const shapes = [];
     const texts = [];
+    const images = [];
     const seen = new Set();
 
     function walk(el) {
@@ -212,7 +244,16 @@ async function extract(htmlPath, rootSelector) {
       const cs = getComputedStyle(el);
       const box = el.getBoundingClientRect();
       const bgHex = rgbToHex(cs.backgroundColor);
-      const isRound = cs.borderRadius && parseFloat(cs.borderRadius) >= box.width / 2 - 1 && box.width === box.height;
+      // getComputedStyle().borderRadius reports the literal CSS value (e.g.
+      // "999px" for the common "fully pill-shaped" convention), NOT the
+      // radius actually rendered — the browser only clamps it to half the
+      // shorter side at paint time. Using the raw value directly produced a
+      // nonsense rectRadius (999/96 = 10.4in) for a 6px-tall pink pill bar,
+      // wildly exceeding pptxgenjs's own max-radius-is-half-the-shorter-side
+      // rule and distorting the shape. Clamp here the same way the browser
+      // does before converting to inches.
+      const borderRadiusPx = Math.min(parseFloat(cs.borderRadius) || 0, box.width / 2, box.height / 2);
+      const isRound = borderRadiusPx >= box.width / 2 - 1 && box.width === box.height;
 
       // Emit a background shape for any element that paints a fill, as long
       // as it's not just the slide root itself.
@@ -226,8 +267,29 @@ async function extract(htmlPath, rootSelector) {
           h: +box.height.toFixed(2),
           fill: bgHex,
           transparency: transparency > 0 ? transparency : undefined,
-          rectRadius: !isRound && parseFloat(cs.borderRadius) > 0 ? +(parseFloat(cs.borderRadius) / 96).toFixed(3) : undefined,
+          rectRadius: !isRound && borderRadiusPx > 0 ? +(borderRadiusPx / 96).toFixed(3) : undefined,
         });
+      }
+
+      // <img> tags carry no text/background-fill of their own, so without
+      // this they're silently invisible in the generated .pptx — the direct
+      // cause of the LSRW skill icons and any photo/logo image disappearing
+      // from every slide that used one. src is resolved to a data: URI by
+      // the caller-side page.evaluate wrapper below (this function itself
+      // can't do the network fetch), so here we just record geometry + the
+      // already-resolved data URI plus natural aspect ratio for the builder
+      // to fit inside the box without distortion.
+      if (el.tagName === "IMG" && el.currentSrc) {
+        images.push({
+          x: +(box.x - rootBox.x).toFixed(2),
+          y: +(box.y - rootBox.y).toFixed(2),
+          w: +box.width.toFixed(2),
+          h: +box.height.toFixed(2),
+          dataUri: el.__dataUri || null,
+          naturalWidth: el.naturalWidth,
+          naturalHeight: el.naturalHeight,
+        });
+        return;
       }
 
       const { runs, nodes } = collectInlineRuns(el);
@@ -235,17 +297,21 @@ async function extract(htmlPath, rootSelector) {
         // getBoundingClientRect() on the parent `el` includes CSS padding,
         // which is exactly right for a bubble/pill/badge (the padding is
         // real breathing room the text should keep). But when the parent
-        // lays out a non-text sibling BEFORE the text in the same flex row
-        // (e.g. a decorative dot before a breadcrumb label), `el`'s box
-        // starts at that sibling's edge, not the text's — using it as-is
-        // would draw the text box on top of the sibling. Detect that case by
-        // comparing `el`'s box against a box measured over just the
-        // text-bearing nodes, and prefer the tighter/text-only box whenever
-        // it's inset from the parent's left edge (padding alone doesn't
-        // explain a large offset; a same-height sibling taking up space
-        // does).
+        // lays out a non-text sibling next to the text — before it in a flex
+        // ROW (e.g. a decorative dot before a breadcrumb label, offsetting X)
+        // or above it in a flex COLUMN (e.g. an icon stacked above a label
+        // in `.seal`, offsetting Y) — `el`'s box extends over that sibling
+        // too, not just the text. Using it as-is would draw the text box on
+        // top of the sibling (the bug that put "Listening" vertically
+        // centered across the icon+label column instead of anchored to just
+        // the label's own line). Detect that case by comparing `el`'s box
+        // against a box measured over just the text-bearing nodes on EITHER
+        // axis, and prefer the tighter/text-only box whenever it's inset
+        // from the parent's edge on either one (padding alone doesn't
+        // explain a large offset; a same-height/width sibling taking up
+        // space does).
         const textBox = textNodesBoundingBox(nodes);
-        const hasLeadingSibling = textBox && textBox.x - box.x > 1;
+        const hasLeadingSibling = textBox && (textBox.x - box.x > 1 || textBox.y - box.y > 1);
         const measureBox = hasLeadingSibling ? textBox : box;
 
         // getBoundingClientRect() includes CSS padding in the box, but
@@ -298,6 +364,7 @@ async function extract(htmlPath, rootSelector) {
       backgroundColor: rgbToHex(rootBg) || "FFFFFF",
       shapes,
       texts,
+      images,
     };
   }, rootSelector);
 
@@ -314,7 +381,7 @@ async function main() {
   const data = await extract(htmlPath, root);
   const outPath = out || htmlPath.replace(/\.html?$/, "-layout.json");
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
-  console.log(`Wrote ${outPath} (${data.shapes.length} shapes, ${data.texts.length} texts)`);
+  console.log(`Wrote ${outPath} (${data.shapes.length} shapes, ${data.texts.length} texts, ${(data.images || []).length} images)`);
 }
 
 main();
