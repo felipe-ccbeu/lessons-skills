@@ -75,7 +75,7 @@ text when classifying content; it's real lesson material, just sourced different
 ### 2. Classify content into templates (the "ficha de preenchimento")
 
 This is the step that needs real judgment, not mechanical matching. For each chunk
-of lesson content, decide which of the 18 templates in `references/templates.md`
+of lesson content, decide which of the 19 templates in `references/templates.md`
 fits best, then split the text into that template's exact `{{TOKEN}}` fields.
 
 **Protect the pedagogy — this is the most important part of this step:**
@@ -206,7 +206,7 @@ Open the uploaded deck (or inspect the merged `.pptx` structure) and confirm:
 
 ## Reference
 
-See `references/templates.md` for the full 18-template catalog: role, HTML
+See `references/templates.md` for the full 19-template catalog: role, HTML
 filename, token list, and notes on brand rules (breadcrumb format, highlight
 color conventions, PRE/MID/POST-style split tokens). It also lists known gaps —
 lesson content shapes with no template yet, inherited from the old system and

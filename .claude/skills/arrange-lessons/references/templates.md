@@ -1,6 +1,6 @@
 # CCBEU Template Catalog — HTML → PPTX pipeline
 
-Source of truth for **design**: the 18 HTML templates in
+Source of truth for **design**: the 19 HTML templates in
 `c:\Users\felipe.fadel\lessons\.scripts\html-to-pptx\*.html`. Source of truth for
 **lesson content**: the old lesson's extraction doc (from `/extract-lesson-slides`).
 
@@ -180,6 +180,19 @@ template; don't assume 3 everywhere.
 `<div class="term">...</div>` unit, don't just add text) rather than cramming
 two items into one line.
 
+## 19. CoverImage
+**File:** `cover-image.html`
+**Role:** full-bleed brand cover — solid CCBEU blue background with just the
+wordmark+star logo centered, no text, no breadcrumb, no footer. Use for a
+pure title/cover moment (e.g. the very first slide of a lesson) where no
+lesson content needs to render at all.
+**Tokens:** none — this template has no `{{TOKEN}}` placeholders to fill, it's
+static. Just point the ficha at it with an empty `values` object.
+**Added 2026-07-14**, filling the "CoverImage — not yet built" gap noted
+below. Built on the `<img>` pipeline support added the same day (see
+"Pipeline capabilities" below) — this template is the reason that work
+happened, since a cover with only a logo has nothing else to render.
+
 ---
 
 ## Pipeline capabilities (extract.js / build.js)
@@ -256,7 +269,6 @@ instead, same discipline as before:
   ice-breaker, celebration, wrap-up) — `GettingStarted` covers the lesson-opening
   case specifically; a mid-lesson or closing transition card with a free-text
   `{{TAG}}` role label (as the old catalog had) has no equivalent yet.
-- **CoverImage** (full-bleed photo, no text) — not yet built as an HTML template.
 - Any content needing **word-order scramble**, **multi-person photo + numbered
   dialogue matching**, or **teacher-drawn annotation over a book image** — these
   were already flagged as gaps in the old system and still have no template here
