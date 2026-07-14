@@ -241,6 +241,30 @@ end-to-end on a test lesson:
   `rectRadius` of 10.4 inches, wildly exceeding pptxgenjs's own max and
   distorting the shape. `extract.js` now clamps the radius itself (mirroring
   the browser's own clamp) before converting px→inches.
+- **`templates-tokens.json` is a prebuilt index** (name → `{tokens, body}`) of
+  every template, kept next to the `.html` files. It exists purely to save
+  context: each template's `.html` is 800KB+ (embedded woff2 fonts), so
+  `arrange-lessons` step 2 reads this index instead when it only needs to know
+  a template's token names or body markup. Regenerate it with
+  `node build-templates-index.js` whenever a template's tokens or markup
+  change — nothing reads it automatically, and a stale index just quietly
+  shows the old token names.
+- **If you ever programmatically rewrite a template's bundled `__bundler/
+  template` JSON payload** (not the normal string-replace-a-token workflow —
+  something closer to editing the template itself, e.g. what
+  `build-templates-index.js`-adjacent tooling or a template-authoring script
+  would do): escape `/` as `/` in the re-encoded JSON, the same way the
+  original templates do. The payload sits inside a `<script>` tag, and the
+  browser's HTML parser ends that tag at the first literal `</script>` it
+  finds — including one inside the JSON string. Templates that embed their
+  own `<script>` (e.g. `grammar-box-look.html`'s image-hydration script)
+  will have one, and a plain `JSON.stringify` without this escape leaves that
+  `</script>` unescaped, truncating the bundle. The failure mode is a slide
+  that renders nothing but "Error unpacking: Unterminated string in JSON" —
+  confirmed 2026-07-14 while building a sample deck across all templates.
+  Also splice the new payload in by string index, not `String.replace` — the
+  payload contains `$` sequences that `replace`'s special pattern handling
+  (`$&`, `$'`, etc.) silently mangles.
 
 ## Footer mark
 

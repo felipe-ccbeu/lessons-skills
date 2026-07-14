@@ -37,6 +37,16 @@ insumo de uma skill futura que vai gerar novos slides a partir dele.
    destaque de imagens, ordem de aparição de bullets) que o resumo de texto não capture
    bem, chame `get_page` (presentationId, pageObjectId) para inspecionar os elementos
    da página individualmente (posição, tipo de shape, texto por caixa).
+   - **Custo de contexto real e sem atalho:** `get_page` não aceita um parâmetro
+     `fields` para filtrar a resposta (diferente de `get_presentation`) — cada
+     chamada devolve o JSON bruto da API do Slides inteiro, com propriedades de
+     sombra, outline, placeholder de nota, EMU de transform, etc., e vimos
+     respostas de 60-70KB para um único slide. Isso entra inteiro na conversa e
+     não sai mais. Não existe hoje uma forma de pedir uma versão enxuta — a
+     mitigação é ser seletivo sobre *quando* chamar: use `get_page` só nos slides
+     onde `summarize_presentation` genuinely não deu informação suficiente (texto
+     truncado, disposição ambígua, presença de imagem sem contexto), não em
+     todos os slides por precaução.
 
 5. **Transcreva imagens que contêm texto pedagógico, não pule essa etapa.** Muitas aulas
    usam recortes de página de livro didático como imagem — o texto real do exercício

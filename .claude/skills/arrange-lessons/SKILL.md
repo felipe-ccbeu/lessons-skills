@@ -78,6 +78,17 @@ This is the step that needs real judgment, not mechanical matching. For each chu
 of lesson content, decide which of the 19 templates in `references/templates.md`
 fits best, then split the text into that template's exact `{{TOKEN}}` fields.
 
+**To check a template's exact token names, read
+`c:\Users\felipe.fadel\lessons\.scripts\html-to-pptx\templates-tokens.json`, not the
+raw `.html` file.** Each `.html` template is 800KB+ (embedded woff2 fonts in its
+bundler manifest) — reading it directly wastes a huge amount of context for the
+handful of tokens you actually need. `templates-tokens.json` is a prebuilt index
+(one entry per template: its `tokens` array and decoded `body` HTML) kept next to
+the templates themselves. If a template file has changed since the index was last
+built, regenerate it first: `node build-templates-index.js` from that directory
+(also re-run this after adding or editing any template, so the index doesn't go
+stale for the next lesson).
+
 **Protect the pedagogy — this is the most important part of this step:**
 
 - **Match the pedagogical role, not just the surface shape.** A fill-in-the-blank
@@ -153,7 +164,11 @@ didn't have content for it (per the hard rule — don't fill silently).
 For each entry in the ficha, in order:
 
 1. Read the template's HTML file fresh from
-   `c:\Users\felipe.fadel\lessons\.scripts\html-to-pptx\<template-file>.html`.
+   `c:\Users\felipe.fadel\lessons\.scripts\html-to-pptx\<template-file>.html`. This
+   step genuinely needs the full 800KB+ file, unlike step 2's token lookup — the
+   embedded font manifest has to survive into the filled output, or the rendered
+   `.pptx` loses its typography. `templates-tokens.json` is a lookup aid for step 2
+   only; don't try to reconstruct the final HTML from it.
 2. Replace every `{{TOKEN}}` occurrence with its fill value from the ficha (plain
    string replace — tokens are unique literal strings like `{{ROW1_SENTENCE}}`, no
    regex needed). Any token the ficha intentionally left empty becomes an empty
