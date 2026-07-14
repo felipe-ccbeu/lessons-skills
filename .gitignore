@@ -9,3 +9,9 @@ tstdin
 # Python bytecode cache
 __pycache__/
 *.pyc
+
+# Lesson build artifacts — regenerable from <lesson-slug>/*.md + *-ficha.json
+*/slides/
+*/img/
+*/fill.js
+*.pptx

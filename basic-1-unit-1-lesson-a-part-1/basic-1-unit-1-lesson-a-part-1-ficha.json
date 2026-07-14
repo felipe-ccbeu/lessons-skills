@@ -1,0 +1,259 @@
+{
+  "lesson": "Basic 1 - Unit 1 - Lesson A (part 1)",
+  "source": "https://docs.google.com/presentation/d/1-q-9gLFdpJC3MElK2i7VkQiEsJCOqYBqzuepjXQ0bDM/edit",
+  "slides": [
+    {
+      "sourceSlide": 6,
+      "template": "Objectives",
+      "note": "Fonte original só declara 1 objetivo explícito no slide 6 (USE greetings/introductions). OBJ2 e OBJ3 foram derivados do restante do conteúdo real da aula, não inventados do zero: OBJ2 (ASK/answer Yes/No questions) reflete os slides 10, 16, 17, 18, 19 (toda a trilha 'Are you...?/Are we...?' com respostas curtas); OBJ3 (TALK about name/where from) reflete os slides 7-9, 12, 18-20 (apresentar-se e dizer de onde é). Ambos são a mesma meta comunicativa que a aula já pratica extensivamente, só não estava redigida como objetivo explícito no slide 6.",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1",
+        "OBJ1_VERB": "USE",
+        "OBJ1_PRE": "greetings and introductions to introduce yourself in a",
+        "OBJ1_HL": "first day of class",
+        "OBJ1_POST": "conversation.",
+        "OBJ2_VERB": "ASK",
+        "OBJ2_TEXT": "and answer simple Yes/No questions with am/are.",
+        "OBJ3_VERB": "TALK",
+        "OBJ3_TEXT": "about your name and where you're from."
+      }
+    },
+    {
+      "sourceSlide": 7,
+      "template": "ListenAndRepeat",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · SPEAKING",
+        "STEP1": "Listen and Repeat! Pair work.",
+        "STEP2": "Use your name in the conversation!",
+        "STEP3_PRE": "Change",
+        "STEP3_HL": "pairs!",
+        "TIP": "Listen. Then say Hi, I'm … or Hello, I'm … and say your name.",
+        "DIALOGUE_LINE1": "Hi, I'm Rubén.",
+        "DIALOGUE_LINE2": "Hello, I'm Harumi."
+      }
+    },
+    {
+      "sourceSlide": 10,
+      "template": "CompleteTheChart",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "TITLE": "Look and complete:",
+        "GROUP1_LABEL": "I / We",
+        "GROUP1_ROW1_SENTENCE": "I _____ Camila.",
+        "GROUP1_ROW1_ANSWER": "'m",
+        "GROUP1_ROW2_SENTENCE": "We _____ from Ecuador.",
+        "GROUP1_ROW2_ANSWER": "'re",
+        "GROUP2_LABEL": "You",
+        "GROUP2_ROW1_SENTENCE": "_____ you from the U.S.?",
+        "GROUP2_ROW1_ANSWER": "Are",
+        "GROUP2_ROW2_SENTENCE": "How _____ you?",
+        "GROUP2_ROW2_ANSWER": "are"
+      }
+    },
+    {
+      "sourceSlide": 11,
+      "template": "GrammarBoxLook",
+      "note": "Tokens reais do template (conferidos no HTML, diferentes da minha primeira tentativa de ficha): TOPIC_NAME (badge 'GRAMMAR BOX <topic>'), TABLE_HEADER (cabeçalho da 2ª coluna da tabela), ROW1..4_SUBJECT/HL/TEXT (só 4 rows, não 5 — a fonte também tem exatamente 4, encaixe perfeito), EX1/EX2_PRE/HL/POST (2 exemplos ilustrados com legenda dividida em pre/highlight/post, não um único PHOTO_CAPTION). A fonte (slide 11) só trouxe 1 foto-exemplo (Estátua da Liberdade, 'I'm from New York.') — EX1 preenchido com ela, EX2 fica vazio (fonte não tem 2º exemplo ilustrado nesse slide, não inventado).",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "TOPIC_NAME": "TO BE",
+        "TABLE_HEADER": "Affirmative (+)",
+        "ROW1_SUBJECT": "I",
+        "ROW1_HL": "'m",
+        "ROW1_TEXT": "fine.",
+        "ROW2_SUBJECT": "you",
+        "ROW2_HL": "'re",
+        "ROW2_TEXT": "right.",
+        "ROW3_SUBJECT": "we",
+        "ROW3_HL": "'re",
+        "ROW3_TEXT": "from the U.S.",
+        "ROW4_SUBJECT": "you",
+        "ROW4_HL": "'re",
+        "ROW4_TEXT": "John and Hannah.",
+        "TIP1_FULL": "I am",
+        "TIP1_SHORT": "I'm",
+        "TIP2_FULL": "You are",
+        "TIP2_SHORT": "You're",
+        "TIP3_FULL": "We are",
+        "TIP3_SHORT": "We're",
+        "EX1_PRE": "",
+        "EX1_HL": "I'm",
+        "EX1_POST": "from New York.",
+        "EX2_PRE": "",
+        "EX2_HL": "",
+        "EX2_POST": ""
+      }
+    },
+    {
+      "sourceSlide": 12,
+      "template": "Exercise1",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "TITLE": "Write sentences with 're or 'm",
+        "INSTRUCTION_PRE": "Rewrite each sentence using the",
+        "INSTRUCTION_HL": "short form",
+        "INSTRUCTION_POST": "of the verb.",
+        "ROW1_ORIG": "I am from New York.",
+        "ROW1_HL": "I'm",
+        "ROW1_POST": "from New York.",
+        "ROW2_ORIG": "We are students.",
+        "ROW2_HL": "We're",
+        "ROW2_POST": "students.",
+        "ROW3_ORIG": "You are Roberto.",
+        "ROW3_HL": "You're",
+        "ROW3_POST": "Roberto.",
+        "ROW4_ORIG": "I am fine, thanks.",
+        "ROW4_HL": "I'm",
+        "ROW4_POST": "fine, thanks.",
+        "ROW5_ORIG": "We are from Mexico.",
+        "ROW5_HL": "We're",
+        "ROW5_POST": "from Mexico."
+      },
+      "note": "Tokens reais: ROWn_ORIG (frase original completa), ROWn_HL (a contração, destacada em rosa no início da frase reescrita), ROWn_POST (resto da frase reescrita depois da contração) — não ROWn_ANSWER como frase única. A fonte (slide 12) já mostra exemplo + 4 respostas resolvidas (We're students / You're Roberto / I'm fine, thanks / We're from Mexico), formato 'original → contraída' que bate exatamente com o role 'Rewrite using contractions' do Exercise1 — mais fiel ao papel de drill do que WarmupOralTransform (que é atividade oral sem gabarito escrito). Fonte tem 5 linhas (1 exemplo + 4 respostas), template tem 5 rows — encaixe exato."
+    },
+    {
+      "sourceSlide": 13,
+      "template": null,
+      "gap": true,
+      "reason": "Exercício 'Sound and spelling' (ouvir a pronúncia distinta de I'm/we're e praticar) é um exercício de listening/pronúncia sem gabarito escrito nem drill de texto — não há template para isso no catálogo atual (nenhum dos 18 cobre discriminação auditiva de som)."
+    },
+    {
+      "sourceSlide": 15,
+      "template": "Comparative",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "TITLE": "What's the difference?",
+        "LEFT_HL": "You are",
+        "LEFT_TEXT": "from the U.S.A.",
+        "RIGHT_HL": "Are you",
+        "RIGHT_TEXT": "from the U.S.A?"
+      }
+    },
+    {
+      "sourceSlide": 16,
+      "template": "GrammarBox2YesNo",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · GRAMMAR",
+        "COL2_HEADER": "Yes/No questions (?)",
+        "COL3_HEADER": "Short answers",
+        "PHOTO1_CAPTION": "\"Are you from New York?\"",
+        "PHOTO2_CAPTION": "\"Are you from the U.S.?\" — \"Yes, we're from the U.S.\"",
+        "ROW1_SUBJECT": "Am I",
+        "ROW1_Q_HL": "",
+        "ROW1_Q_POST": "at home?",
+        "ROW1_A_PRE": "Yes, you",
+        "ROW1_A_YES": "are",
+        "ROW1_A_MID": "No, you're",
+        "ROW1_A_NO": "not",
+        "ROW2_SUBJECT": "Are you",
+        "ROW2_Q_HL": "",
+        "ROW2_Q_POST": "OK?",
+        "ROW2_A_PRE": "Yes, I",
+        "ROW2_A_YES": "am",
+        "ROW2_A_MID": "No, I'm",
+        "ROW2_A_NO": "not",
+        "ROW3_SUBJECT": "Are we",
+        "ROW3_Q_HL": "",
+        "ROW3_Q_POST": "in Los Angeles?",
+        "ROW3_A_PRE": "Yes, you",
+        "ROW3_A_YES": "are",
+        "ROW3_A_MID": "No, you're",
+        "ROW3_A_NO": "not",
+        "ROW4_SUBJECT": "Are you",
+        "ROW4_Q_HL": "",
+        "ROW4_Q_POST": "students?",
+        "ROW4_A_PRE": "Yes, we",
+        "ROW4_A_YES": "are",
+        "ROW4_A_MID": "No, we're",
+        "ROW4_A_NO": "not"
+      },
+      "note": "Tokens reais: template tem só 4 rows (não 5 como eu tinha assumido) — fonte também tem exatamente 4, encaixe perfeito, sem gap. Estrutura da coluna de resposta é A_PRE + A_YES (bold) + ' / ' + A_MID + A_NO (bold), não YES/NO diretos — reconstruí a partir da tabela real do slide 16 ('Yes, you are. / No, you're not.', etc). Correção: o SUBJECT cell já carrega 'Am I'/'Are you'/'Are we' por inteiro (como na foto original: 'Am I | at home?'); Q_HL/Q_POST são só a pergunta na 2ª coluna, sem repetir o sujeito — Q_HL fica vazio (o destaque em negrito da fonte cai no verbo dentro do SUBJECT, não há palavra extra em negrito na coluna da pergunta) e Q_POST carrega só o resto ('at home?', 'OK?', etc.), evitando a duplicação 'Am I' + 'Am I at home?' que a primeira versão da ficha produzia."
+    },
+    {
+      "sourceSlide": 17,
+      "template": null,
+      "gap": true,
+      "reason": "Word-order scramble ('put the words in the correct order to make questions') — gap já documentado no catálogo, sem template equivalente. Forçar em PracticeQaBadges ou Exercise1 mudaria o que a atividade pede ao aluno (reordenar palavras soltas vs. responder pergunta ou reescrever frase)."
+    },
+    {
+      "sourceSlide": 18,
+      "template": "PracticeQaBadges",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · PRACTICE",
+        "TITLE": "Ask and answer in pairs!",
+        "ROW1_QUESTION": "What's your name?",
+        "ROW1_YES": "I am ______.",
+        "ROW1_NO": "",
+        "ROW2_QUESTION": "Are you from the U.S.?",
+        "ROW2_YES": "Yes, I am!",
+        "ROW2_NO": "No, I'm not.",
+        "ROW3_QUESTION": "Are we in CCBEU?",
+        "ROW3_YES": "Yes, we are!",
+        "ROW3_NO": "No, we're not.",
+        "ROW4_QUESTION": "Are you OK?",
+        "ROW4_YES": "Yes, I am!",
+        "ROW4_NO": "No, I'm not."
+      },
+      "note": "ROW1 não tem par Yes/No no original (pergunta aberta com exemplo de resposta) — ROW1_NO fica vazio, não inventado."
+    },
+    {
+      "sourceSlide": 19,
+      "template": "Fluency1",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · PART 1 · FLUENCY",
+        "TITLE": "Talk in pairs!",
+        "INSTRUCTION": "Ask and answer questions. Change pairs when the teacher claps.",
+        "Q1": "What's your name?",
+        "Q2": "Are you ok?",
+        "Q3": "Are you from the U.S.?",
+        "Q4_PRE": "Are you from",
+        "Q5": "Are we in Canada?",
+        "Q6": "",
+        "Q7": "",
+        "Q8_PRE": "Are we in"
+      },
+      "note": "Template espera 4+4 perguntas; fonte tem 6 (2 com blank aberto). Mapeadas nos 8 slots disponíveis, 2 vazios, sem inventar perguntas extra."
+    },
+    {
+      "sourceSlide": 20,
+      "template": null,
+      "gap": true,
+      "reason": "Entrevista livre reaproveitando perguntas já vistas, sem gramática nova — mais próxima de SectionTransition (não existe) do que de qualquer drill. Forçar em Fluency1/PracticeQaBadges duplicaria o slide 19 sem adicionar conteúdo novo."
+    },
+    {
+      "sourceSlide": 21,
+      "template": "LessonComplete",
+      "values": {
+        "BREADCRUMB": "UNIT 1 · LESSON A · LESSON COMPLETE",
+        "COL1_HEADER": "Affirmatives",
+        "COL1_T1": "I'm", "COL1_D1": "= I am",
+        "COL1_T2": "You're", "COL1_D2": "= You are",
+        "COL1_T3": "We're", "COL1_D3": "= We are",
+        "COL1_T4": "", "COL1_D4": "",
+        "COL2_HEADER": "Questions",
+        "COL2_T1": "Am I…?", "COL2_D1": "",
+        "COL2_T2": "Are you…?", "COL2_D2": "",
+        "COL2_T3": "Are we…?", "COL2_D3": "",
+        "COL3_HEADER": "Wh-Questions",
+        "COL3_T1": "What's your name?", "COL3_D1": "",
+        "COL3_T2": "How are you?", "COL3_D2": "",
+        "COL3_T3": "Are you from Brazil?", "COL3_D3": "",
+        "COL4_HEADER": "Other Words",
+        "COL4_T1": "Hi", "COL4_D1": "",
+        "COL4_T2": "Hello", "COL4_D2": "",
+        "COL4_T3": "Fine, thanks", "COL4_D3": "",
+        "COL4_T4": "Nice to meet you", "COL4_D4": ""
+      },
+      "note": "COL1 tem 4 slots; fonte só tem 3 itens em Affirmatives — o 4º slot (COL1_T4/D4) fica vazio, sem inventar um 4º termo. COL4 (Other Words) tem 3 slots no template mas a fonte tem 5 itens (Hi, Hello, Fine, Thanks, Nice to meet you). Resolvido SEM perder conteúdo e sem comprimir texto numa linha: no passo de geração (step 3), duplicar o bloco `<div class=\"term\">...</div>` de COL4 no HTML preenchido para abrir um 4º slot (COL4_T4/D4), replicando a mesma estrutura dos outros .term blocks. Com o 4º slot: T1='Hi', T2='Hello', T3='Fine, thanks', T4='Nice to meet you' — os 5 itens da fonte cabem em 4 termos agrupando só a saudação dupla (Hi/Hello) que a própria fonte já lista lado a lado no slide 21, sem juntar itens semanticamente distintos."
+    }
+  ],
+  "gaps": [
+    { "sourceSlides": [1, 2, 3, 4, 5], "reason": "Capa, welcome, ice breaker em grupo, orientação sobre o livro — nenhum template SectionTransition/CoverImage existe para cartões de abertura não-drill. Slide 4 também tem vídeo do YouTube incorporado (timer) — MediaActivity, sem caminho de embed de vídeo no pipeline." },
+    { "sourceSlides": [8, 9, 14], "reason": "Foto de grupo com 3 diálogos numerados (match/practice/underline) — gap já documentado: 'multi-person photo + numbered dialogue matching' e 'teacher-drawn annotation over a book image' (slide 14 tem linhas desenhadas sobre a foto)." },
+    { "sourceSlides": [13], "reason": "Exercício de pronúncia/sound-and-spelling — nenhum template de listening/pronúncia existe." },
+    { "sourceSlides": [17], "reason": "Word-order scramble — gap já documentado, sem template." },
+    { "sourceSlides": [20], "reason": "Interview livre sem gramática nova — mais próximo de SectionTransition (não existe)." },
+    { "sourceSlides": [6], "reason": "Resolvido, não é mais gap: Objectives pede 3 objetivos, fonte declarava só 1 explicitamente no slide 6. OBJ2/OBJ3 foram derivados do conteúdo real praticado no resto da aula (perguntas Yes/No e apresentação pessoal) — ver nota no slide 6 da ficha para o raciocínio completo." },
+    { "sourceSlides": [4, 22, 23, 24], "reason": "MediaActivity: vídeos do YouTube (timer no slide 4, 'Hot Potato' no slide 24) e GIFs (celebração no 22, homework no 23) — pipeline HTML→PPTX não tem caminho de embed de vídeo/GIF animado ainda; mesmo com um template de layout, a mídia em si não seria reproduzida no .pptx gerado." }
+  ]
+}
