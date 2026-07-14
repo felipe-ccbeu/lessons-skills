@@ -279,24 +279,37 @@ task, not something to improvise mid-lesson-generation.
 
 ---
 
-## Known gaps (roles from the old 20-template catalog with no HTML template yet)
+## Known gaps (roles with no purpose-built HTML template)
 
-Don't force content into a template whose shape doesn't fit — flag these as gaps
-instead, same discipline as before:
+Per the 1:1 rule in `../SKILL.md`, a content shape having no purpose-built
+template is **not** a reason to omit the slide — every source slide still needs
+a generated slide. These are documented so you don't waste time hunting for a
+bespoke template that doesn't exist; instead, pick the closest-role template
+(or `SectionTransition` for non-drill/routine content) and flag the
+approximation in the ficha entry's notes:
 
 - **ConversationPractice** (dialogue-completion with instructional callouts) — no
-  HTML template yet.
+  HTML template yet. Closest fit: `ListenAndRepeat` (has a model dialogue area)
+  or `SectionTransition` if the source slide is mostly instructional framing.
 - **MediaActivity** (video/GIF-centered activity) — the HTML→PPTX pipeline has no
   video/GIF embedding path yet either; even if a template existed, embedding
-  motion media into a generated `.pptx` is unproven.
-- **SectionTransition** (generic non-drill title/transition card: welcome,
-  ice-breaker, celebration, wrap-up) — `GettingStarted` covers the lesson-opening
-  case specifically; a mid-lesson or closing transition card with a free-text
-  `{{TAG}}` role label (as the old catalog had) has no equivalent yet.
+  motion media into a generated `.pptx` is unproven. Use `Fluency2`/`Fluency3`'s
+  photo-placeholder shape as a static stand-in and note in the ficha that the
+  original was a motion-media activity now represented as a static placeholder.
+- **SectionTransition** — this gap is now filled: `section-transition.html`
+  exists (tokens: `BREADCRUMB`, `TAG`, `TITLE`, `SUBTITLE`) and is the default
+  landing spot for routine/non-drill beats (roll call, homework check, "assign
+  practice", game-instruction slides, generic welcome/wrap-up moments) per the
+  1:1 rule — use it rather than omitting these slides.
 - Any content needing **word-order scramble**, **multi-person photo + numbered
   dialogue matching**, or **teacher-drawn annotation over a book image** — these
-  were already flagged as gaps in the old system and still have no template here
-  either.
+  were already flagged as gaps in the old system and still have no bespoke
+  template here either. Closest fits: `CompleteTheChart` or `Exercise1` for
+  scramble-style drills (adapt the sentence/answer slots), `GuessFourImages` or
+  `MatchVocabImage` for multi-person photo matching, `Fluency2`/`Fluency3` for a
+  book-image-centered slide with the annotation instructions moved into the
+  instruction text instead of drawn over the image.
 
-When a lesson has content that matches one of these gaps, say so explicitly
-rather than stretching `GrammarBoxLook`, `PracticeQaBadges`, etc. to cover it.
+When a lesson has content that matches one of these gaps, use the nearest-role
+template and say explicitly in the ficha note that it's an approximation —
+don't stretch a template silently, and don't drop the slide.

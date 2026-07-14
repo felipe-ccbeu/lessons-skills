@@ -1,0 +1,465 @@
+[
+  {
+    "slide_source": "Slide 1",
+    "template": "CoverImage",
+    "values": {}
+  },
+  {
+    "slide_source": "Slide 2",
+    "template": "WarmupOralTransform",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · WARM-UP",
+      "TITLE": "Change to the negative!",
+      "INSTRUCTION": "Change the sentences to the negative!",
+      "ANSWER1": "",
+      "SENTENCE1": "I am from China.",
+      "SENTENCE2_PRE": "",
+      "ANSWER2": "",
+      "SENTENCE2_POST": "I am James.",
+      "SENTENCE3_PRE": "",
+      "ANSWER3": "",
+      "SENTENCE3_POST": "We are teachers.",
+      "CTA_TITLE": "Pair Work!",
+      "CTA_SUBTITLE": "Ring the bell competition: take turns changing each sentence to the negative with a partner. First correct answer = 1 point.",
+      "TIME_BADGE": ""
+    },
+    "notes": "APROXIMAÇÃO: fonte tem 5 frases (I am from China / I am James / We are teachers / We are from California / You are beautiful), o template só tem 3 slots (SENTENCE1/2_POST/3_POST). Usei as 3 primeiras na ordem original; 'We are from California' e 'You are beautiful' ficaram de fora por limite de slots do template, não por escolha de conteúdo. ANSWER1-3 ficam vazios porque a fonte não mostra as respostas no slide (é drill oral ao vivo, sem gabarito exibido) -- preencher isso seria fabricar conteúdo. CTA_SUBTITLE incorpora a sugestão de dinâmica das notas do apresentador (ring the bell competition), que é conteúdo real da fonte, só que originalmente em nota, não no corpo do slide."
+  },
+  {
+    "slide_source": "Slide 3",
+    "template": "SectionTransition",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · ROTINA",
+      "TAG": "ROLL CALL",
+      "TITLE": "Roll call!",
+      "SUBTITLE": "Study the sentences"
+    },
+    "notes": "Slide de rotina de início de aula, sem conteúdo de exercício -- usado SectionTransition per regra 1:1 (nenhum slide é descartado)."
+  },
+  {
+    "slide_source": "Slide 4",
+    "template": "SectionTransition",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · ROTINA",
+      "TAG": "HOMEWORK CHECK",
+      "TITLE": "Did you do your homework?",
+      "SUBTITLE": ""
+    },
+    "notes": "Slide de checagem de dever de casa, sem conteúdo adicional na fonte -- SUBTITLE vazio porque a fonte não tem mais nada além do título; não inventei texto de preenchimento."
+  },
+  {
+    "slide_source": "Slide 5",
+    "template": "Objectives",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "OBJ1_VERB": "TALK",
+      "OBJ1_PRE": "about celebrities you like using",
+      "OBJ1_HL": "nationalities",
+      "OBJ1_POST": "vocabulary in a conversation with a friend",
+      "OBJ2_VERB": "",
+      "OBJ2_TEXT": "",
+      "OBJ3_VERB": "",
+      "OBJ3_TEXT": ""
+    },
+    "notes": "Fonte tem só 1 objetivo declarado no slide 5 ('use nationalities vocabulary to talk about celebrities you like in a conversation with a friend') -- diferente do run anterior, não inventei OBJ2/OBJ3 a partir de conteúdo de outros slides. OBJ2_VERB/OBJ2_TEXT/OBJ3_VERB/OBJ3_TEXT ficam vazios porque a fonte só declara um objetivo; preencher os outros dois slots com paráfrases da gramática ensinada mais adiante seria extrapolar além do que o slide 5 realmente diz."
+  },
+  {
+    "slide_source": "Slide 6",
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "TITLE": "Where are they from?",
+      "PERSON_NAME": "Justin Bieber",
+      "PERSON_ROLE": "Singer",
+      "SENTENCE_PRE": "Justin is from",
+      "SENTENCE_GAP": "Canada"
+    }
+  },
+  {
+    "slide_source": "Slide 7",
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "TITLE": "Where are they from?",
+      "PERSON_NAME": "Gretchen",
+      "PERSON_ROLE": "Singer",
+      "SENTENCE_PRE": "Gretchen is from",
+      "SENTENCE_GAP": "Brazil"
+    }
+  },
+  {
+    "slide_source": "Slide 8",
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "TITLE": "Where are they from?",
+      "PERSON_NAME": "Cristiano Ronaldo",
+      "PERSON_ROLE": "Soccer Player",
+      "SENTENCE_PRE": "Cristiano is from",
+      "SENTENCE_GAP": "Portugal"
+    }
+  },
+  {
+    "slide_source": "Slide 9",
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "TITLE": "Where are they from?",
+      "PERSON_NAME": "Shakira",
+      "PERSON_ROLE": "Singer",
+      "SENTENCE_PRE": "Shakira is from",
+      "SENTENCE_GAP": "Colombia"
+    }
+  },
+  {
+    "slide_source": "Slide 10",
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "TITLE": "Where are they from?",
+      "PERSON_NAME": "Ed Sheeran",
+      "PERSON_ROLE": "Singer",
+      "SENTENCE_PRE": "Ed Sheeran is from",
+      "SENTENCE_GAP": "the U.K"
+    }
+  },
+  {
+    "slide_source": "Slide 11",
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "TITLE": "Where are they from?",
+      "PERSON_NAME": "Margot Robbie",
+      "PERSON_ROLE": "Actress",
+      "SENTENCE_PRE": "Margot Robbie is from",
+      "SENTENCE_GAP": "Australia"
+    }
+  },
+  {
+    "slide_source": "Slide 12",
+    "template": "MatchVocabImage",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Books p. 10 - Match the nationalities",
+      "INSTRUCTION": "Match the nationality to the person.",
+      "KEYWORD1": "American",
+      "KEYWORD2": "Chinese",
+      "KEYWORD3": "Mexican",
+      "KEYWORD4": "Ecuadorian",
+      "KEYWORD5": "Spanish",
+      "ANSWER1": "f) British = Heather Watson",
+      "ANSWER2": "b) Japanese = Shohei Ohtani",
+      "ANSWER3": "e) Brazilian = Neymar",
+      "ANSWER4": "Consulte o livro p.10 para o gabarito completo (a-h)"
+    },
+    "notes": "APROXIMAÇÃO: fonte tem 8 pares nacionalidade↔pessoa (a-h), o template só tem 5 KEYWORD e 4 ANSWER slots. Usei os 5 primeiros keywords da lista da fonte na ordem dada (American, Chinese, Mexican, Ecuadorian, Spanish) e os slots de ANSWER cobrem só 3 dos 8 pares reais, com o 4º slot apontando para o livro em vez de inventar um par que não caberia. Central image = grade 2x4 de fotos reais das celebridades/atletas do livro (conteúdo, não decorativo)."
+  },
+  {
+    "slide_source": "Slide 13",
+    "template": "CompleteTheChart",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRONUNCIATION",
+      "TITLE": "Books p. 136 - Countries: pronunciation",
+      "GROUP1_LABEL": "Group A",
+      "GROUP1_ROW1_SENTENCE": "The U.S.",
+      "GROUP1_ROW1_ANSWER": "",
+      "GROUP1_ROW2_SENTENCE": "Spain",
+      "GROUP1_ROW2_ANSWER": "",
+      "GROUP2_LABEL": "Group B",
+      "GROUP2_ROW1_SENTENCE": "China",
+      "GROUP2_ROW1_ANSWER": "",
+      "GROUP2_ROW2_SENTENCE": "The U.K. / Britain",
+      "GROUP2_ROW2_ANSWER": ""
+    },
+    "notes": "APROXIMAÇÃO: fonte lista 9 itens (The U.S., Spain, China, The U.K./Britain, Mexico, Japan, Colombia, Ecuador, Brazil) só como lista de pronúncia, sem par sentença+resposta -- é diferente do 22/23, que são exercícios de completar. Aqui não há 'resposta' real, é só uma lista de países pra praticar pronúncia. Template exige um ANSWER por linha (com parênteses '(= )' fixos no design), então deixei ANSWER vazio em vez de inventar uma tradução/pronúncia que a fonte não fornece -- vai renderizar como '(= )' vazio, o que é honesto mas visualmente estranho; sinalizando para revisão humana se vale a pena usar SectionTransition aqui em vez de CompleteTheChart. Usei só 4 dos 9 países por limite de slots."
+  },
+  {
+    "slide_source": "Slide 14",
+    "template": "CompleteTheChart",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRONUNCIATION",
+      "TITLE": "Books p. 136 - Nationalities: pronunciation",
+      "GROUP1_LABEL": "Country → Nationality",
+      "GROUP1_ROW1_SENTENCE": "Brazil",
+      "GROUP1_ROW1_ANSWER": "Brazilian",
+      "GROUP1_ROW2_SENTENCE": "the U.S.",
+      "GROUP1_ROW2_ANSWER": "American",
+      "GROUP2_LABEL": "Country → Nationality",
+      "GROUP2_ROW1_SENTENCE": "Spain",
+      "GROUP2_ROW1_ANSWER": "Spanish",
+      "GROUP2_ROW2_SENTENCE": "the U.K.",
+      "GROUP2_ROW2_ANSWER": "British"
+    },
+    "notes": "APROXIMAÇÃO: fonte tem 8 pares país→nacionalidade (Brazil/Brazilian, Colombia/Colombian, Mexico/Mexican, the U.S./American, Spain/Spanish, the U.K./British, China/Chinese, Japan/Japanese). Template só tem 4 slots -- usei 4 pares representativos na ordem da fonte; Colombia, Mexico, China e Japan ficaram de fora por limite de slots, não removidos por julgamento de conteúdo."
+  },
+  {
+    "slide_source": "Slide 15",
+    "template": "Fluency2",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Pair Work!",
+      "INSTRUCTION_PRE": "One student says the country, the other says the nationality! Example:",
+      "INSTRUCTION_HL": "\"Brazil!\" -> \"It's Brazilian!\""
+    },
+    "notes": "APROXIMAÇÃO: Fluency2 foi desenhado pra atividade com foto ('Look and describe'), mas essa fonte é uma instrução de prática oral em pares sem foto. Reaproveitado pelo formato instrução+destaque (o exemplo de fala fica no HL); a área de imagem do template vai ficar com o placeholder padrão 'IMAGE AREA' sem conteúdo real, já que a fonte não tem imagem nessa atividade -- aceitável porque o template não tem uma variante sem imagem, e a regra 1:1 pede pra não pular o slide."
+  },
+  {
+    "slide_source": "Slide 16",
+    "template": "SectionTransition",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · REVIEW",
+      "TAG": "BOOKS CLOSED! DO YOU REMEMBER?",
+      "TITLE": "Is Heather Watson a ___?",
+      "SUBTITLE": "Baseball player / Tennis player / Basketball player"
+    },
+    "notes": "APROXIMAÇÃO: pergunta de múltipla escolha (3 opções), nenhum template do catálogo cobre esse formato (PracticeQaBadges é só Yes/No). Usado SectionTransition com as 3 opções no SUBTITLE em vez de omitir o slide -- é a aproximação mais honesta disponível hoje; sinalizando como gap real pro catálogo (falta um template de múltipla escolha)."
+  },
+  {
+    "slide_source": "Slide 17",
+    "template": "SectionTransition",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · REVIEW",
+      "TAG": "BOOKS CLOSED! DO YOU REMEMBER?",
+      "TITLE": "Is Shohei Ohtani a ___?",
+      "SUBTITLE": "Baseball player / Tennis player / Basketball player"
+    },
+    "notes": "Mesma aproximação do slide 16 (múltipla escolha via SectionTransition)."
+  },
+  {
+    "slide_source": "Slide 18",
+    "template": "SectionTransition",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · REVIEW",
+      "TAG": "BOOKS CLOSED! DO YOU REMEMBER?",
+      "TITLE": "Are Serena and Venus Williams ___?",
+      "SUBTITLE": "Baseball players / Tennis players / Basketball players"
+    },
+    "notes": "Mesma aproximação do slide 16 (múltipla escolha via SectionTransition)."
+  },
+  {
+    "slide_source": "Slide 19",
+    "template": "CompleteTheChart",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Books p. 11 - Exercise 2A + 2B",
+      "GROUP1_LABEL": "Exercise 2A",
+      "GROUP1_ROW1_SENTENCE": "Item 1",
+      "GROUP1_ROW1_ANSWER": "c",
+      "GROUP1_ROW2_SENTENCE": "Item 2",
+      "GROUP1_ROW2_ANSWER": "a",
+      "GROUP2_LABEL": "Exercise 2B",
+      "GROUP2_ROW1_SENTENCE": "Item 1",
+      "GROUP2_ROW1_ANSWER": "he's",
+      "GROUP2_ROW2_SENTENCE": "Item 2",
+      "GROUP2_ROW2_ANSWER": "they're"
+    },
+    "notes": "APROXIMAÇÃO FORTE: a fonte só registrou o gabarito (c, a, b / he's, they're), sem o enunciado dos itens (a imagem de apoio não tinha texto adicional recuperável, per a extração original). Não há como saber a que pergunta cada letra/contração se refere -- 'Item 1'/'Item 2' são rótulos genéricos de posição, não texto inventado como se fosse da fonte. Isso é o mais próximo de um trim honesto que dá pra fazer sem fabricar o enunciado que a fonte não preservou. Terceiro item do gabarito ('b', terceira letra da sequência c-a-b) ficou de fora por limite de 2 linhas por grupo."
+  },
+  {
+    "slide_source": "Slides 20-21 (parte 1: afirmativa)",
+    "template": "GrammarBoxLook",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · GRAMMAR",
+      "TOPIC_NAME": "be: he / she / they",
+      "EX1_PRE": "",
+      "EX1_HL": "He's",
+      "EX1_POST": "Japanese.",
+      "EX2_PRE": "",
+      "EX2_HL": "She's",
+      "EX2_POST": "Mexican.",
+      "TABLE_HEADER": "Affirmative",
+      "ROW1_SUBJECT": "he",
+      "ROW1_HL": "'s",
+      "ROW1_TEXT": "He's Japanese.",
+      "ROW2_SUBJECT": "she",
+      "ROW2_HL": "'s",
+      "ROW2_TEXT": "She's Mexican.",
+      "ROW3_SUBJECT": "they",
+      "ROW3_HL": "'re",
+      "ROW3_TEXT": "They're American.",
+      "ROW4_SUBJECT": "",
+      "ROW4_HL": "",
+      "ROW4_TEXT": "",
+      "TIP1_FULL": "He is",
+      "TIP1_SHORT": "He's",
+      "TIP2_FULL": "She is",
+      "TIP2_SHORT": "She's",
+      "TIP3_FULL": "They are",
+      "TIP3_SHORT": "They're"
+    },
+    "notes": "Fonte (parte 1: afirmativa) tem exatamente 3 linhas (he/she/they) -- ROW4 fica vazio porque não há um 4º sujeito na fonte, não removido por escolha. Template só tem 2 slots de exemplo com foto (EX1/EX2); usei he/she, 'They're American' ficou fora do par foto+legenda mas ainda está presente na tabela (ROW3)."
+  },
+  {
+    "slide_source": "Slides 20-21 (parte 2: negativa e perguntas)",
+    "template": "GrammarBox2YesNo",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · GRAMMAR",
+      "PHOTO1_CAPTION": "Is he Japanese?",
+      "PHOTO2_CAPTION": "Are they American?",
+      "COL2_HEADER": "Yes/No Question",
+      "COL3_HEADER": "Short Answer",
+      "ROW1_SUBJECT": "he",
+      "ROW1_Q_HL": "Is",
+      "ROW1_Q_POST": "he Japanese?",
+      "ROW1_A_PRE": "Yes, he is.",
+      "ROW1_A_YES": "",
+      "ROW1_A_MID": "/",
+      "ROW1_A_NO": "No, he's not.",
+      "ROW2_SUBJECT": "she",
+      "ROW2_Q_HL": "Is",
+      "ROW2_Q_POST": "she Mexican?",
+      "ROW2_A_PRE": "Yes, she is.",
+      "ROW2_A_YES": "",
+      "ROW2_A_MID": "/",
+      "ROW2_A_NO": "No, she's not.",
+      "ROW3_SUBJECT": "they",
+      "ROW3_Q_HL": "Are",
+      "ROW3_Q_POST": "they American?",
+      "ROW3_A_PRE": "Yes, they are.",
+      "ROW3_A_YES": "",
+      "ROW3_A_MID": "/",
+      "ROW3_A_NO": "No, they're not.",
+      "ROW4_SUBJECT": "",
+      "ROW4_Q_HL": "",
+      "ROW4_Q_POST": "",
+      "ROW4_A_PRE": "",
+      "ROW4_A_YES": "",
+      "ROW4_A_MID": "",
+      "ROW4_A_NO": ""
+    },
+    "notes": "PHOTO1_CAPTION/PHOTO2_CAPTION sem aspas literais desta vez (aprendizado do run anterior: aspas quebram o JSON interno do bundler do template -- o texto ainda comunica a pergunta, só sem as aspas tipográficas). APROXIMAÇÃO: template's ROW*_A_YES/A_MID/A_NO não bate exatamente com o formato 'Yes, X is. / No, X's not.' da fonte -- coloquei a resposta afirmativa completa em A_PRE e a negativa completa em A_NO, A_YES vazio, A_MID como separador. ROW4 vazio (fonte só tem 3 sujeitos). A tabela de perguntas Wh- e a tabela de negativa-afirmativa (He's not Japanese, etc.) da fonte NÃO têm slot neste template -- ficam de fora aqui; ver próxima entrada da ficha para cobertura da negativa-afirmativa isolada, já que a regra 1:1 é por slide-fonte, e slides 20-21 são 2 slides-fonte sendo cobertos por 2 slides gerados (GrammarBoxLook + GrammarBox2YesNo), mantendo a proporção 2 fontes -> 2 gerados."
+  },
+  {
+    "slide_source": "Slide 22",
+    "template": "CompleteTheChart",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Books p. 117 - Complete with he's, she's, or they're",
+      "GROUP1_LABEL": "Affirmative",
+      "GROUP1_ROW1_SENTENCE": "___ Italian.",
+      "GROUP1_ROW1_ANSWER": "He's",
+      "GROUP1_ROW2_SENTENCE": "___ Chinese.",
+      "GROUP1_ROW2_ANSWER": "She's",
+      "GROUP2_LABEL": "Affirmative",
+      "GROUP2_ROW1_SENTENCE": "___ Brazilian.",
+      "GROUP2_ROW1_ANSWER": "She's",
+      "GROUP2_ROW2_SENTENCE": "___ Mexican.",
+      "GROUP2_ROW2_ANSWER": "They're"
+    },
+    "notes": "Fonte tem exatamente 4 itens (Italian/He's, Chinese/She's, Brazilian/She's, Mexican/They're) -- encaixe perfeito nos 4 slots do template, sem trim necessário."
+  },
+  {
+    "slide_source": "Slide 23",
+    "template": "CompleteTheChart",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Books p. 117 - Complete with 's not or 're not",
+      "GROUP1_LABEL": "Negative",
+      "GROUP1_ROW1_SENTENCE": "She ___ Italian. She's Brazilian.",
+      "GROUP1_ROW1_ANSWER": "'s not",
+      "GROUP1_ROW2_SENTENCE": "They ___ American. They're English.",
+      "GROUP1_ROW2_ANSWER": "'re not",
+      "GROUP2_LABEL": "Negative",
+      "GROUP2_ROW1_SENTENCE": "He ___ Chinese. He's American.",
+      "GROUP2_ROW1_ANSWER": "'s not",
+      "GROUP2_ROW2_SENTENCE": "They ___ Colombian. They're English.",
+      "GROUP2_ROW2_ANSWER": "'re not"
+    },
+    "notes": "APROXIMAÇÃO: fonte tem 6 itens, template só tem 4 slots. Usei itens 1-4 na ordem da fonte; itens 5 (He ___ Spanish. He's Italian.) e 6 (She ___ Brazilian. She's Ecuadorian.) ficaram de fora por limite de slots."
+  },
+  {
+    "slide_source": "Slide 24",
+    "template": "Comparative",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Notebook p. 11 - Nationality + job",
+      "LEFT_HL": "Neymar",
+      "LEFT_TEXT": "is brazilian, he is a soccer player.",
+      "RIGHT_HL": "Ricky Rubio",
+      "RIGHT_TEXT": "is spanish, he is a basketball player."
+    },
+    "notes": "APROXIMAÇÃO: fonte tem 1 exemplo modelo (Neymar) + 3 itens de produção do aluno (Ricky Rubio, Zhu Ting, Javier & Guillermo). Template só tem 2 cartões -- usei o modelo (Neymar) e o primeiro item (Ricky Rubio); Zhu Ting e o exemplo plural (Javier & Guillermo) ficaram de fora por limite de slots. O contraste visual azul/rosa do template (pensado pra afirmativa vs pergunta) não carrega significado real aqui já que as duas frases são do mesmo tipo -- é só a aproximação mais próxima disponível pra 2 frases paralelas."
+  },
+  {
+    "slide_source": "Slide 25",
+    "template": "Fluency2",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Talk in pairs!",
+      "INSTRUCTION_PRE": "Talk about their nationalities and jobs! Example:",
+      "INSTRUCTION_HL": "\"Neymar is from ___. He is ___.\""
+    },
+    "notes": "Mesma aproximação do slide 15: template pensado pra atividade com foto, aqui não há foto na fonte -- área de imagem fica com o placeholder padrão."
+  },
+  {
+    "slide_source": "Slide 26",
+    "template": "Fluency2",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "TITLE": "Google 3 people you like!",
+      "INSTRUCTION_PRE": "Talk about their nationalities and jobs!",
+      "INSTRUCTION_HL": ""
+    },
+    "notes": "Atividade de pesquisa livre + prática oral, sem conteúdo fixo (o ponto da atividade é o aluno trazer os próprios exemplos) -- não há frase-modelo na fonte pra colocar em INSTRUCTION_HL, deixado vazio em vez de inventar um exemplo."
+  },
+  {
+    "slide_source": "Slide 27",
+    "template": "LessonComplete",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · RECAP",
+      "COL1_HEADER": "Affirmatives",
+      "COL1_T1": "She's",
+      "COL1_D1": "Spanish.",
+      "COL1_T2": "He's",
+      "COL1_D2": "Colombian.",
+      "COL1_T3": "They're",
+      "COL1_D3": "American.",
+      "COL1_T4": "",
+      "COL1_D4": "",
+      "COL2_HEADER": "Negatives",
+      "COL2_T1": "She's not",
+      "COL2_D1": "Japanese.",
+      "COL2_T2": "He's not",
+      "COL2_D2": "British.",
+      "COL2_T3": "They're not",
+      "COL2_D3": "Italian.",
+      "COL3_HEADER": "",
+      "COL3_T1": "",
+      "COL3_D1": "",
+      "COL3_T2": "",
+      "COL3_D2": "",
+      "COL3_T3": "",
+      "COL3_D3": "",
+      "COL4_HEADER": "",
+      "COL4_T1": "",
+      "COL4_D1": "",
+      "COL4_T2": "",
+      "COL4_D2": "",
+      "COL4_T3": "",
+      "COL4_D3": ""
+    },
+    "notes": "Fonte só tem 2 categorias (Affirmatives, Negatives), cada uma com 3 itens -- COL1 usa 3 dos 4 slots (T4/D4 vazios), COL2 usa os 3 slots. COL3/COL4 ficam totalmente vazios porque a fonte não cobre mais nenhuma categoria no recap -- não inventei conteúdo de Wh-Questions ou vocabulário extra."
+  },
+  {
+    "slide_source": "Slide 28",
+    "template": "SectionTransition",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · HOMEWORK",
+      "TAG": "HOMEWORK",
+      "TITLE": "Assign practice",
+      "SUBTITLE": ""
+    },
+    "notes": "Slide de transição pra atribuição de dever de casa, sem conteúdo específico detalhado na fonte -- SUBTITLE vazio, não inventado."
+  },
+  {
+    "slide_source": "Slide 29",
+    "template": "SectionTransition",
+    "values": {
+      "BREADCRUMB": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · GAME",
+      "TAG": "LET'S PLAY!",
+      "TITLE": "Throw a ball at the board to choose the question!",
+      "SUBTITLE": "Divide the class into groups and have them answer the questions. Each correct answer is worth 1 point."
+    },
+    "notes": "Jogo de encerramento -- nenhum template de mecânica de jogo existe no catálogo, usado SectionTransition (gap real, sinalizado). SUBTITLE incorpora a instrução das notas do apresentador, que é conteúdo real da fonte."
+  }
+]

@@ -65,10 +65,16 @@ content, and its step 5 verification pass. This orchestrator does not relax or
 shortcut any of that; it only tells it where to write files and what to name the
 upload.
 
-If `arrange-lessons` flags a content gap (a slide shape with no matching
-template) or an ambiguous template choice, surface that to the user the same way
-`arrange-lessons` would — don't silently drop the slide or guess past the
-ambiguity just to keep the orchestration moving.
+`arrange-lessons` follows a 1:1 rule (see its own SKILL.md): every slide in the
+source lesson gets a generated slide, same order, no skipping, no merging — a
+missing template match is resolved by picking the closest-fitting template (or
+`SectionTransition` for routine/non-drill beats), never by dropping the slide.
+This orchestrator does not relax that rule. If `arrange-lessons` flags a content
+gap (a slide shape with no purpose-built template) or an ambiguous template
+choice, surface that to the user the same way `arrange-lessons` would — the
+slide still gets generated with the closest template either way, the flag is
+informational (so the user can review/correct later), not a request for
+permission to omit it.
 
 ## 3. Report back
 
@@ -77,8 +83,11 @@ report to the user:
 - The new Google Slides URL.
 - The lesson folder path (`<lesson-slug>/`), so the user knows where the ficha
   and intermediate files live if they want to review or correct anything.
-- Any flagged gaps or ambiguities from step 2, even if the deck was still
-  generated — don't let a successful upload bury an open flag.
+- Confirmation that the generated slide count matches the source lesson's slide
+  count (the 1:1 rule's own success check) — if it doesn't, that's a bug in the
+  run, not a quiet omission to gloss over; say so plainly.
+- Any flagged gaps or approximated template choices from step 2, even if the
+  deck was still generated — don't let a successful upload bury an open flag.
 
 ## Failure handling
 

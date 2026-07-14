@@ -22,15 +22,17 @@ static HTML template file plus data.
 
 ## Two sources of truth — don't blur them
 
-- **Content** (what the lesson teaches, the actual sentences/questions/vocabulary):
-  the old lesson, via the `/extract-lesson-slides` output. That document is
-  authoritative for *what* gets taught and *how* it was taught pedagogically
-  (structure, progression, techniques) — see step 1.
-- **Design** (how it's laid out, styled, colored, positioned): the 18 HTML
+- **Content, order, and coverage** (what the lesson teaches, the actual
+  sentences/questions/vocabulary, how many slides it takes, and in what
+  sequence): the old lesson, via the `/extract-lesson-slides` output. That
+  document is authoritative for *what* gets taught, *how* it was taught
+  pedagogically (structure, progression, techniques), *how many slides* there
+  were, and *what order* they came in — see step 1.
+- **Design only** (how it's laid out, styled, colored, positioned): the 18 HTML
   templates in `c:\Users\felipe.fadel\lessons\.scripts\html-to-pptx\*.html`,
   cataloged in `references/templates.md`. Never invent new positioning, colors, or
-  layout — if a template's shape doesn't fit the content, that's a gap to flag
-  (see the catalog's "Known gaps" section), not a reason to freehand new CSS.
+  layout — and never let template fit change the lesson's content, order, or slide
+  count either (see "1:1 rule" below). The templates are a skin, not a filter.
 
 **The pedagogical content is the point.** A deck that looks right but flattens,
 merges, or waters down what the original lesson was actually teaching has failed
@@ -38,6 +40,49 @@ at the one thing that matters. When a template's fields don't have an exact slot
 for something the old lesson did carefully (a specific hint, a specific
 highlighted contrast, a specific worked example), that's worth pausing on rather
 than quietly dropping — see "Protect the pedagogy" below.
+
+## The 1:1 rule — read this first, alongside the hard rule below
+
+**This skill only restyles a lesson. It never re-edits it.** Every slide in the
+source lesson (the extraction doc) produces exactly one slide in the generated
+deck, in the exact same order. The set of HTML templates constrains *which
+design* a slide gets, never *whether* a slide exists or *where* it sits in the
+sequence.
+
+- **No skipping.** A slide with no clean template match still gets a slide.
+  Pick the closest-fitting template and put the content in it — even a rough fit
+  (a routine/no-exercise moment, a shape the catalog doesn't have a bespoke
+  template for) is closer to the source than an absent slide. For slides that are
+  genuinely just a classroom-routine or transition beat with no exercise content
+  (roll call, homework check, "assign practice", a game-instruction slide), use
+  `SectionTransition` — it's the generic breadcrumb+tag+title+subtitle shell built
+  for exactly this case, not a fill-in-the-blank template, so there's no content
+  to force. Reserve outright skipping for the rare case where a source "slide" has
+  truly zero renderable content even for `SectionTransition` (e.g. a fully blank
+  transition slide) — and even then, say so explicitly rather than quietly
+  shrinking the deck.
+- **No merging.** Two source slides never collapse into one generated slide, even
+  if they cover related content and a single template could technically hold
+  both. If slides 20 and 21 in the source are two halves of one grammar point,
+  they still become two generated slides (in the templates that best match each
+  half), not one combined slide.
+- **No reordering.** Generated slide order == source slide order, always. Don't
+  move a slide earlier or later because a different template "flows better"
+  there.
+- **Trim within a slide, don't drop the slide.** When a template has fewer slots
+  than the source slide has items (e.g. an 8-item matching exercise into a
+  4-slot template), keep the slide and fit what you can — see "Don't force
+  content into a template that doesn't fit" below for how to trim honestly
+  (visible in the ficha's notes, not silently). Trimming items *within* one
+  slide is fine and sometimes unavoidable; dropping the *slide itself* is not.
+
+The practical effect: **the ficha (step 2) must have exactly as many entries as
+the source lesson has slides**, in source order. If the source lesson document
+groups several source slides into one narrative block (e.g. "Slides 6-11" as a
+repeated pattern), that's fine to describe together in prose, but the ficha
+still needs one ficha entry per underlying slide — use the `instances` array
+form (see the PhotoExerciseWhoIsThis example in step 2) so each source slide
+still maps to its own generated slide, never a single averaged-together one.
 
 ## The hard rule — read this first
 
@@ -109,14 +154,19 @@ stale for the next lesson).
     rows (e.g. affirmative rows glossed, questions not), leave the unglossed
     row's hint empty rather than inventing a gloss to avoid an empty `( )`. An
     invented hint is fabricated content even if it's grammatically correct.
-- **Don't force content into a template that doesn't fit.** If nothing in the 18
-  templates matches a chunk of content well, say so rather than mangling it into
-  the closest one. It's fine for a generated deck to have fewer slides than the
-  source lesson, or to leave a gap flagged for a human to design a new template
-  later — check `references/templates.md`'s "Known gaps" list first, since some
-  mismatches are already-documented, expected holes (ConversationPractice,
-  MediaActivity, SectionTransition, CoverImage, word-order scramble, multi-person
-  photo-dialogue matching, teacher annotation over a book image).
+- **Pick the closest-fitting template rather than dropping the slide — but say
+  so.** Per the 1:1 rule above, every source slide still gets a generated slide.
+  If nothing in the 18 templates matches a chunk of content well, choose the
+  closest one (or `SectionTransition` for routine/no-exercise beats), trim or
+  adapt the content honestly to fit its slots, and write a clear note in the
+  ficha entry explaining the mismatch and what was trimmed or approximated —
+  don't silently mangle it *or* silently drop it. Check `references/templates.md`'s
+  "Known gaps" list for shapes that are already-documented, expected mismatches
+  (ConversationPractice, MediaActivity, word-order scramble, multi-person
+  photo-dialogue matching, teacher annotation over a book image) — for these,
+  pick the nearest-role template anyway (e.g. `SectionTransition` or the closest
+  drill template) and flag the approximation in the note, rather than treating
+  "known gap" as license to omit the slide.
 - **Watch for templates whose token schema assumes a shape the source content
   doesn't have.** E.g. a template expecting one sentence naming two people
   together ("Kelly is a teacher and Rubén is a student.") shouldn't be force-fit
@@ -214,7 +264,11 @@ Open the uploaded deck (or inspect the merged `.pptx` structure) and confirm:
 - No content looks fabricated or out of place (cross-check against the ficha and,
   where in doubt, the original source lesson) — this is the check that catches the
   failure mode the hard rule exists for.
-- Slide order matches the ficha.
+- **Slide count matches the source lesson's slide count, and slide order matches
+  the source lesson's slide order** — this is the check that catches the 1:1 rule
+  failure mode. If the generated deck has fewer slides than the source, that's a
+  bug in this run (a slide got dropped somewhere), not an acceptable outcome — go
+  back and find which source slide has no corresponding ficha entry.
 - Image placeholders that were meant to carry real content (per step 2's
   decorative-vs-content judgment) actually have real images, not the gray
   "IMAGE"/"PHOTO" placeholder box left unfilled.
