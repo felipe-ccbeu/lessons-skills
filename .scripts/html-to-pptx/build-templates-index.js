@@ -200,6 +200,32 @@ const DYNAMIC_TEMPLATES = {
       'The keyword row switches from the shipped template\'s `justify-content: space-between` to an explicit gap once rendered, so spacing stays predictable regardless of keyword count (space-between\'s spacing is a function of item count and would otherwise vary unpredictably). ' +
       'Call renderMatchVocabImage({ breadcrumb, title, instruction, keywords, answers }) instead of string-replacing tokens.',
   },
+  'multiple-choice.html': {
+    renderModule: './multiple-choice.render.js',
+    renderFn: 'renderMultipleChoice',
+    schema: {
+      breadcrumb: 'string',
+      tag: 'string - small pink eyebrow label above the question, e.g. "Books closed! Do you remember?"',
+      question: 'string - the quiz question, e.g. "Is Heather Watson a _______?"',
+      options: '[string, ...] - any length, lettered A/B/C/... automatically. No option is marked correct in the rendered slide - this is a question for the class to answer aloud, not an answer key.',
+    },
+    notes:
+      'Added 2026-07-15 to fill a real gap: a Books-closed recall quiz ("Is X a _______? / Baseball player. / Tennis player. / Basketball player.") had no matching template - PracticeQaBadges is Yes/No binary only, does not fit N free-form alternatives. ' +
+      'Up to 3 options render with the original hand-tuned row height/font; more options shrinks row height/font to fit the content band (same elastic-row pattern as exercise-1.html/practice-qa-badges.html - rows stack via document flow, no per-row position math). ' +
+      'Call renderMultipleChoice({ breadcrumb, tag, question, options }) instead of string-replacing tokens. Supports at most 26 options (A-Z).',
+  },
+  'photo-grid-blank.html': {
+    renderModule: './photo-grid-blank.render.js',
+    renderFn: 'renderPhotoGridBlank',
+    schema: {
+      breadcrumb: 'string',
+      title: 'string',
+      items: '[{ answer: string, text: string }, ...] - any length. `answer` is the pink/bold fill-in-the-blank portion (e.g. "He\'s"), `text` is the rest of the caption (e.g. "Italian.").',
+    },
+    notes:
+      'Added 2026-07-15 to fill a real gap: an exercise with N anonymous photos (no names), each captioned with a fill-in-the-blank sentence (e.g. Exercise 1B(a): 6 photos, "___ Italian." / "___ Chinese." / ...), had no matching template - PhotoExerciseWhoIsThis is built for exactly ONE named person per slide (PERSON_NAME/PERSON_ROLE), forcing it here would mean either fabricating 6 slides from 1 source slide (breaking the 1:1 rule) or leaving PERSON_NAME empty (template misuse). ' +
+      'Auto-picks a column count (up to 4 for <=4 items, 3 for 5-6, 4 for 7-8, 5 for 9+) and computes photo/cell size and caption font from that - this is NOT a simple row-stacking elastic template like exercise-1.html, it is a 2D grid, so both column count and per-row height matter. Call renderPhotoGridBlank({ breadcrumb, title, items }) instead of string-replacing tokens.',
+  },
 };
 
 for (const [file, meta] of Object.entries(DYNAMIC_TEMPLATES)) {

@@ -14,29 +14,30 @@ lesson.** Only replace the literal `{{TOKEN}}` text. If a template's shape
 genuinely doesn't fit a lesson's content (see Known gaps below), don't force it —
 flag the gap.
 
-**Exception — templates with a sibling `<name>.render.js`:** 9 templates
+**Exception — templates with a sibling `<name>.render.js`:** 11 templates
 (`ChangePlaces`, `WarmupOralTransform`, `GrammarBoxLook`, `GrammarBox2YesNo`,
 `PracticeQaBadges`, `CompleteTheChart`, `Exercise1`, `Fluency1`,
-`MatchVocabImage` — every template in the catalog with a genuine "list of N
-repeating items" shape) used to hardcode a fixed row/item count (`ROW1_*`/
-`ROW2_*`/`ROW3_*`, `SENTENCE1`/`SENTENCE2_PRE`/`SENTENCE3_POST`,
-`KEYWORD1`-`KEYWORD5`, etc.) directly in the HTML, which meant a lesson with
-more items than the template had slots silently lost content — this happened
-for real (see the WarmupOralTransform entry below: a 5-sentence warm-up drill
-into a template built for 3, found 2026-07-15). For these, fill by calling
-the render function with a `rows`/`questions`/`keywords`+`answers` array (the
-exact shape varies per template — check that template's entry below or
-`templates-tokens.json`'s `dynamic` field) of whatever length the source
-lesson actually has, not by string-replacing fixed tokens.
+`MatchVocabImage`, `MultipleChoice`, `PhotoGridBlank` — every template in the
+catalog with a genuine "list of N repeating items" shape) used to hardcode a
+fixed row/item count (`ROW1_*`/`ROW2_*`/`ROW3_*`,
+`SENTENCE1`/`SENTENCE2_PRE`/`SENTENCE3_POST`, `KEYWORD1`-`KEYWORD5`, etc.)
+directly in the HTML, which meant a lesson with more items than the template
+had slots silently lost content — this happened for real (see the
+WarmupOralTransform entry below: a 5-sentence warm-up drill into a template
+built for 3, found 2026-07-15). For these, fill by calling the render
+function with a `rows`/`questions`/`options`/`items`/`keywords`+`answers`
+array (the exact shape varies per template — check that template's entry
+below or `templates-tokens.json`'s `dynamic` field) of whatever length the
+source lesson actually has, not by string-replacing fixed tokens.
 `WarmupOralTransform` additionally has optional secondary sections (a CTA
 subtitle, a time badge) that drop entirely — not just go text-empty — when
 the ficha leaves them out, so a template's side panel can shrink to just its
 essential label instead of always rendering full instructional copy.
-Templates NOT in this list of 9 don't have a repeating-item shape by design
+Templates NOT in this list of 11 don't have a repeating-item shape by design
 (e.g. `Comparative` is always exactly 2 sides, `Objectives` is always exactly
 3 pedagogical objectives, `LessonComplete` is always the 4 fixed LSRW skill
 categories) — growing their item count isn't a gap, it would change what the
-slide means. `templates-tokens.json`'s `dynamic` field on each of the 9
+slide means. `templates-tokens.json`'s `dynamic` field on each of the 11
 entries documents the function's exact call shape. If you're adding a new
 template that has a repeating row/item/card pattern or an optional secondary
 section, follow this same convention rather than hardcoding N slots or
@@ -415,6 +416,74 @@ below. Built on the `<img>` pipeline support added the same day (see
 "Pipeline capabilities" below) — this template is the reason that work
 happened, since a cover with only a logo has nothing else to render.
 
+## 20. MultipleChoice
+**File:** `multiple-choice.html` shell + `multiple-choice.render.js` (dynamic
+renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**, call
+the render function instead)
+**Role:** "Books closed! Do you remember?"-style recall quiz — small pink
+eyebrow tag, a large blue question, and a lettered list (A, B, C, ...) of
+free-form alternatives underneath. No option is marked correct on the slide
+— this is a question the class answers aloud, not an answer key (matches how
+the source lesson used it: the teacher knew the answer, the slide didn't
+show it).
+**Background:** white.
+**Added 2026-07-15**, filling a real gap found while regenerating
+`basic-1-unit-1-lesson-b-part-1-v2/`: a 3-option recall quiz ("Is Heather
+Watson a _______? / Baseball player. / Tennis player. / Basketball player.")
+had no matching template — `PracticeQaBadges` is Yes/No binary only, doesn't
+fit N free-form alternatives.
+**Option count is elastic, not fixed to 3.** Call:
+```js
+const { renderMultipleChoice } = require('./multiple-choice.render.js');
+const html = renderMultipleChoice({
+  breadcrumb: 'BASIC 1 · UNIT 1 · LESSON B · PART 1 · RECAP',
+  tag: 'Books closed! Do you remember?',
+  question: 'Is Heather Watson a _______?',
+  options: ['Baseball player.', 'Tennis player.', 'Basketball player.'],
+});
+```
+Up to 3 options render with the original hand-tuned row height/font (options
+stack via normal document flow, same shape as `Exercise1`/`PracticeQaBadges`);
+4+ options shrinks row height/font to fit the content band. Supports at most
+26 options (A-Z).
+
+## 21. PhotoGridBlank
+**File:** `photo-grid-blank.html` shell + `photo-grid-blank.render.js`
+(dynamic renderer — **do not fill this one by string-replacing
+`{{TOKEN}}`s**, call the render function instead)
+**Role:** a grid of N anonymous photos (no names), each captioned with a
+fill-in-the-blank sentence — e.g. "Complete the sentences with he's, she's,
+or they're." with 6 photos captioned "___ Italian.", "___ Chinese.", etc.
+**Not the same role as `PhotoExerciseWhoIsThis`**, which is built for exactly
+ONE *named* person per slide (`PERSON_NAME`/`PERSON_ROLE`) — don't use
+`PhotoGridBlank` for a single named celebrity slide, and don't force
+`PhotoExerciseWhoIsThis` onto a multi-photo anonymous grid (that would mean
+either fabricating N slides out of 1 source slide, breaking the 1:1 rule, or
+leaving `PERSON_NAME` empty, which is template misuse).
+**Background:** white.
+**Added 2026-07-15**, filling a real gap found the same run as
+`MultipleChoice` above: Exercise 1B(a) had 6 anonymous photos in one source
+slide, each with a blank to complete — no template fit a multi-photo grid
+with per-photo captions.
+**Item count is elastic, not fixed to 4.** Call:
+```js
+const { renderPhotoGridBlank } = require('./photo-grid-blank.render.js');
+const html = renderPhotoGridBlank({
+  breadcrumb: 'BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK',
+  title: "Complete the sentences with he's, she's, or they're.",
+  items: [
+    { answer: "He's", text: 'Italian.' },
+    { answer: "She's", text: 'Chinese.' },
+    // ...any length
+  ],
+});
+```
+Unlike the row-stacking elastic templates (`Exercise1`, `PracticeQaBadges`),
+this is a genuine 2D grid — the render function picks a column count (up to 4
+for ≤4 items, 3 for 5-6, 4 for 7-8, 5 for 9+) and computes photo size and
+caption font from both column count and row count together, not just one
+dimension.
+
 ---
 
 ## Pipeline capabilities (extract.js / build.js)
@@ -527,10 +596,34 @@ approximation in the ficha entry's notes:
   dialogue matching**, or **teacher-drawn annotation over a book image** — these
   were already flagged as gaps in the old system and still have no bespoke
   template here either. Closest fits: `CompleteTheChart` or `Exercise1` for
-  scramble-style drills (adapt the sentence/answer slots), `GuessFourImages` or
-  `MatchVocabImage` for multi-person photo matching, `Fluency2`/`Fluency3` for a
+  scramble-style drills (adapt the sentence/answer slots), `GuessFourImages`,
+  `MatchVocabImage`, or `PhotoGridBlank` for multi-person photo matching
+  (`PhotoGridBlank` if the photos are anonymous with per-photo captions,
+  `PhotoExerciseWhoIsThis` — called once per source slide — if each photo is a
+  single named person on its own source slide), `Fluency2`/`Fluency3` for a
   book-image-centered slide with the annotation instructions moved into the
   instruction text instead of drawn over the image.
+- **MultipleChoice** and **PhotoGridBlank** — these gaps are now filled (see
+  entries 20-21 above), added 2026-07-15 after both showed up for real in
+  `basic-1-unit-1-lesson-b-part-1-v2/`.
+- **Letter-matching without a central image** (e.g. "match each nationality to
+  a flag labeled A-H", where the flag-to-letter correspondence lives in an
+  image the extraction didn't capture with clear correspondence) — no
+  template yet. `MatchVocabImage` is close but assumes one central image with
+  numbered answer chips tied to it, not N independent lettered matches.
+  Closest fit for now: `SectionTransition` with the vocabulary list in the
+  subtitle.
+- **Combined matching + mini-chart exercise** (e.g. "match 1-3 with a-c, then
+  complete a 2-row contraction chart" as one exercise, like Cambridge
+  Exercise 2A+2B) — no template covers two different drill shapes stacked in
+  one slide. Closest fit for now: `SectionTransition` with the full exercise
+  (questions, options, answer key, chart) summarized in the subtitle.
+- **Model example + short practice-item list** (a worked example sentence
+  followed by 2-3 more items in the same shape, e.g. a notebook exercise
+  instruction slide) — no dedicated template; distinct from `Exercise1`
+  (which pairs an original sentence with its transformation, not a model +
+  freeform practice items). Closest fit for now: `SectionTransition` with the
+  example and items in the subtitle.
 When a lesson has content that matches one of these gaps, use the nearest-role
 template and say explicitly in the ficha note that it's an approximation —
 don't stretch a template silently, and don't drop the slide.

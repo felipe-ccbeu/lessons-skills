@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Photo Grid Blank — Complete the Sentence Under Each Photo</title>
+
+<style>
+:root {
+  --ccbeu-blue: #0448DF;
+  --ccbeu-pink: #FD3682;
+  --ccbeu-white: #FFFFFF;
+  --ink: #0E1116;
+  --ink-footer: #9AA1AC;
+  --img-safe: #EEF1F8;
+  --font-title: 'Poppins', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+html, body { margin: 0; }
+.stage { position: relative; width: 100vw; height: 100vh; background: #2b2f36; overflow: hidden; }
+.pg-canvas { position: absolute; top: 0; left: 0; }
+.pg-cell { display: flex; flex-direction: column; }
+.pg-photo { background: var(--img-safe); border: 1px dashed #C5CCDA; border-radius: 6px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: var(--font-title); font-weight: 700; font-size: 9pt; letter-spacing: 0.06em; color: #9AA1AC; }
+.pg-caption { font-family: var(--font-body); font-size: 13pt; color: var(--ink); }
+.pg-caption .gap { font-family: var(--font-title); font-weight: 700; color: var(--ccbeu-pink); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;0,800;1,400;1,700&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+  <div class="pg-canvas" style="width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);">
+
+    <div style="position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);"><span style="width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;"></span>{{BREADCRUMB}}</div>
+
+    <h1 style="position: absolute; left: 80px; top: 108px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 22pt; color: var(--ccbeu-blue);">{{TITLE}}</h1>
+
+    <div style="position: absolute; left: 80px; top: 180px; width: 1120px; display: flex; flex-wrap: wrap; gap: 24px;">
+      <div class="pg-cell" style="width: 260px;">
+        <div class="pg-photo" style="width: 260px; height: 170px;">PHOTO</div>
+        <p class="pg-caption" style="margin: 12px 0 0;"><span class="gap">{{ITEM1_ANSWER}}</span> {{ITEM1_TEXT}}</p>
+      </div>
+      <div class="pg-cell" style="width: 260px;">
+        <div class="pg-photo" style="width: 260px; height: 170px;">PHOTO</div>
+        <p class="pg-caption" style="margin: 12px 0 0;"><span class="gap">{{ITEM2_ANSWER}}</span> {{ITEM2_TEXT}}</p>
+      </div>
+      <div class="pg-cell" style="width: 260px;">
+        <div class="pg-photo" style="width: 260px; height: 170px;">PHOTO</div>
+        <p class="pg-caption" style="margin: 12px 0 0;"><span class="gap">{{ITEM3_ANSWER}}</span> {{ITEM3_TEXT}}</p>
+      </div>
+      <div class="pg-cell" style="width: 260px;">
+        <div class="pg-photo" style="width: 260px; height: 170px;">PHOTO</div>
+        <p class="pg-caption" style="margin: 12px 0 0;"><span class="gap">{{ITEM4_ANSWER}}</span> {{ITEM4_TEXT}}</p>
+      </div>
+    </div>
+
+    <div style="position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);">CCBEU English Center</div>
+  </div>
+</div>
+
+</body></html>

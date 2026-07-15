@@ -344,6 +344,28 @@
       "notes": "keywords and answers are two independent lists with independently elastic lengths - the source template already had 5 keywords but only 4 answer chips, so unequal counts are the normal case, not a bug. The keyword row switches from the shipped template's `justify-content: space-between` to an explicit gap once rendered, so spacing stays predictable regardless of keyword count (space-between's spacing is a function of item count and would otherwise vary unpredictably). Call renderMatchVocabImage({ breadcrumb, title, instruction, keywords, answers }) instead of string-replacing tokens."
     }
   },
+  "multiple-choice.html": {
+    "tokens": [
+      "BREADCRUMB",
+      "TAG",
+      "QUESTION",
+      "OPTION1",
+      "OPTION2",
+      "OPTION3"
+    ],
+    "body": "<div class=\"stage\">\n  <div class=\"mc-canvas\" style=\"width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);\">\n\n    <div style=\"position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);\"><span style=\"width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;\"></span>{{BREADCRUMB}}</div>\n\n    <div style=\"position: absolute; left: 80px; top: 124px; font-family: var(--font-title); font-weight: 700; font-size: 12pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-pink);\">{{TAG}}</div>\n\n    <h1 style=\"position: absolute; left: 80px; top: 168px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 28pt; line-height: 1.25; color: var(--ccbeu-blue);\">{{QUESTION}}</h1>\n\n    <div style=\"position: absolute; left: 80px; top: 320px; width: 700px;\">\n      <div class=\"mc-opt\"><div class=\"mc-opt-letter\">A</div><div class=\"mc-opt-text\">{{OPTION1}}</div></div>\n      <div class=\"mc-opt\"><div class=\"mc-opt-letter\">B</div><div class=\"mc-opt-text\">{{OPTION2}}</div></div>\n      <div class=\"mc-opt\"><div class=\"mc-opt-letter\">C</div><div class=\"mc-opt-text\">{{OPTION3}}</div></div>\n    </div>\n\n    <div style=\"position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);\">CCBEU English Center</div>\n  </div>\n</div>",
+    "dynamic": {
+      "renderModule": "./multiple-choice.render.js",
+      "renderFn": "renderMultipleChoice",
+      "schema": {
+        "breadcrumb": "string",
+        "tag": "string - small pink eyebrow label above the question, e.g. \"Books closed! Do you remember?\"",
+        "question": "string - the quiz question, e.g. \"Is Heather Watson a _______?\"",
+        "options": "[string, ...] - any length, lettered A/B/C/... automatically. No option is marked correct in the rendered slide - this is a question for the class to answer aloud, not an answer key."
+      },
+      "notes": "Added 2026-07-15 to fill a real gap: a Books-closed recall quiz (\"Is X a _______? / Baseball player. / Tennis player. / Basketball player.\") had no matching template - PracticeQaBadges is Yes/No binary only, does not fit N free-form alternatives. Up to 3 options render with the original hand-tuned row height/font; more options shrinks row height/font to fit the content band (same elastic-row pattern as exercise-1.html/practice-qa-badges.html - rows stack via document flow, no per-row position math). Call renderMultipleChoice({ breadcrumb, tag, question, options }) instead of string-replacing tokens. Supports at most 26 options (A-Z)."
+    }
+  },
   "objectives.html": {
     "tokens": [
       "BREADCRUMB",
@@ -368,6 +390,31 @@
       "SENTENCE_GAP"
     ],
     "body": "<div class=\"stage\">\n  <div style=\"position: relative; width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body); flex: 0 0 auto;\">\n\n    <!-- Full-bleed photo right -->\n    <div style=\"position: absolute; left: 677px; top: 93px; width: 533px; height: 534px; background: var(--img-safe); border: 1px dashed #C5CCDA; border-radius: 6px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: var(--font-title); font-weight: 700; font-size: 12pt; letter-spacing: 0.08em; color: #9AA1AC;\">PHOTO</div>\n\n    <div style=\"position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);\"><span style=\"width: 10px; height: 10px; border-radius: 999px; background: var(--ccbeu-pink);\"></span>{{BREADCRUMB}}</div>\n\n    <h1 style=\"position: absolute; left: 80px; top: 115px; width: 520px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 24pt; color: var(--ccbeu-blue);\">{{TITLE}}</h1>\n\n    <div style=\"position: absolute; left: 81px; top: 250px; width: 567px; font-family: var(--font-title); font-weight: 700; font-size: 20pt; color: var(--ccbeu-pink);\">{{PERSON_NAME}}</div>\n    <div style=\"position: absolute; left: 81px; top: 296px; width: 520px; font-family: var(--font-title); font-weight: 700; font-size: 20pt; color: var(--ccbeu-pink);\">{{PERSON_ROLE}}</div>\n\n    <img src=\"f6ecb5f6-316c-483d-84e3-b07f54f0bc9c\" alt=\"speaking\" style=\"position: absolute; left: 81px; top: 392px; width: 60px; height: auto;\">\n\n    <p style=\"position: absolute; left: 80px; top: 490px; width: 623px; margin: 0; font-family: var(--font-body); font-size: 20pt; color: var(--ink);\">{{SENTENCE_PRE}} <span class=\"gap\">{{SENTENCE_GAP}}</span>.</p>\n\n    <div style=\"position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);\">CCBEU English Center</div>\n  </div>\n</div>"
+  },
+  "photo-grid-blank.html": {
+    "tokens": [
+      "BREADCRUMB",
+      "TITLE",
+      "ITEM1_ANSWER",
+      "ITEM1_TEXT",
+      "ITEM2_ANSWER",
+      "ITEM2_TEXT",
+      "ITEM3_ANSWER",
+      "ITEM3_TEXT",
+      "ITEM4_ANSWER",
+      "ITEM4_TEXT"
+    ],
+    "body": "<div class=\"stage\">\n  <div class=\"pg-canvas\" style=\"width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);\">\n\n    <div style=\"position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);\"><span style=\"width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;\"></span>{{BREADCRUMB}}</div>\n\n    <h1 style=\"position: absolute; left: 80px; top: 108px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 22pt; color: var(--ccbeu-blue);\">{{TITLE}}</h1>\n\n    <div style=\"position: absolute; left: 80px; top: 180px; width: 1120px; display: flex; flex-wrap: wrap; gap: 24px;\">\n      <div class=\"pg-cell\" style=\"width: 260px;\">\n        <div class=\"pg-photo\" style=\"width: 260px; height: 170px;\">PHOTO</div>\n        <p class=\"pg-caption\" style=\"margin: 12px 0 0;\"><span class=\"gap\">{{ITEM1_ANSWER}}</span> {{ITEM1_TEXT}}</p>\n      </div>\n      <div class=\"pg-cell\" style=\"width: 260px;\">\n        <div class=\"pg-photo\" style=\"width: 260px; height: 170px;\">PHOTO</div>\n        <p class=\"pg-caption\" style=\"margin: 12px 0 0;\"><span class=\"gap\">{{ITEM2_ANSWER}}</span> {{ITEM2_TEXT}}</p>\n      </div>\n      <div class=\"pg-cell\" style=\"width: 260px;\">\n        <div class=\"pg-photo\" style=\"width: 260px; height: 170px;\">PHOTO</div>\n        <p class=\"pg-caption\" style=\"margin: 12px 0 0;\"><span class=\"gap\">{{ITEM3_ANSWER}}</span> {{ITEM3_TEXT}}</p>\n      </div>\n      <div class=\"pg-cell\" style=\"width: 260px;\">\n        <div class=\"pg-photo\" style=\"width: 260px; height: 170px;\">PHOTO</div>\n        <p class=\"pg-caption\" style=\"margin: 12px 0 0;\"><span class=\"gap\">{{ITEM4_ANSWER}}</span> {{ITEM4_TEXT}}</p>\n      </div>\n    </div>\n\n    <div style=\"position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);\">CCBEU English Center</div>\n  </div>\n</div>",
+    "dynamic": {
+      "renderModule": "./photo-grid-blank.render.js",
+      "renderFn": "renderPhotoGridBlank",
+      "schema": {
+        "breadcrumb": "string",
+        "title": "string",
+        "items": "[{ answer: string, text: string }, ...] - any length. `answer` is the pink/bold fill-in-the-blank portion (e.g. \"He's\"), `text` is the rest of the caption (e.g. \"Italian.\")."
+      },
+      "notes": "Added 2026-07-15 to fill a real gap: an exercise with N anonymous photos (no names), each captioned with a fill-in-the-blank sentence (e.g. Exercise 1B(a): 6 photos, \"___ Italian.\" / \"___ Chinese.\" / ...), had no matching template - PhotoExerciseWhoIsThis is built for exactly ONE named person per slide (PERSON_NAME/PERSON_ROLE), forcing it here would mean either fabricating 6 slides from 1 source slide (breaking the 1:1 rule) or leaving PERSON_NAME empty (template misuse). Auto-picks a column count (up to 4 for <=4 items, 3 for 5-6, 4 for 7-8, 5 for 9+) and computes photo/cell size and caption font from that - this is NOT a simple row-stacking elastic template like exercise-1.html, it is a 2D grid, so both column count and per-row height matter. Call renderPhotoGridBlank({ breadcrumb, title, items }) instead of string-replacing tokens."
+    }
   },
   "practice-qa-badges.html": {
     "tokens": [
