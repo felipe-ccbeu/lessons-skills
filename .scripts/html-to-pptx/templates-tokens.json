@@ -300,7 +300,16 @@
       "COL4_T3",
       "COL4_D3"
     ],
-    "body": "<div class=\"stage\">\n  <div style=\"position: relative; width: 1280px; height: 720px; background: var(--ccbeu-blue); overflow: hidden; font-family: var(--font-body); flex: 0 0 auto;\">\n\n    <div style=\"position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: #fff\"><span style=\"width: 10px; height: 10px; border-radius: 999px; background: var(--ccbeu-pink)\"></span>{{BREADCRUMB}}</div>\n\n    <h1 style=\"position: absolute; left: 80px; top: 217px; width: 1085px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 32pt; color: #fff;\">Lesson Complete!</h1>\n\n    <!-- 4 columns -->\n    <div style=\"position: absolute; left: 80px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL1_HEADER}}</div>\n      <div class=\"term\"><b>{{COL1_T1}}</b><span>{{COL1_D1}}</span></div>\n      <div class=\"term\"><b>{{COL1_T2}}</b><span>{{COL1_D2}}</span></div>\n      <div class=\"term\"><b>{{COL1_T3}}</b><span>{{COL1_D3}}</span></div>\n      <div class=\"term\"><b>{{COL1_T4}}</b><span>{{COL1_D4}}</span></div>\n    </div>\n    <div style=\"position: absolute; left: 370px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL2_HEADER}}</div>\n      <div class=\"term\"><b>{{COL2_T1}}</b><span>{{COL2_D1}}</span></div>\n      <div class=\"term\"><b>{{COL2_T2}}</b><span>{{COL2_D2}}</span></div>\n      <div class=\"term\"><b>{{COL2_T3}}</b><span>{{COL2_D3}}</span></div>\n    </div>\n    <div style=\"position: absolute; left: 625px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL3_HEADER}}</div>\n      <div class=\"term\"><b>{{COL3_T1}}</b><span>{{COL3_D1}}</span></div>\n      <div class=\"term\"><b>{{COL3_T2}}</b><span>{{COL3_D2}}</span></div>\n      <div class=\"term\"><b>{{COL3_T3}}</b><span>{{COL3_D3}}</span></div>\n    </div>\n    <div style=\"position: absolute; left: 917px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL4_HEADER}}</div>\n      <div class=\"term\"><b>{{COL4_T1}}</b><span>{{COL4_D1}}</span></div>\n      <div class=\"term\"><b>{{COL4_T2}}</b><span>{{COL4_D2}}</span></div>\n      <div class=\"term\"><b>{{COL4_T3}}</b><span>{{COL4_D3}}</span></div>\n    </div>\n\n    \n\n    <div style=\"position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: rgba(255,255,255,0.72)\">CCBEU English Center</div>\n  </div>\n</div>"
+    "body": "<div class=\"stage\">\n  <div style=\"position: relative; width: 1280px; height: 720px; background: var(--ccbeu-blue); overflow: hidden; font-family: var(--font-body); flex: 0 0 auto;\">\n\n    <div style=\"position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: #fff\"><span style=\"width: 10px; height: 10px; border-radius: 999px; background: var(--ccbeu-pink)\"></span>{{BREADCRUMB}}</div>\n\n    <h1 style=\"position: absolute; left: 80px; top: 217px; width: 1085px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 32pt; color: #fff;\">Lesson Complete!</h1>\n\n    <!-- 4 columns -->\n    <div style=\"position: absolute; left: 80px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL1_HEADER}}</div>\n      <div class=\"term\"><b>{{COL1_T1}}</b><span>{{COL1_D1}}</span></div>\n      <div class=\"term\"><b>{{COL1_T2}}</b><span>{{COL1_D2}}</span></div>\n      <div class=\"term\"><b>{{COL1_T3}}</b><span>{{COL1_D3}}</span></div>\n      <div class=\"term\"><b>{{COL1_T4}}</b><span>{{COL1_D4}}</span></div>\n    </div>\n    <div style=\"position: absolute; left: 370px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL2_HEADER}}</div>\n      <div class=\"term\"><b>{{COL2_T1}}</b><span>{{COL2_D1}}</span></div>\n      <div class=\"term\"><b>{{COL2_T2}}</b><span>{{COL2_D2}}</span></div>\n      <div class=\"term\"><b>{{COL2_T3}}</b><span>{{COL2_D3}}</span></div>\n    </div>\n    <div style=\"position: absolute; left: 625px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL3_HEADER}}</div>\n      <div class=\"term\"><b>{{COL3_T1}}</b><span>{{COL3_D1}}</span></div>\n      <div class=\"term\"><b>{{COL3_T2}}</b><span>{{COL3_D2}}</span></div>\n      <div class=\"term\"><b>{{COL3_T3}}</b><span>{{COL3_D3}}</span></div>\n    </div>\n    <div style=\"position: absolute; left: 917px; top: 311px; width: 240px;\">\n      <div class=\"cat\">{{COL4_HEADER}}</div>\n      <div class=\"term\"><b>{{COL4_T1}}</b><span>{{COL4_D1}}</span></div>\n      <div class=\"term\"><b>{{COL4_T2}}</b><span>{{COL4_D2}}</span></div>\n      <div class=\"term\"><b>{{COL4_T3}}</b><span>{{COL4_D3}}</span></div>\n    </div>\n\n    \n\n    <div style=\"position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: rgba(255,255,255,0.72)\">CCBEU English Center</div>\n  </div>\n</div>",
+    "dynamic": {
+      "renderModule": "./lesson-complete.render.js",
+      "renderFn": "renderLessonComplete",
+      "schema": {
+        "breadcrumb": "string",
+        "columns": "[{ header: string, terms: [{ t: string, d: string }, ...] }, ...] - 1 to 4 columns, each with its own elastic term count"
+      },
+      "notes": "Converted to elastic 2026-07-15 after a real case: a lesson that only recapped 2 categories (Affirmatives/Negatives, not the full Affirmatives/Questions/Wh-Questions/Other-Words set the old fixed-4-column template assumed) left 2 columns completely empty in the rendered slide, wasting half the width. The render function spreads however many columns are actually given (1-4) evenly across the same content band the old template used, and computes a shared font size across all columns from whichever column has the most terms. Do NOT pass more than 4 columns - the content band cannot fit a 5th without overlapping the title. Only fill in the categories the source lesson actually recapped; do not invent a Questions/Wh-Questions column just to reach 4. Call renderLessonComplete({ breadcrumb, columns }) instead of string-replacing tokens."
+    }
   },
   "listen-and-repeat.html": {
     "tokens": [
@@ -341,7 +350,61 @@
         "keywords": "[string, ...] - any length, not fixed to 5 (the pink keyword row above the image)",
         "answers": "[string, ...] - any length, not fixed to 4 (the numbered chip column beside the image) - independent count from keywords, does not have to match it"
       },
-      "notes": "keywords and answers are two independent lists with independently elastic lengths - the source template already had 5 keywords but only 4 answer chips, so unequal counts are the normal case, not a bug. The keyword row switches from the shipped template's `justify-content: space-between` to an explicit gap once rendered, so spacing stays predictable regardless of keyword count (space-between's spacing is a function of item count and would otherwise vary unpredictably). Call renderMatchVocabImage({ breadcrumb, title, instruction, keywords, answers }) instead of string-replacing tokens."
+      "notes": "keywords and answers are two independent lists with independently elastic lengths - the source template already had 5 keywords but only 4 answer chips, so unequal counts are the normal case, not a bug. The keyword row switches from the shipped template's `justify-content: space-between` to an explicit gap once rendered, so spacing stays predictable regardless of keyword count (space-between's spacing is a function of item count and would otherwise vary unpredictably). `answers` is optional (added 2026-07-15) - omit it or pass an empty array for a plain \"keyword list + central image\" slide (e.g. a pronunciation-practice slide with no matching/answer step at all); the whole numbered-chip column is dropped entirely, not left as an empty column. Do not fabricate an answers list just to satisfy this template when the source lesson genuinely has no answer/matching step. Call renderMatchVocabImage({ breadcrumb, title, instruction, keywords, answers }) instead of string-replacing tokens."
+    }
+  },
+  "matching-with-chart.html": {
+    "tokens": [
+      "BREADCRUMB",
+      "TITLE",
+      "MATCH_LABEL",
+      "MATCH1_PROMPT",
+      "MATCH2_PROMPT",
+      "MATCH3_PROMPT",
+      "MATCH_ANSWER_KEY",
+      "CHART_LABEL",
+      "CHART1_LABEL",
+      "CHART1_ANSWER",
+      "CHART2_LABEL",
+      "CHART2_ANSWER"
+    ],
+    "body": "<div class=\"stage\">\n  <div class=\"mw-canvas\" style=\"width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);\">\n\n    <div style=\"position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);\"><span style=\"width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;\"></span>{{BREADCRUMB}}</div>\n\n    <h1 style=\"position: absolute; left: 80px; top: 108px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 22pt; color: var(--ccbeu-blue);\">{{TITLE}}</h1>\n\n    <!-- Vertical divider -->\n    <div style=\"position: absolute; left: 640px; top: 190px; width: 1.5px; height: 400px; background: var(--border-hair);\"></div>\n\n    <!-- Left: numbered matching -->\n    <div style=\"position: absolute; left: 80px; top: 190px; width: 520px;\">\n      <div class=\"mw-col-label\">{{MATCH_LABEL}}</div>\n      <div class=\"mw-match-row\"><div class=\"mw-match-n\">1</div><div class=\"mw-match-text\">{{MATCH1_PROMPT}}</div></div>\n      <div class=\"mw-match-row\"><div class=\"mw-match-n\">2</div><div class=\"mw-match-text\">{{MATCH2_PROMPT}}</div></div>\n      <div class=\"mw-match-row\"><div class=\"mw-match-n\">3</div><div class=\"mw-match-text\">{{MATCH3_PROMPT}}</div></div>\n      <div style=\"height: 14px;\"></div>\n      <div class=\"mw-match-row\"><div class=\"mw-match-letter\">a</div><div class=\"mw-match-text\">{{MATCHa_TEXT}}</div></div>\n      <div class=\"mw-match-row\"><div class=\"mw-match-letter\">b</div><div class=\"mw-match-text\">{{MATCHb_TEXT}}</div></div>\n      <div class=\"mw-match-row\"><div class=\"mw-match-letter\">c</div><div class=\"mw-match-text\">{{MATCHc_TEXT}}</div></div>\n      <p style=\"margin: 14px 0 0; font-family: var(--font-title); font-weight: 700; font-size: 11pt; color: var(--ccbeu-blue);\">{{MATCH_ANSWER_KEY}}</p>\n    </div>\n\n    <!-- Right: mini chart -->\n    <div style=\"position: absolute; left: 680px; top: 190px; width: 520px;\">\n      <div class=\"mw-col-label\">{{CHART_LABEL}}</div>\n      <div class=\"mw-chart-row\"><div class=\"mw-chart-label\">{{CHART1_LABEL}}</div><div class=\"mw-chart-answer\">{{CHART1_ANSWER}}</div></div>\n      <div class=\"mw-chart-row\"><div class=\"mw-chart-label\">{{CHART2_LABEL}}</div><div class=\"mw-chart-answer\">{{CHART2_ANSWER}}</div></div>\n    </div>\n\n    <div style=\"position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);\">CCBEU English Center</div>\n  </div>\n</div>",
+    "dynamic": {
+      "renderModule": "./matching-with-chart.render.js",
+      "renderFn": "renderMatchingWithChart",
+      "schema": {
+        "breadcrumb": "string",
+        "title": "string",
+        "matchLabel": "string - small pink label above the matching column, e.g. \"Match 1-3 with a-c\"",
+        "matchPrompts": "[string, ...] - any length, numbered 1/2/3/... automatically (the left side of the match)",
+        "matchOptions": "[string, ...] - any length (max 26), lettered a/b/c/... automatically (the right side of the match)",
+        "matchAnswerKey": "string, optional - e.g. \"Answers: 1-c, 2-a, 3-b\"",
+        "chartLabel": "string - small pink label above the mini chart, e.g. \"Complete the chart\"",
+        "chartRows": "[{ label: string, answer: string }, ...] - any length"
+      },
+      "notes": "Added 2026-07-15 to fill a real gap: a combined two-part exercise (numbered matching drill + a small fill-in-the-blank chart in the same source slide, e.g. Cambridge Exercise 2A+2B: \"Match 1-3 with a-c\" then \"Complete the chart\") had no matching template - no existing template covers two different drill shapes stacked in one slide. Inherently a dense two-column layout by design (vertical divider down the middle) - prompts/options/chart rows are elastic in count but this template does not aggressively auto-shrink font the way single-purpose full-width templates do, since it is already sharing the slide width between two exercises. Keep each half reasonably short. Call renderMatchingWithChart({ breadcrumb, title, matchLabel, matchPrompts, matchOptions, matchAnswerKey, chartLabel, chartRows }) instead of string-replacing tokens."
+    }
+  },
+  "model-example-list.html": {
+    "tokens": [
+      "BREADCRUMB",
+      "TITLE",
+      "EXAMPLE",
+      "ITEM1",
+      "ITEM2",
+      "ITEM3"
+    ],
+    "body": "<div class=\"stage\">\n  <div class=\"ml-canvas\" style=\"width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);\">\n\n    <div style=\"position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);\"><span style=\"width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;\"></span>{{BREADCRUMB}}</div>\n\n    <h1 style=\"position: absolute; left: 80px; top: 108px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 24pt; color: var(--ccbeu-blue);\">{{TITLE}}</h1>\n\n    <div style=\"position: absolute; left: 80px; top: 190px; width: 1120px;\">\n      <div class=\"ml-example\"><div class=\"ml-example-label\">Example</div><div class=\"ml-example-text\">{{EXAMPLE}}</div></div>\n      <div class=\"ml-item\"><div class=\"ml-item-n\">1</div><div class=\"ml-item-text\">{{ITEM1}}</div></div>\n      <div class=\"ml-item\"><div class=\"ml-item-n\">2</div><div class=\"ml-item-text\">{{ITEM2}}</div></div>\n      <div class=\"ml-item\"><div class=\"ml-item-n\">3</div><div class=\"ml-item-text\">{{ITEM3}}</div></div>\n    </div>\n\n    <div style=\"position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);\">CCBEU English Center</div>\n  </div>\n</div>",
+    "dynamic": {
+      "renderModule": "./model-example-list.render.js",
+      "renderFn": "renderModelExampleList",
+      "schema": {
+        "breadcrumb": "string",
+        "title": "string",
+        "example": "string - the worked model sentence, shown in a highlighted \"Example\" pill",
+        "items": "[string, ...] - any length, numbered 1/2/3/... automatically, same shape as the example but left for the student to complete"
+      },
+      "notes": "Added 2026-07-15 to fill a real gap: a notebook-exercise instruction slide (1 worked example + N more items in the same shape, e.g. \"Example: Neymar is brazilian, he is a soccer player.\" followed by 3 more names/nationalities/jobs) had no matching template - distinct from Exercise1 (which pairs an original sentence with its arrow-transformed rewrite) and from MultipleChoice/PracticeQaBadges (which are question-driven). This is a flat list of same-shape statements with one flagged as the model. Up to 3 items render with the original hand-tuned row height/font (items stack via document flow, same shape as exercise-1.html); more items shrinks row height/font to fit. Call renderModelExampleList({ breadcrumb, title, example, items }) instead of string-replacing tokens."
     }
   },
   "multiple-choice.html": {

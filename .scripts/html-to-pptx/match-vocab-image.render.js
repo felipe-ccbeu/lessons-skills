@@ -10,13 +10,22 @@
  * silently produce wildly different spacing at N != 5 — an explicit gap
  * keeps that predictable at any N.
  *
+ * `answers` is optional (omit or pass an empty array) — when absent, the
+ * whole numbered-chip column is dropped entirely (not left as an empty
+ * column), turning this into a plain "keyword list + central image" slide.
+ * Added 2026-07-15 for a real case: a pronunciation-practice slide (a list
+ * of countries next to a decorative map, no matching/answer step at all)
+ * doesn't have an "answer" in any sense — forcing a fabricated answers list
+ * just to satisfy this template would have invented content that isn't in
+ * the source lesson.
+ *
  * Usage:
  *   const { renderMatchVocabImage } = require('./match-vocab-image.render.js');
  *   const html = renderMatchVocabImage({
  *     breadcrumb: '...', title: 'Match the vocabulary',
  *     instruction: 'Look at the map and match each word to the picture.',
  *     keywords: ['park', 'school', 'hospital', 'bank', 'library', 'station'],
- *     answers: ['park', 'school', 'hospital', 'bank'],
+ *     answers: ['park', 'school', 'hospital', 'bank'], // omit for a plain keyword-list slide
  *   });
  */
 const fs = require('fs');
@@ -74,7 +83,6 @@ function renderAnswers(answers) {
 
 function renderMatchVocabImage({ breadcrumb, title, instruction, keywords, answers }) {
   if (!keywords || !keywords.length) throw new Error('renderMatchVocabImage requires a non-empty keywords array');
-  if (!answers || !answers.length) throw new Error('renderMatchVocabImage requires a non-empty answers array');
 
   const shell = fs.readFileSync(SHELL_PATH, 'utf8');
   const start = shell.indexOf(TPL_OPEN) + TPL_OPEN.length;
@@ -108,17 +116,25 @@ function renderMatchVocabImage({ breadcrumb, title, instruction, keywords, answe
   const footerMarker = '<div style="position: absolute; left: 80px; top: 636px;';
   const footerIdx = filled.indexOf(footerMarker, ansContentStart);
   const ansContentEnd = filled.lastIndexOf('</div>', footerIdx);
+  // ansBlockEnd is just past the answer column's own closing </div> (not the
+  // footer's) — cut the entire column, opening tag included, when there are
+  // no answers to show, rather than leaving an empty flex container behind.
+  const ansBlockEnd = ansContentEnd + '</div>'.length;
 
-  const gapPx = computeAnswerGap(answers.length);
-  const answersRowReplacement = `<div style="position: absolute; left: 960px; top: 320px; width: 240px; display: flex; flex-direction: column; gap: ${gapPx}px;">`;
+  if (answers && answers.length) {
+    const gapPx = computeAnswerGap(answers.length);
+    const answersRowReplacement = `<div style="position: absolute; left: 960px; top: 320px; width: 240px; display: flex; flex-direction: column; gap: ${gapPx}px;">`;
 
-  filled =
-    filled.slice(0, ansRowStart) +
-    answersRowReplacement +
-    '\n' +
-    renderAnswers(answers) +
-    '\n    ' +
-    filled.slice(ansContentEnd);
+    filled =
+      filled.slice(0, ansRowStart) +
+      answersRowReplacement +
+      '\n' +
+      renderAnswers(answers) +
+      '\n    ' +
+      filled.slice(ansContentEnd);
+  } else {
+    filled = filled.slice(0, ansRowStart) + filled.slice(ansBlockEnd);
+  }
 
   filled = filled
     .replace('{{BREADCRUMB}}', escapeHtml(breadcrumb))

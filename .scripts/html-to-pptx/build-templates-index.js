@@ -198,6 +198,7 @@ const DYNAMIC_TEMPLATES = {
     notes:
       'keywords and answers are two independent lists with independently elastic lengths - the source template already had 5 keywords but only 4 answer chips, so unequal counts are the normal case, not a bug. ' +
       'The keyword row switches from the shipped template\'s `justify-content: space-between` to an explicit gap once rendered, so spacing stays predictable regardless of keyword count (space-between\'s spacing is a function of item count and would otherwise vary unpredictably). ' +
+      '`answers` is optional (added 2026-07-15) - omit it or pass an empty array for a plain "keyword list + central image" slide (e.g. a pronunciation-practice slide with no matching/answer step at all); the whole numbered-chip column is dropped entirely, not left as an empty column. Do not fabricate an answers list just to satisfy this template when the source lesson genuinely has no answer/matching step. ' +
       'Call renderMatchVocabImage({ breadcrumb, title, instruction, keywords, answers }) instead of string-replacing tokens.',
   },
   'multiple-choice.html': {
@@ -225,6 +226,48 @@ const DYNAMIC_TEMPLATES = {
     notes:
       'Added 2026-07-15 to fill a real gap: an exercise with N anonymous photos (no names), each captioned with a fill-in-the-blank sentence (e.g. Exercise 1B(a): 6 photos, "___ Italian." / "___ Chinese." / ...), had no matching template - PhotoExerciseWhoIsThis is built for exactly ONE named person per slide (PERSON_NAME/PERSON_ROLE), forcing it here would mean either fabricating 6 slides from 1 source slide (breaking the 1:1 rule) or leaving PERSON_NAME empty (template misuse). ' +
       'Auto-picks a column count (up to 4 for <=4 items, 3 for 5-6, 4 for 7-8, 5 for 9+) and computes photo/cell size and caption font from that - this is NOT a simple row-stacking elastic template like exercise-1.html, it is a 2D grid, so both column count and per-row height matter. Call renderPhotoGridBlank({ breadcrumb, title, items }) instead of string-replacing tokens.',
+  },
+  'matching-with-chart.html': {
+    renderModule: './matching-with-chart.render.js',
+    renderFn: 'renderMatchingWithChart',
+    schema: {
+      breadcrumb: 'string',
+      title: 'string',
+      matchLabel: 'string - small pink label above the matching column, e.g. "Match 1-3 with a-c"',
+      matchPrompts: '[string, ...] - any length, numbered 1/2/3/... automatically (the left side of the match)',
+      matchOptions: '[string, ...] - any length (max 26), lettered a/b/c/... automatically (the right side of the match)',
+      matchAnswerKey: 'string, optional - e.g. "Answers: 1-c, 2-a, 3-b"',
+      chartLabel: 'string - small pink label above the mini chart, e.g. "Complete the chart"',
+      chartRows: '[{ label: string, answer: string }, ...] - any length',
+    },
+    notes:
+      'Added 2026-07-15 to fill a real gap: a combined two-part exercise (numbered matching drill + a small fill-in-the-blank chart in the same source slide, e.g. Cambridge Exercise 2A+2B: "Match 1-3 with a-c" then "Complete the chart") had no matching template - no existing template covers two different drill shapes stacked in one slide. ' +
+      'Inherently a dense two-column layout by design (vertical divider down the middle) - prompts/options/chart rows are elastic in count but this template does not aggressively auto-shrink font the way single-purpose full-width templates do, since it is already sharing the slide width between two exercises. Keep each half reasonably short. ' +
+      'Call renderMatchingWithChart({ breadcrumb, title, matchLabel, matchPrompts, matchOptions, matchAnswerKey, chartLabel, chartRows }) instead of string-replacing tokens.',
+  },
+  'model-example-list.html': {
+    renderModule: './model-example-list.render.js',
+    renderFn: 'renderModelExampleList',
+    schema: {
+      breadcrumb: 'string',
+      title: 'string',
+      example: 'string - the worked model sentence, shown in a highlighted "Example" pill',
+      items: '[string, ...] - any length, numbered 1/2/3/... automatically, same shape as the example but left for the student to complete',
+    },
+    notes:
+      'Added 2026-07-15 to fill a real gap: a notebook-exercise instruction slide (1 worked example + N more items in the same shape, e.g. "Example: Neymar is brazilian, he is a soccer player." followed by 3 more names/nationalities/jobs) had no matching template - distinct from Exercise1 (which pairs an original sentence with its arrow-transformed rewrite) and from MultipleChoice/PracticeQaBadges (which are question-driven). This is a flat list of same-shape statements with one flagged as the model. ' +
+      'Up to 3 items render with the original hand-tuned row height/font (items stack via document flow, same shape as exercise-1.html); more items shrinks row height/font to fit. Call renderModelExampleList({ breadcrumb, title, example, items }) instead of string-replacing tokens.',
+  },
+  'lesson-complete.html': {
+    renderModule: './lesson-complete.render.js',
+    renderFn: 'renderLessonComplete',
+    schema: {
+      breadcrumb: 'string',
+      columns: '[{ header: string, terms: [{ t: string, d: string }, ...] }, ...] - 1 to 4 columns, each with its own elastic term count',
+    },
+    notes:
+      'Converted to elastic 2026-07-15 after a real case: a lesson that only recapped 2 categories (Affirmatives/Negatives, not the full Affirmatives/Questions/Wh-Questions/Other-Words set the old fixed-4-column template assumed) left 2 columns completely empty in the rendered slide, wasting half the width. ' +
+      'The render function spreads however many columns are actually given (1-4) evenly across the same content band the old template used, and computes a shared font size across all columns from whichever column has the most terms. Do NOT pass more than 4 columns - the content band cannot fit a 5th without overlapping the title. Only fill in the categories the source lesson actually recapped; do not invent a Questions/Wh-Questions column just to reach 4. Call renderLessonComplete({ breadcrumb, columns }) instead of string-replacing tokens.',
   },
 };
 

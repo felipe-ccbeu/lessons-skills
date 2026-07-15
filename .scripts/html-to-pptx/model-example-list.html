@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Model Example List — Worked Example Plus Practice Items</title>
+
+<style>
+:root {
+  --ccbeu-blue: #0448DF;
+  --ccbeu-pink: #FD3682;
+  --ink: #0E1116;
+  --ink-footer: #9AA1AC;
+  --tint-pink-soft: #FFF4F8;
+  --font-title: 'Poppins', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+html, body { margin: 0; }
+.stage { position: relative; width: 100vw; height: 100vh; background: #2b2f36; overflow: hidden; }
+.ml-canvas { position: absolute; top: 0; left: 0; }
+.ml-example { display: flex; align-items: baseline; gap: 12px; padding: 16px 20px; background: var(--tint-pink-soft); border-radius: 8px; margin-bottom: 20px; }
+.ml-example-label { font-family: var(--font-title); font-weight: 700; font-size: 11pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ccbeu-pink); flex: 0 0 auto; }
+.ml-example-text { font-family: var(--font-body); font-weight: 600; font-size: 15pt; color: var(--ink); }
+.ml-item { display: flex; align-items: baseline; gap: 14px; height: 48px; }
+.ml-item-n { flex: 0 0 32px; font-family: var(--font-title); font-weight: 700; font-size: 13pt; color: var(--ccbeu-blue); }
+.ml-item-text { font-family: var(--font-body); font-weight: 400; font-size: 15pt; color: var(--ink); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;0,800;1,400;1,700&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+  <div class="ml-canvas" style="width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);">
+
+    <div style="position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);"><span style="width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;"></span>{{BREADCRUMB}}</div>
+
+    <h1 style="position: absolute; left: 80px; top: 108px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 24pt; color: var(--ccbeu-blue);">{{TITLE}}</h1>
+
+    <div style="position: absolute; left: 80px; top: 190px; width: 1120px;">
+      <div class="ml-example"><div class="ml-example-label">Example</div><div class="ml-example-text">{{EXAMPLE}}</div></div>
+      <div class="ml-item"><div class="ml-item-n">1</div><div class="ml-item-text">{{ITEM1}}</div></div>
+      <div class="ml-item"><div class="ml-item-n">2</div><div class="ml-item-text">{{ITEM2}}</div></div>
+      <div class="ml-item"><div class="ml-item-n">3</div><div class="ml-item-text">{{ITEM3}}</div></div>
+    </div>
+
+    <div style="position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);">CCBEU English Center</div>
+  </div>
+</div>
+
+</body></html>

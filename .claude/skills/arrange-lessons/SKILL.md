@@ -210,15 +210,17 @@ choices, and call out explicitly any field you left empty because the source les
 didn't have content for it (per the hard rule — don't fill silently).
 
 **Templates with a sibling `<name>.render.js` take structured `values` — a
-`rows`/`questions`/`options`/`items`/`tips`/`keywords`+`answers` array of
-arbitrary length instead of fixed `ROWn_*`/`SENTENCEn_*`/`Qn` keys, and some
-also have optional secondary fields that drop the whole section (not just go
-text-empty) when omitted.** This is every template in the catalog with a
-genuine repeating-item shape — currently `ChangePlaces`, `WarmupOralTransform`,
-`GrammarBoxLook`, `GrammarBox2YesNo`, `PracticeQaBadges`, `CompleteTheChart`,
-`Exercise1`, `Fluency1`, `MatchVocabImage`, `MultipleChoice`, `PhotoGridBlank`
-(11 total; see `references/templates.md` for each one's exact call shape and
-example). Check `templates-tokens.json` for a
+`rows`/`questions`/`options`/`items`/`columns`/`tips`/`keywords`+`answers`
+array of arbitrary length instead of fixed `ROWn_*`/`SENTENCEn_*`/`Qn` keys,
+and some also have optional secondary fields that drop the whole section (not
+just go text-empty) when omitted.** This is every template in the catalog
+with a genuine repeating-item shape — currently `ChangePlaces`,
+`WarmupOralTransform`, `GrammarBoxLook`, `GrammarBox2YesNo`,
+`PracticeQaBadges`, `CompleteTheChart`, `Exercise1`, `Fluency1`,
+`MatchVocabImage`, `MultipleChoice`, `PhotoGridBlank`, `MatchingWithChart`,
+`ModelExampleList`, `LessonComplete` (15 total; see `references/templates.md`
+for each one's exact call shape and example). Check `templates-tokens.json`
+for a
 `dynamic` field on the template's entry before assuming a fixed row count or
 that every visible slide element has a required token. This exists
 specifically so a lesson with more items than the template's original
@@ -278,7 +280,8 @@ For each entry in the ficha, in order:
    (per step 2 — currently `ChangePlaces`, `WarmupOralTransform`,
    `GrammarBoxLook`, `GrammarBox2YesNo`, `PracticeQaBadges`,
    `CompleteTheChart`, `Exercise1`, `Fluency1`, `MatchVocabImage`,
-   `MultipleChoice`, `PhotoGridBlank`), skip the string-replace approach
+   `MultipleChoice`, `PhotoGridBlank`, `MatchingWithChart`,
+   `ModelExampleList`, `LessonComplete`), skip the string-replace approach
    entirely — `require()` the render module and call
    its render function with the ficha's `values` (e.g.
    `renderChangePlaces({ breadcrumb, title, rows })` or

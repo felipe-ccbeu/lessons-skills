@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Matching With Chart — Numbered Match Plus Mini Chart</title>
+
+<style>
+:root {
+  --ccbeu-blue: #0448DF;
+  --ccbeu-pink: #FD3682;
+  --ink: #0E1116;
+  --ink-footer: #9AA1AC;
+  --surface-zebra: #F7F8FB;
+  --border-hair: #ECEDF0;
+  --font-title: 'Poppins', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+html, body { margin: 0; }
+.stage { position: relative; width: 100vw; height: 100vh; background: #2b2f36; overflow: hidden; }
+.mw-canvas { position: absolute; top: 0; left: 0; }
+.mw-col-label { font-family: var(--font-title); font-weight: 700; font-size: 11pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ccbeu-pink); margin-bottom: 14px; }
+.mw-match-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.mw-match-n { font-family: var(--font-title); font-weight: 700; font-size: 13pt; color: var(--ccbeu-blue); flex: 0 0 20px; }
+.mw-match-text { font-family: var(--font-body); font-size: 13pt; color: var(--ink); }
+.mw-match-letter { font-family: var(--font-title); font-weight: 700; font-size: 13pt; color: var(--ccbeu-pink); flex: 0 0 20px; }
+.mw-chart-row { display: flex; align-items: center; height: 44px; border-bottom: 1px solid var(--border-hair); }
+.mw-chart-label { flex: 0 0 45%; font-family: var(--font-body); font-size: 13pt; color: var(--ink); }
+.mw-chart-answer { font-family: var(--font-title); font-weight: 700; font-size: 13pt; color: var(--ccbeu-pink); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;0,800;1,400;1,700&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+  <div class="mw-canvas" style="width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);">
+
+    <div style="position: absolute; left: 80px; top: 62px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);"><span style="width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); flex: 0 0 auto;"></span>{{BREADCRUMB}}</div>
+
+    <h1 style="position: absolute; left: 80px; top: 108px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 22pt; color: var(--ccbeu-blue);">{{TITLE}}</h1>
+
+    <!-- Vertical divider -->
+    <div style="position: absolute; left: 640px; top: 190px; width: 1.5px; height: 400px; background: var(--border-hair);"></div>
+
+    <!-- Left: numbered matching -->
+    <div style="position: absolute; left: 80px; top: 190px; width: 520px;">
+      <div class="mw-col-label">{{MATCH_LABEL}}</div>
+      <div class="mw-match-row"><div class="mw-match-n">1</div><div class="mw-match-text">{{MATCH1_PROMPT}}</div></div>
+      <div class="mw-match-row"><div class="mw-match-n">2</div><div class="mw-match-text">{{MATCH2_PROMPT}}</div></div>
+      <div class="mw-match-row"><div class="mw-match-n">3</div><div class="mw-match-text">{{MATCH3_PROMPT}}</div></div>
+      <div style="height: 14px;"></div>
+      <div class="mw-match-row"><div class="mw-match-letter">a</div><div class="mw-match-text">{{MATCHa_TEXT}}</div></div>
+      <div class="mw-match-row"><div class="mw-match-letter">b</div><div class="mw-match-text">{{MATCHb_TEXT}}</div></div>
+      <div class="mw-match-row"><div class="mw-match-letter">c</div><div class="mw-match-text">{{MATCHc_TEXT}}</div></div>
+      <p style="margin: 14px 0 0; font-family: var(--font-title); font-weight: 700; font-size: 11pt; color: var(--ccbeu-blue);">{{MATCH_ANSWER_KEY}}</p>
+    </div>
+
+    <!-- Right: mini chart -->
+    <div style="position: absolute; left: 680px; top: 190px; width: 520px;">
+      <div class="mw-col-label">{{CHART_LABEL}}</div>
+      <div class="mw-chart-row"><div class="mw-chart-label">{{CHART1_LABEL}}</div><div class="mw-chart-answer">{{CHART1_ANSWER}}</div></div>
+      <div class="mw-chart-row"><div class="mw-chart-label">{{CHART2_LABEL}}</div><div class="mw-chart-answer">{{CHART2_ANSWER}}</div></div>
+    </div>
+
+    <div style="position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);">CCBEU English Center</div>
+  </div>
+</div>
+
+</body></html>
