@@ -14,6 +14,26 @@ lesson.** Only replace the literal `{{TOKEN}}` text. If a template's shape
 genuinely doesn't fit a lesson's content (see Known gaps below), don't force it —
 flag the gap.
 
+**Exception — templates with a sibling `<name>.render.js`:** a small number of
+templates (currently `ChangePlaces` and `WarmupOralTransform`) are "list of N
+items" shapes that used to hardcode a fixed row count (`ROW1_*`/`ROW2_*`/
+`ROW3_*`, or `SENTENCE1`/`SENTENCE2_PRE`/`SENTENCE3_POST` etc.) directly in
+the HTML, which meant a lesson with more items than the template had rows
+silently lost content — this happened for real (see the WarmupOralTransform
+entry below: a 5-sentence warm-up drill into a template built for 3). For
+these, fill by calling the render function with a `rows: [...]` array of
+whatever length the source lesson actually has, not by string-replacing fixed
+tokens. `WarmupOralTransform` also has optional secondary sections (a CTA
+subtitle, a time badge) that drop entirely — not just go text-empty — when
+the ficha leaves them out, so a template's side panel can shrink to just its
+essential label instead of always rendering full instructional copy.
+`templates-tokens.json`'s `dynamic` field on each template's entry documents
+the function's exact call shape. If you're adding a new template that has a
+repeating row/item/card pattern or an optional secondary section, follow this
+same convention rather than hardcoding N slots or always-rendered copy —
+check `templates-tokens.json` for `dynamic` first before assuming a template
+only takes fixed `{{TOKEN}}`s.
+
 Every template except `ChangePlaces` has a footer text "CCBEU English Center" —
 always fixed, never a token, never touched.
 
@@ -57,10 +77,57 @@ description, right half of the slide is a full-height photo placeholder.
 **Background:** white, with a light-gray (`#EEF1F8`) photo panel on the right half.
 
 ## 3. WarmupOralTransform
-**File:** `warmup-oral-transform.html`
-**Role:** opening warm-up — numbered list (currently 4 rows) of plain sentences
-students transform aloud with a partner (e.g. make negative, make a question). No
-answers shown on the slide — it's oral/live, not a written drill.
+**File:** `warmup-oral-transform.html` shell + `warmup-oral-transform.render.js`
+(dynamic-row renderer — **do not fill this one by string-replacing
+`{{TOKEN}}`s**, call the render function instead, see below)
+**Role:** opening warm-up — 50/50 white/blue split. Left: numbered list of
+sentences to transform (e.g. "Change to the negative!"), each with a pink-bold
+fill-in-the-blank answer portion inline (e.g. "**I'm not** from China."), plus
+a breadcrumb, title, and one-line instruction above the list. Right: solid
+blue call-to-action panel (title, e.g. "Work in Pairs!", optional subtitle,
+optional pink time/points badge).
+**Row count is elastic, not fixed to 3.** This was a real gap found
+2026-07-15: a lesson slide with 5 sentences to transform had no template that
+could hold more than 3, so 2 sentences were silently dropped. The template
+was also rendering the right panel's full instructional copy ("Ring the bell
+competition: take turns changing each sentence to the negative with a
+partner. First correct answer = 1 point.") even when the source lesson only
+called for a short cue — the user's actual preference was to just show "Work
+in Pairs!" with no further detail. Both are fixed by
+`warmup-oral-transform.render.js`:
+
+```js
+const { renderWarmupOralTransform } = require('./warmup-oral-transform.render.js');
+const html = renderWarmupOralTransform({
+  breadcrumb: 'BASIC 1 · UNIT 1 · LESSON B · PART 1 · WARM-UP',
+  title: 'Change to the negative!',
+  instruction: 'Change the sentences to the negative!',
+  rows: [
+    { pre: '', answer: "I'm not", post: 'from China.' },
+    { pre: '', answer: "I'm not", post: 'James.' },
+    { pre: '', answer: "We aren't", post: 'teachers.' },
+    { pre: '', answer: "We aren't", post: 'from California.' },
+    { pre: '', answer: "You aren't", post: 'beautiful.' },
+  ],
+  ctaTitle: 'Work in Pairs!',
+  ctaSubtitle: '',  // omit/empty -> subtitle paragraph is dropped entirely, panel shows just the title
+  timeBadge: '',    // omit/empty -> pink pill is dropped entirely
+});
+```
+
+Call this instead of step 3's usual "read the .html, string-replace
+{{TOKEN}}s" — feed the resulting `html` string straight into `extract.js` the
+same as any other filled template. `rows[i].answer` is the highlighted
+fill-in-the-blank portion (pink, bold); `pre`/`post` are the plain-text
+portions before/after it, per the source lesson's actual sentence structure —
+either may be empty (e.g. when the blank leads the sentence, `pre` is empty).
+Up to 3 rows renders with the original hand-tuned spacing/font; 4+ rows
+auto-shrinks font size (floor 12pt) and row gap to fit the same content band
+without overflowing into the footer. Only drop `ctaSubtitle`/`timeBadge` when
+the source lesson genuinely didn't specify that level of instructional detail
+— don't drop them just to make the slide look cleaner if the original lesson
+did call for that framing (per the hard rule in `../SKILL.md`, don't silently
+remove content that was actually there).
 
 ## 4. GrammarBoxLook
 **File:** `grammar-box-look.html`
@@ -83,14 +150,42 @@ question+short-answer, not affirmative statement — don't merge the two, they
 teach different grammar shapes.
 
 ## 6. ChangePlaces
-**File:** `changeplaces.html`
-**Role:** compact 3-row Affirmative/Negative/Question transform reference — one
+**File:** `changeplaces.html` shell + `changeplaces.render.js` (dynamic-row
+renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**, call the
+render function instead, see below)
+**Role:** compact Affirmative/Negative/Question-style transform reference — one
 sentence per row, no fill-in-the-blank, no hint parens. Simplest grammar-shape
 template in the set.
 **Background:** white. **No breadcrumb UNIT/LESSON/PART split** — uses a single
-free-text `{{BREADCRUMB}}` line instead (e.g. "LESSON 1 · PRACTICE THE GRAMMAR").
-**Tokens:** `{{BREADCRUMB}}, {{TITLE}}, {{ROW1_LABEL}}, {{ROW1_SENTENCE}},
-{{ROW2_LABEL}}, {{ROW2_SENTENCE}}, {{ROW3_LABEL}}, {{ROW3_SENTENCE}}`
+free-text `breadcrumb` string instead (e.g. "LESSON 1 · PRACTICE THE GRAMMAR").
+**Row count is elastic, not fixed to 3.** This was a real gap found
+2026-07-15: a lesson slide with 5 sentences to transform ("I am from China" /
+"I am James" / "We are teachers" / "We are from California" / "You are
+beautiful") had no template that could hold more than 3 rows, so 2 sentences
+were silently dropped. Fixed by converting this template from a static HTML
+file with hardcoded `ROW1_*`/`ROW2_*`/`ROW3_*` divs into a render function:
+
+```js
+const { renderChangePlaces } = require('./changeplaces.render.js');
+const html = renderChangePlaces({
+  breadcrumb: 'LESSON 1 · PRACTICE THE GRAMMAR',
+  title: 'Change to the negative!',
+  rows: [
+    { label: '1', sentence: "I'm not from China." },
+    { label: '2', sentence: "I'm not James." },
+    // ...as many rows as the source lesson actually has
+  ],
+});
+```
+
+Call this instead of step 3's usual "read the .html, string-replace {{TOKEN}}s"
+— feed the resulting `html` string straight into `extract.js` the same as any
+other filled template. Up to 3 rows renders with the original hand-tuned
+spacing; 4+ rows auto-shrinks row height/font (floor 12pt) to fit the same
+content band without overflowing into the footer. `rows[].label` is whatever
+the source used per row (a number, "Affirmative"/"Negative"/"Question", etc.) —
+don't assume it's always the 3-way grammar-role labeling, that's just the
+common case.
 
 ## 7. Comparative
 **File:** `comparative.html`
@@ -309,7 +404,6 @@ approximation in the ficha entry's notes:
   `MatchVocabImage` for multi-person photo matching, `Fluency2`/`Fluency3` for a
   book-image-centered slide with the annotation instructions moved into the
   instruction text instead of drawn over the image.
-
 When a lesson has content that matches one of these gaps, use the nearest-role
 template and say explicitly in the ficha note that it's an approximation —
 don't stretch a template silently, and don't drop the slide.

@@ -209,6 +209,53 @@ it to the user before generating slides if there's any ambiguity in the template
 choices, and call out explicitly any field you left empty because the source lesson
 didn't have content for it (per the hard rule — don't fill silently).
 
+**Templates with a sibling `<name>.render.js` (currently `ChangePlaces` and
+`WarmupOralTransform`) take structured `values` — a `rows: [...]` array of
+arbitrary length instead of fixed `ROWn_*`/`SENTENCEn_*` keys, and some also
+have optional secondary fields that drop the whole section (not just go
+text-empty) when omitted.** Check `templates-tokens.json` for a `dynamic`
+field on the template's entry before assuming a fixed row count or that every
+visible slide element has a required token. This exists specifically so a
+lesson with more items than the template's original hand-tuned row count
+(e.g. 5 sentences into a template drafted around 3) doesn't lose content — put
+every item from the source slide into the `rows` array, don't truncate to fit
+an old fixed count. **Watch out for near-identical templates that differ in
+whether they show a side panel** — `ChangePlaces` (plain white,
+Affirmative/Negative/Question table, no side panel) and
+`WarmupOralTransform` (50/50 white/blue split, blue Pair-Work CTA panel on
+the right) both render numbered sentence lists and are easy to conflate; pick
+based on whether the source slide actually has that blue call-to-action
+panel, not just on the sentence-list shape. Ficha entry for
+`WarmupOralTransform` looks like:
+
+```json
+{
+  "template": "WarmupOralTransform",
+  "values": {
+    "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · WARM-UP",
+    "title": "Change to the negative!",
+    "instruction": "Change the sentences to the negative!",
+    "rows": [
+      { "pre": "", "answer": "I'm not", "post": "from China." },
+      { "pre": "", "answer": "I'm not", "post": "James." },
+      { "pre": "", "answer": "We aren't", "post": "teachers." },
+      { "pre": "", "answer": "We aren't", "post": "from California." },
+      { "pre": "", "answer": "You aren't", "post": "beautiful." }
+    ],
+    "ctaTitle": "Work in Pairs!",
+    "ctaSubtitle": "",
+    "timeBadge": ""
+  }
+}
+```
+
+`ctaSubtitle`/`timeBadge` left empty above because the source lesson only
+called for a short "Work in Pairs!" cue, not detailed rules text — only drop
+them like this when that's genuinely what the source lesson had; if the
+original slide did spell out rules/scoring, keep that text in `ctaSubtitle`
+rather than dropping it for a cleaner look (per the hard rule — don't
+silently remove real content).
+
 ### 3. Generate the deck
 
 For each entry in the ficha, in order:
@@ -219,6 +266,13 @@ For each entry in the ficha, in order:
    embedded font manifest has to survive into the filled output, or the rendered
    `.pptx` loses its typography. `templates-tokens.json` is a lookup aid for step 2
    only; don't try to reconstruct the final HTML from it.
+   **Exception:** if the ficha entry's template has a sibling `<name>.render.js`
+   (per step 2), skip the string-replace approach entirely — `require()` the
+   render module and call its render function with the ficha's `values`
+   (e.g. `renderChangePlaces({ breadcrumb, title, rows })` or
+   `renderWarmupOralTransform({ breadcrumb, title, instruction, rows, ctaTitle,
+   ctaSubtitle, timeBadge })`); its return value is the filled HTML, already
+   the right shape to hand to `extract.js`.
 2. Replace every `{{TOKEN}}` occurrence with its fill value from the ficha (plain
    string replace — tokens are unique literal strings like `{{ROW1_SENTENCE}}`, no
    regex needed). Any token the ficha intentionally left empty becomes an empty

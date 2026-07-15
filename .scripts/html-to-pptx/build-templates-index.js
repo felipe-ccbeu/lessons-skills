@@ -53,6 +53,54 @@ for (const file of files) {
   }
 }
 
+// Templates with a sibling <name>.render.js are dynamic (arbitrary-length
+// `rows` array + optional sections) instead of fixed {{TOKEN}} slots — e.g.
+// changeplaces.render.js replaced changeplaces.html's old hardcoded
+// ROW1-3 divs. Document the render function's shape instead of scraping
+// {{TOKEN}} names out of the (now mostly token-free) shell, so the ficha
+// step knows to pass `rows: [...]` rather than fixed ROWn_* keys.
+const DYNAMIC_TEMPLATES = {
+  'changeplaces.html': {
+    renderModule: './changeplaces.render.js',
+    renderFn: 'renderChangePlaces',
+    schema: {
+      breadcrumb: 'string',
+      title: 'string',
+      rows: '[{ label: string, sentence: string }, ...] - any length, not fixed to 3',
+    },
+    notes:
+      'Up to 3 rows renders with the original hand-tuned spacing/font. ' +
+      '4+ rows auto-shrinks row height and font size to fit the same content band. ' +
+      'Call renderChangePlaces({ breadcrumb, title, rows }) directly instead of string-replacing tokens - ' +
+      'ignore the tokens[] array below, it reflects the static shell file only and is not how this template is actually filled.',
+  },
+  'warmup-oral-transform.html': {
+    renderModule: './warmup-oral-transform.render.js',
+    renderFn: 'renderWarmupOralTransform',
+    schema: {
+      breadcrumb: 'string',
+      title: 'string',
+      instruction: 'string',
+      rows: '[{ pre: string, answer: string, post: string }, ...] - any length, not fixed to 3. `answer` is the pink/bold fill-in-the-blank portion; `pre`/`post` are the plain-text portions before/after it, either may be empty.',
+      ctaTitle: 'string - right-panel heading, e.g. "Work in Pairs!"',
+      ctaSubtitle: 'string, optional - empty/omitted removes the whole subtitle paragraph (not just its text), shrinking the right panel to just the title',
+      timeBadge: 'string, optional - empty/omitted removes the whole pink pill (not just its text)',
+    },
+    notes:
+      'Up to 3 rows renders with the original hand-tuned spacing/font. 4+ rows auto-shrinks font/gap to fit the same content band. ' +
+      'Call renderWarmupOralTransform({ breadcrumb, title, instruction, rows, ctaTitle, ctaSubtitle, timeBadge }) directly instead of string-replacing tokens - ' +
+      'ignore the tokens[] array below, it reflects the static shell file only and is not how this template is actually filled. ' +
+      'This is the "Change to the negative!"-style warm-up transform drill with a blue Pair-Work call-to-action panel on the right - ' +
+      'do not confuse with ChangePlaces (white background, no side panel, Affirmative/Negative/Question table).',
+  },
+};
+
+for (const [file, meta] of Object.entries(DYNAMIC_TEMPLATES)) {
+  if (index[file]) {
+    index[file] = { ...index[file], dynamic: meta };
+  }
+}
+
 fs.writeFileSync(OUT, JSON.stringify(index, null, 2), 'utf8');
 const sizeKb = (fs.statSync(OUT).size / 1024).toFixed(0);
 console.log(`Wrote ${OUT} (${Object.keys(index).length} templates, ${sizeKb} KB)`);
