@@ -14,23 +14,33 @@ lesson.** Only replace the literal `{{TOKEN}}` text. If a template's shape
 genuinely doesn't fit a lesson's content (see Known gaps below), don't force it —
 flag the gap.
 
-**Exception — templates with a sibling `<name>.render.js`:** a small number of
-templates (currently `ChangePlaces` and `WarmupOralTransform`) are "list of N
-items" shapes that used to hardcode a fixed row count (`ROW1_*`/`ROW2_*`/
-`ROW3_*`, or `SENTENCE1`/`SENTENCE2_PRE`/`SENTENCE3_POST` etc.) directly in
-the HTML, which meant a lesson with more items than the template had rows
-silently lost content — this happened for real (see the WarmupOralTransform
-entry below: a 5-sentence warm-up drill into a template built for 3). For
-these, fill by calling the render function with a `rows: [...]` array of
-whatever length the source lesson actually has, not by string-replacing fixed
-tokens. `WarmupOralTransform` also has optional secondary sections (a CTA
+**Exception — templates with a sibling `<name>.render.js`:** 9 templates
+(`ChangePlaces`, `WarmupOralTransform`, `GrammarBoxLook`, `GrammarBox2YesNo`,
+`PracticeQaBadges`, `CompleteTheChart`, `Exercise1`, `Fluency1`,
+`MatchVocabImage` — every template in the catalog with a genuine "list of N
+repeating items" shape) used to hardcode a fixed row/item count (`ROW1_*`/
+`ROW2_*`/`ROW3_*`, `SENTENCE1`/`SENTENCE2_PRE`/`SENTENCE3_POST`,
+`KEYWORD1`-`KEYWORD5`, etc.) directly in the HTML, which meant a lesson with
+more items than the template had slots silently lost content — this happened
+for real (see the WarmupOralTransform entry below: a 5-sentence warm-up drill
+into a template built for 3, found 2026-07-15). For these, fill by calling
+the render function with a `rows`/`questions`/`keywords`+`answers` array (the
+exact shape varies per template — check that template's entry below or
+`templates-tokens.json`'s `dynamic` field) of whatever length the source
+lesson actually has, not by string-replacing fixed tokens.
+`WarmupOralTransform` additionally has optional secondary sections (a CTA
 subtitle, a time badge) that drop entirely — not just go text-empty — when
 the ficha leaves them out, so a template's side panel can shrink to just its
 essential label instead of always rendering full instructional copy.
-`templates-tokens.json`'s `dynamic` field on each template's entry documents
-the function's exact call shape. If you're adding a new template that has a
-repeating row/item/card pattern or an optional secondary section, follow this
-same convention rather than hardcoding N slots or always-rendered copy —
+Templates NOT in this list of 9 don't have a repeating-item shape by design
+(e.g. `Comparative` is always exactly 2 sides, `Objectives` is always exactly
+3 pedagogical objectives, `LessonComplete` is always the 4 fixed LSRW skill
+categories) — growing their item count isn't a gap, it would change what the
+slide means. `templates-tokens.json`'s `dynamic` field on each of the 9
+entries documents the function's exact call shape. If you're adding a new
+template that has a repeating row/item/card pattern or an optional secondary
+section, follow this same convention rather than hardcoding N slots or
+always-rendered copy —
 check `templates-tokens.json` for `dynamic` first before assuming a template
 only takes fixed `{{TOKEN}}`s.
 
@@ -130,24 +140,61 @@ did call for that framing (per the hard rule in `../SKILL.md`, don't silently
 remove content that was actually there).
 
 ## 4. GrammarBoxLook
-**File:** `grammar-box-look.html`
+**File:** `grammar-box-look.html` shell + `grammar-box-look.render.js`
+(dynamic renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**,
+call the render function instead)
 **Role:** "LOOK!" grammar presentation — big "LOOK!" headline, a pill-style
-"GRAMMAR BOX" callout, a 5-row SUBJECT / VERB-TO-BE reference table (with
+"GRAMMAR BOX" callout, a SUBJECT / VERB-TO-BE reference table (with
 pink-bold contraction hints floating over blanks), a pink "TIPS!" panel showing
-3 expansion→contraction pairs (e.g. "I am → I'm"), and two photo-with-caption
+expansion→contraction pairs (e.g. "I am → I'm"), and two photo-with-caption
 examples underneath (each caption has a contracted form highlighted in pink).
 **Notable:** richest template in the set — this is the primary "teach the rule"
 slide, distinct from `ChangePlaces` and `GrammarBox2YesNo`, which are drills, not
 explanations.
+**Both the table and the tips box have elastic row counts, independently of
+each other** (table default 4 rows, tips default 3 — both used to be
+hardcoded). Call:
+```js
+const { renderGrammarBoxLook } = require('./grammar-box-look.render.js');
+const html = renderGrammarBoxLook({
+  breadcrumb: '...', topicName: 'VERB TO BE',
+  ex1Pre: 'Hi, ', ex1Hl: "I'm", ex1Post: 'Camila.',
+  ex2Pre: 'Hi, ', ex2Hl: "I'm", ex2Post: 'Rubén.',
+  tableHeader: 'AM / IS / ARE',
+  rows: [{ subject: 'I', hl: 'am', text: 'from Brazil.' }, /* ...any length */],
+  tips: [{ full: 'I am', short: "I'm" }, /* ...any length */],
+});
+```
+Up to 4 table rows / 3 tips render with the original hand-tuned padding/font;
+more of either shrinks that section's own padding/font (the table and tips box
+don't affect each other's sizing). This template embeds a hydration
+`<script>` in its payload (for the two figure images) — the render function
+already escapes `</script>` correctly when re-serializing; don't hand-build
+this template's HTML any other way or that escaping gets lost and the file
+corrupts (`Unterminated string in JSON` when re-parsed — hit this for real
+while building the render function, see the fix in `grammar-box-look.render.js`).
 
 ## 5. GrammarBox2YesNo
-**File:** `grammar-box-2-yesno.html`
-**Role:** "LOOK!" yes/no-question reference — 5-row SUBJECT / YES-NO-QUESTION /
+**File:** `grammar-box-2-yesno.html` shell + `grammar-box-2-yesno.render.js`
+(dynamic renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**,
+call the render function instead)
+**Role:** "LOOK!" yes/no-question reference — SUBJECT / YES-NO-QUESTION /
 SHORT-ANSWER table, two photo-with-quote-caption examples above the table (each
 captioned with a question in quotes, e.g. `"Are you students?"`).
 **Notable:** same visual family as `GrammarBoxLook` but the table schema is
 question+short-answer, not affirmative statement — don't merge the two, they
 teach different grammar shapes.
+**Row count is elastic, not fixed to 4.** Call:
+```js
+const { renderGrammarBox2YesNo } = require('./grammar-box-2-yesno.render.js');
+const html = renderGrammarBox2YesNo({
+  breadcrumb: '...', photo1Caption: '"Are you students?"', photo2Caption: '"Is she a teacher?"',
+  col2Header: 'YES/NO QUESTION', col3Header: 'SHORT ANSWER',
+  rows: [{ subject: 'you', qHl: 'Are', qPost: 'a student?', aPre: 'Yes, I', aYes: 'am', aMid: 'No, I', aNo: "'m not" }, /* ...any length */],
+});
+```
+Up to 4 rows render with the original hand-tuned padding/font; more rows
+shrinks padding/font to fit the full-width table.
 
 ## 6. ChangePlaces
 **File:** `changeplaces.html` shell + `changeplaces.render.js` (dynamic-row
@@ -197,27 +244,78 @@ sentence, plus an underline rule beneath each answer area.
 (blue bold left, pink bold right), same "which word is highlighted" logic.
 
 ## 8. CompleteTheChart
-**File:** `complete-the-chart.html`
-**Role:** 2-column x 2-group fill-in-the-blank grammar chart ("I/We" and "You"
+**File:** `complete-the-chart.html` shell + `complete-the-chart.render.js`
+(dynamic renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**,
+call the render function instead)
+**Role:** 2-group fill-in-the-blank grammar chart ("I/We" and "You"
 groups so far), each row a sentence with a blank + `(= hint)`, pink-bold answer
 overlay, plus 3 numbered photo placeholders on the right (one per example
 person/context).
 **Notable:** `(= )` parens are fixed decoration around the hint span — token only
 the hint word itself, not the parens.
+**Only the number of ROWS per group is elastic — the number of GROUPS stays
+fixed at exactly 2.** Each group is tied to its own fixed-position reference
+image; growing the group count would require re-deriving image/numbering
+positions the source design never specified (the shipped template even has an
+unused, incomplete "Group 3" image+number slot with no table — a known rough
+edge, not a usable third group). Call:
+```js
+const { renderCompleteTheChart } = require('./complete-the-chart.render.js');
+const html = renderCompleteTheChart({
+  breadcrumb: '...', title: 'Complete the chart',
+  group1: { label: 'CONTRACTIONS', rows: [{ sentence: 'I am', answer: "I'm" }, /* ...any length */] },
+  group2: { label: 'NEGATIVES', rows: [{ sentence: 'I am not', answer: "I'm not" }, /* ...any length */] },
+});
+```
+Up to 2 rows per group render with the original hand-tuned row height; more
+shrinks that group's own row height/font to stay clear of the other group's
+box and its image.
 
 ## 9. Exercise1
-**File:** `exercise-1.html`
-**Role:** "Rewrite using contractions" drill — numbered list (5 rows), each row:
+**File:** `exercise-1.html` shell + `exercise-1.render.js` (dynamic renderer
+— **do not fill this one by string-replacing `{{TOKEN}}`s**, call the render
+function instead)
+**Role:** "Rewrite using contractions" drill — numbered list, each row:
 original sentence → arrow → rewritten sentence with the contraction highlighted
 pink-bold at the start.
 **Notable:** the instruction line has a pink-highlighted key term ("short form")
 mid-sentence — token that separately from the surrounding plain instruction text.
+**Row count is elastic, not fixed to 5.** Call:
+```js
+const { renderExercise1 } = require('./exercise-1.render.js');
+const html = renderExercise1({
+  breadcrumb: '...', title: 'Transform the sentences',
+  instructionPre: 'Rewrite each sentence using the', instructionHl: 'short form', instructionPost: '.',
+  rows: [{ orig: 'I am a teacher.', hl: "I'm", post: 'a teacher.' }, /* ...any length */],
+});
+```
+Up to 5 rows render with the original hand-tuned row height/font (rows stack
+via normal document flow, no per-row position math needed); 6+ rows shrinks
+row height/font to fit the content band.
 
 ## 10. Fluency1
-**File:** `fluency-1.html`
-**Role:** "Ask your partner" fluency drill — two columns of question prompts (4
-each), one prompt in the left column has a pink-underlined gap for a personal
-answer ("My name is ___________.").
+**File:** `fluency-1.html` shell + `fluency-1.render.js` (dynamic renderer —
+**do not fill this one by string-replacing `{{TOKEN}}`s**, call the render
+function instead)
+**Role:** "Ask your partner" fluency drill — two columns of question prompts,
+one prompt can have a pink-underlined gap for a personal answer ("My name is
+___________.").
+**Question count is elastic, not fixed to 8 (4+4).** Questions are one flat
+array, auto-split evenly across the two columns (left gets the extra one on
+an odd count) — there's no separate left/right input. Call:
+```js
+const { renderFluency1 } = require('./fluency-1.render.js');
+const html = renderFluency1({
+  breadcrumb: '...', title: 'Fluency practice', instruction: 'Ask and answer with a partner.',
+  questions: [
+    'What is your name?',
+    { pre: 'My favorite color is' }, // renders with a trailing "___________." blank
+    // ...any length
+  ],
+});
+```
+Up to 4 questions per column render with the original hand-tuned spacing/font;
+more per column shrinks gap/font to fit.
 
 ## 11. Fluency2
 **File:** `fluency-2.html`
@@ -236,10 +334,27 @@ instruction line, one worked example below in a tinted callout box ("Ex. She's
 from Japan." with the country highlighted blue-bold).
 
 ## 14. MatchVocabImage
-**File:** `match-vocab-image.html`
-**Role:** "Match the countries" — one large map/diagram placeholder, 5 pink-bold
-vocabulary tags above it, 4 numbered answer chips floating on the right edge of
+**File:** `match-vocab-image.html` shell + `match-vocab-image.render.js`
+(dynamic renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**,
+call the render function instead)
+**Role:** "Match the countries" — one large map/diagram placeholder, pink-bold
+vocabulary tags above it, numbered answer chips floating on the right edge of
 the map area (word bank matched by number, not by position).
+**Both `keywords` and `answers` are independently elastic lists — they don't
+have to be the same length** (the shipped template already had 5 keywords but
+only 4 answer chips, so unequal counts are the normal case). Call:
+```js
+const { renderMatchVocabImage } = require('./match-vocab-image.render.js');
+const html = renderMatchVocabImage({
+  breadcrumb: '...', title: 'Match the vocabulary', instruction: 'Look at the map and match each word to the picture.',
+  keywords: ['park', 'school', 'hospital', /* ...any length */],
+  answers: ['park', 'school', /* ...any length, independent of keywords.length */],
+});
+```
+The keyword row switches the shipped template's `justify-content:
+space-between` for an explicit gap once rendered, since space-between's
+spacing is a function of item count and would otherwise vary unpredictably at
+counts other than 5.
 
 ## 15. ListenAndRepeat
 **File:** `listen-and-repeat.html`
@@ -254,11 +369,23 @@ name+role caption pair in pink-bold on the left, a fill-in-the-blank sentence
 below with the answer highlighted pink-bold in a gap.
 
 ## 17. PracticeQaBadges
-**File:** `practice-qa-badges.html`
-**Role:** "Answer the questions — both ways" — 4-row Q&A drill, each row: numbered
+**File:** `practice-qa-badges.html` shell + `practice-qa-badges.render.js`
+(dynamic renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**,
+call the render function instead)
+**Role:** "Answer the questions — both ways" — Q&A drill, each row: numbered
 question (pink title), a green "Yes, ..." answer and a red "No, ..." answer side
 by side (both answers shown, not just one model answer — distinct from the old
 catalog's `MultiQAPractice`, which only shows one answer per question).
+**Row count is elastic, not fixed to 4.** Call:
+```js
+const { renderPracticeQaBadges } = require('./practice-qa-badges.render.js');
+const html = renderPracticeQaBadges({
+  breadcrumb: '...', title: 'Ask and answer!',
+  rows: [{ question: 'Are you a student?', yes: 'Yes, I am.', no: "No, I'm not." }, /* ...any length */],
+});
+```
+Up to 4 rows render with the original hand-tuned row height/font (rows stack
+via normal document flow); 5+ rows shrinks row height/font to fit.
 
 ## 18. LessonComplete
 **File:** `lesson-complete.html`

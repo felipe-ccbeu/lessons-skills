@@ -209,19 +209,26 @@ it to the user before generating slides if there's any ambiguity in the template
 choices, and call out explicitly any field you left empty because the source lesson
 didn't have content for it (per the hard rule — don't fill silently).
 
-**Templates with a sibling `<name>.render.js` (currently `ChangePlaces` and
-`WarmupOralTransform`) take structured `values` — a `rows: [...]` array of
-arbitrary length instead of fixed `ROWn_*`/`SENTENCEn_*` keys, and some also
-have optional secondary fields that drop the whole section (not just go
-text-empty) when omitted.** Check `templates-tokens.json` for a `dynamic`
-field on the template's entry before assuming a fixed row count or that every
-visible slide element has a required token. This exists specifically so a
-lesson with more items than the template's original hand-tuned row count
-(e.g. 5 sentences into a template drafted around 3) doesn't lose content — put
-every item from the source slide into the `rows` array, don't truncate to fit
-an old fixed count. **Watch out for near-identical templates that differ in
-whether they show a side panel** — `ChangePlaces` (plain white,
-Affirmative/Negative/Question table, no side panel) and
+**Templates with a sibling `<name>.render.js` take structured `values` — a
+`rows`/`questions`/`tips`/`keywords`+`answers` array of arbitrary length
+instead of fixed `ROWn_*`/`SENTENCEn_*`/`Qn` keys, and some also have optional
+secondary fields that drop the whole section (not just go text-empty) when
+omitted.** This is every template in the catalog with a genuine repeating-item
+shape — currently `ChangePlaces`, `WarmupOralTransform`, `GrammarBoxLook`,
+`GrammarBox2YesNo`, `PracticeQaBadges`, `CompleteTheChart`, `Exercise1`,
+`Fluency1`, `MatchVocabImage` (9 total; see `references/templates.md` for each
+one's exact call shape and example). Check `templates-tokens.json` for a
+`dynamic` field on the template's entry before assuming a fixed row count or
+that every visible slide element has a required token. This exists
+specifically so a lesson with more items than the template's original
+hand-tuned row count (e.g. 5 sentences into a template drafted around 3)
+doesn't lose content — put every item from the source slide into the array,
+don't truncate to fit an old fixed count. Templates NOT in this list of 9
+don't have a repeating-item shape by design (e.g. `Comparative` is always 2
+sides, `Objectives` is always 3 objectives) — that's not a gap, growing their
+item count would change what the slide means. **Watch out for near-identical
+templates that differ in whether they show a side panel** — `ChangePlaces`
+(plain white, Affirmative/Negative/Question table, no side panel) and
 `WarmupOralTransform` (50/50 white/blue split, blue Pair-Work CTA panel on
 the right) both render numbered sentence lists and are easy to conflate; pick
 based on whether the source slide actually has that blue call-to-action
@@ -267,11 +274,16 @@ For each entry in the ficha, in order:
    `.pptx` loses its typography. `templates-tokens.json` is a lookup aid for step 2
    only; don't try to reconstruct the final HTML from it.
    **Exception:** if the ficha entry's template has a sibling `<name>.render.js`
-   (per step 2), skip the string-replace approach entirely — `require()` the
-   render module and call its render function with the ficha's `values`
-   (e.g. `renderChangePlaces({ breadcrumb, title, rows })` or
+   (per step 2 — currently `ChangePlaces`, `WarmupOralTransform`,
+   `GrammarBoxLook`, `GrammarBox2YesNo`, `PracticeQaBadges`,
+   `CompleteTheChart`, `Exercise1`, `Fluency1`, `MatchVocabImage`), skip the
+   string-replace approach entirely — `require()` the render module and call
+   its render function with the ficha's `values` (e.g.
+   `renderChangePlaces({ breadcrumb, title, rows })` or
    `renderWarmupOralTransform({ breadcrumb, title, instruction, rows, ctaTitle,
-   ctaSubtitle, timeBadge })`); its return value is the filled HTML, already
+   ctaSubtitle, timeBadge })` — check `templates-tokens.json`'s `dynamic`
+   field or `references/templates.md` for the exact function name and
+   argument shape per template); its return value is the filled HTML, already
    the right shape to hand to `extract.js`.
 2. Replace every `{{TOKEN}}` occurrence with its fill value from the ficha (plain
    string replace — tokens are unique literal strings like `{{ROW1_SENTENCE}}`, no
