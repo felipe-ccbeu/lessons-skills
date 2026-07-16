@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Match Letters — Vocabulary Matching (photo grid + letter list)</title>
+
+<style>
+:root {
+  --ccbeu-blue: #0448DF;
+  --ccbeu-pink: #FD3682;
+  --ccbeu-white: #FFFFFF;
+  --ink-strong: #000000;
+  --ink: #0E1116;
+  --ink-muted: #6B7280;
+  --ink-footer: #9AA1AC;
+  --surface: #FFFFFF;
+  --surface-zebra: #F7F8FB;
+  --border-hair: #ECEDF0;
+  --tint-pink-soft: #FFF4F8;
+  --font-title: 'Poppins', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+html, body { margin: 0; }
+.stage { position: relative; width: 100vw; height: 100vh; background: #2b2f36; overflow: hidden; }
+.ml-canvas { position: absolute; top: 0; left: 0; }
+.ml-row { position: absolute; left: 700px; width: 500px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+.ml-term { font-family: var(--font-title); font-weight: 500; font-size: 18pt; color: var(--ink); }
+.ml-letter-badge { font-family: var(--font-title); font-weight: 800; font-size: 22pt; color: var(--ccbeu-pink); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;0,800;1,400;1,700&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+  <div class="ml-canvas" style="width: 1280px; height: 720px; background: #fff; overflow: hidden; font-family: var(--font-body);">
+
+    <div style="position: absolute; left: 80px; top: 40px; display: flex; align-items: center; gap: 10px; font-family: var(--font-title); font-weight: 500; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ccbeu-blue);"><span style="width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink);"></span>{{BREADCRUMB}}</div>
+
+    <h1 style="position: absolute; left: 80px; top: 66px; width: 1120px; margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 24pt; color: var(--ccbeu-blue);">{{TITLE}}</h1>
+
+    <img src="{{GRID_IMAGE}}" alt="Photo grid to match" style="position: absolute; left: 80px; top: 140px; width: 500px; height: 484px; object-fit: contain;">
+
+    <!-- ROW_BLOCK -->
+    <div class="ml-row" style="top: 172px;">
+      <div class="ml-term">{{ROW1_TERM}}</div>
+      <div class="ml-letter-badge">{{ROW1_LETTER}}</div>
+    </div>
+
+    <div class="ml-row" style="top: 224px;">
+      <div class="ml-term">{{ROW2_TERM}}</div>
+      <div class="ml-letter-badge">{{ROW2_LETTER}}</div>
+    </div>
+
+    <div class="ml-row" style="top: 276px;">
+      <div class="ml-term">{{ROW3_TERM}}</div>
+      <div class="ml-letter-badge">{{ROW3_LETTER}}</div>
+    </div>
+    <!-- /ROW_BLOCK -->
+
+    <div style="position: absolute; left: 80px; top: 636px; font-family: var(--font-body); font-size: 9pt; color: var(--ink-footer);">CCBEU English Center</div>
+  </div>
+</div>
+
+</body></html>

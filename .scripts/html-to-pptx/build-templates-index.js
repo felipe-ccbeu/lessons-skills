@@ -269,6 +269,19 @@ const DYNAMIC_TEMPLATES = {
       'Converted to elastic 2026-07-15 after a real case: a lesson that only recapped 2 categories (Affirmatives/Negatives, not the full Affirmatives/Questions/Wh-Questions/Other-Words set the old fixed-4-column template assumed) left 2 columns completely empty in the rendered slide, wasting half the width. ' +
       'The render function spreads however many columns are actually given (1-4) evenly across the same content band the old template used, and computes a shared font size across all columns from whichever column has the most terms. Do NOT pass more than 4 columns - the content band cannot fit a 5th without overlapping the title. Only fill in the categories the source lesson actually recapped; do not invent a Questions/Wh-Questions column just to reach 4. Call renderLessonComplete({ breadcrumb, columns }) instead of string-replacing tokens.',
   },
+  'match-letters.html': {
+    renderModule: './match-letters.render.js',
+    renderFn: 'renderMatchLetters',
+    schema: {
+      breadcrumb: 'string',
+      title: 'string',
+      instruction: 'string',
+      rows: '[{ term: string, letter: string }, ...] - any length, not fixed to 3',
+    },
+    notes:
+      'Added 2026-07-16 to fill the "letter-matching without a central image" gap noted in references/templates.md (e.g. "match each nationality to its lettered photo", where the letter<->term correspondence is already known from extraction but there is no single central image/map to anchor numbered chips to, unlike MatchVocabImage). Only use this when the letter<->term mapping is actually resolved in the source content - if the mapping itself is unknown (e.g. flag images never transcribed with clear correspondence), that is a re-extraction problem, not something this template can paper over. ' +
+      'Up to 3 rows render with the original hand-tuned row height/font; 4+ rows shrinks row height/font (floor ~10pt) to fit the same content band, same auto-shrink convention as ChangePlaces. Call renderMatchLetters({ breadcrumb, title, instruction, rows }) instead of string-replacing tokens.',
+  },
 };
 
 for (const [file, meta] of Object.entries(DYNAMIC_TEMPLATES)) {

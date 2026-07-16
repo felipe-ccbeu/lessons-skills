@@ -187,6 +187,40 @@ stale for the next lesson).
   is to feel excessive. **Never substitute an unrelated photo for a named/specific
   person or scene** — this produced a real fabrication failure before (an
   unrelated "Student B" photo lifted from other material).
+- **When a slide's real content is an image (a photo grid, a map, a diagram,
+  a game board) and no template has a slot with real content for it, pull the
+  actual image from the original source slide — don't leave it as a text-only
+  approximation and don't fabricate a substitute.** The same `export/png`
+  mechanism `extract-lesson-slides` already uses to screenshot every slide
+  (`https://docs.google.com/presentation/d/<presentationId>/export/png?id=<presentationId>&pageid=<pageObjectId>`)
+  works here too — download the full slide screenshot (or, for a single
+  embedded photo, its own `contentUrl` from `get_page`, same as
+  `extract-lesson-slides` step 5) and crop/reuse it directly. This was a real
+  gap found 2026-07-16: the first version of a new letter-matching template
+  for a "match the nationalities" slide rendered only the term↔letter text
+  list and dropped the slide's actual photo grid (8 real athlete photos with
+  flag + name + role captions) — the grid *was* the exercise, not decoration
+  around it, and a correction was needed after the fact. If the closest
+  available template has no image slot at all, prefer adapting/copying an
+  existing image-capable template (see the next bullet) over shipping a
+  text-only stand-in for something that was visually essential in the
+  original.
+- **When no existing template fits a slide's content shape, build or adapt
+  one rather than forcing a poor match or dropping the slide** — this is a
+  natural extension of the closest-fitting-template rule above, not a
+  separate escape hatch. Base the new/adapted template on whichever existing
+  `.html`/`.render.js` is structurally closest (e.g. a new letter-matching-
+  with-photos template was built starting from `changeplaces.html`'s simple
+  row-list shell plus `match-vocab-image.render.js`'s image-plus-list
+  composition), keep the same CCBEU visual system (colors, fonts, footer,
+  breadcrumb dot), register it in `templates-tokens.json` (add its entry to
+  `DYNAMIC_TEMPLATES` in `build-templates-index.js` if it takes structured
+  `values`, then re-run `node build-templates-index.js`), and document it in
+  `references/templates.md` the same way every other template entry is
+  documented (role, when to use it, when NOT to use it, real example call).
+  A one-off custom-fitted slide with no reusable template is a worse outcome
+  than a slightly-longer session — the next lesson that hits the same content
+  shape gets the template for free.
 
 Write the result as one JSON object per slide to generate:
 
@@ -298,6 +332,25 @@ For each entry in the ficha, in order:
    positioning stay exactly as shipped. If the filled text is dramatically longer
    or shorter than the template's example content, that's a fit problem to flag,
    not something to fix by changing the template's font-size or box width inline.
+3a. **If a slide needs a real image pulled from the source lesson (per step
+   2's "pull the actual image" guidance), inline it as a
+   `data:image/png;base64,...` URI directly in the `<img src="...">` —
+   never leave it as a relative/file path (e.g. `./my-image.png`) even though
+   that renders correctly in a visual preview.** `extract.js` resolves every
+   `<img>` to a data URI via an in-page `fetch(img.currentSrc)` before handing
+   off to `build.js`, and Chromium's `fetch()` refuses `file://` URLs outright
+   — the failure is swallowed into a page-console warning you won't see
+   unless you attach a listener, so the image silently vanishes from the
+   final `.pptx` with no error anywhere in your own terminal output, even
+   though the filled HTML looked completely correct in a screenshot check.
+   Read the image file with `fs.readFileSync`, base64-encode it
+   (`data:image/png;base64,${buf.toString('base64')}`), and put that string
+   directly in the `src` (or pass it as the value your ficha/render function
+   expects for that image field) — `extract.js`'s fetch step already
+   early-returns for any `src` starting with `data:`, so this sidesteps the
+   broken path rather than working around it. See `references/templates.md`'s
+   "Pipeline capabilities" section for the full incident writeup (found
+   2026-07-16).
 4. Write the filled HTML to a working file (e.g.
    `<lesson-slug>/<NN>-<template-name>.html` in a scratch/output directory — don't
    overwrite the original template file in the pipeline directory).
@@ -343,6 +396,18 @@ Open the uploaded deck (or inspect the merged `.pptx` structure) and confirm:
 - Image placeholders that were meant to carry real content (per step 2's
   decorative-vs-content judgment) actually have real images, not the gray
   "IMAGE"/"PHOTO" placeholder box left unfilled.
+- **Verify images on the actual uploaded deck, not just a local screenshot of
+  the filled HTML — the two can disagree.** A local Playwright screenshot of
+  the filled HTML renders `<img src="./file.png">` correctly (browsers load
+  `file://` images fine for on-screen display), which can look like proof the
+  image made it through — but `extract.js`'s data-URI resolution step uses
+  `fetch()`, which Chromium blocks for `file://` regardless of what rendered
+  on screen (see step 3a above and `references/templates.md`'s "Pipeline
+  capabilities" section). Confirm the real image by inspecting the uploaded
+  deck itself (`get_page` on the relevant slide and check for a populated
+  `image.contentUrl`, or download and view it) — don't treat a clean local
+  screenshot as sufficient evidence that a locally-sourced image survived
+  into the final deck.
 
 ## Reference
 

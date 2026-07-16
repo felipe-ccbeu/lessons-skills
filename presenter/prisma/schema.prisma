@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Basic 1, Basic 2, ...
+model Level {
+  id    String @id @default(cuid())
+  slug  String @unique
+  title String
+  order Int    @default(0)
+
+  units Unit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Unit 1, Unit 2, ... within a level
+model Unit {
+  id      String @id @default(cuid())
+  slug    String
+  title   String
+  order   Int    @default(0)
+  levelId String
+
+  level   Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([levelId, slug])
+}
+
+// Lesson A, Lesson B, ... within a unit
+model Lesson {
+  id     String @id @default(cuid())
+  slug   String
+  title  String
+  order  Int    @default(0)
+  unitId String
+
+  unit  Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  parts Part[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([unitId, slug])
+}
+
+// Part 1, Part 2, ... within a lesson — this is the actual slide deck.
+model Part {
+  id       String @id @default(cuid())
+  slug     String
+  title    String
+  order    Int    @default(0)
+  lessonId String
+
+  // Full slide deck, same shape as the presenter's `Slide[]` type.
+  slides Json @default("[]")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([lessonId, slug])
+}

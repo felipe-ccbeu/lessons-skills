@@ -1,0 +1,442 @@
+[
+  {
+    "slide": 1,
+    "template": "CoverImage",
+    "values": {},
+    "note": "Capa da aula — CoverImage é estático, sem tokens. Título da aula (\"Basic 1 Unit 1 - Lesson B (part 1)\") não é renderizado neste template por design (ver catálogo)."
+  },
+  {
+    "slide": 2,
+    "template": "WarmupOralTransform",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · WARM-UP",
+      "title": "Change to the negative!",
+      "instruction": "Change the sentences to the negative!",
+      "rows": [
+        { "pre": "", "answer": "I'm not", "post": "from China." },
+        { "pre": "", "answer": "I'm not", "post": "James." },
+        { "pre": "", "answer": "We aren't", "post": "teachers." },
+        { "pre": "", "answer": "We aren't", "post": "from California." },
+        { "pre": "", "answer": "You aren't", "post": "beautiful." }
+      ],
+      "ctaTitle": "Work in Pairs!",
+      "ctaSubtitle": "Ring the bell competition: divide the class into groups and have them compete to ring the bell first. Correct answer = 1 point.",
+      "timeBadge": ""
+    },
+    "note": "Slide real que motivou a criação dos templates elásticos — 5 sentenças (o template antigo só suportava 3). ctaSubtitle reflete as notas do apresentador do slide original ('Students do the exercise in Pairs. Suggestions> Ring the bell competition. Divide the class into groups, Have students compete to ring the bell first to see which team gets to answer. Correct answer = 1 point'), levemente comprimido para caber no painel — nenhum conteúdo novo foi inventado, só reduzido para caber (per hard rule: não descartar conteúdo real). timeBadge deixado vazio porque a nota não menciona um tempo/badge específico, só o sistema de pontos (já coberto no subtítulo)."
+  },
+  {
+    "slide": 3,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "tag": "ROUTINE",
+      "title": "Roll call!",
+      "subtitle": "Study the sentences"
+    },
+    "note": "Slide de rotina de chamada, sem conteúdo de exercício — fit direto para SectionTransition, template feito exatamente para isso."
+  },
+  {
+    "slide": 4,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "tag": "ROUTINE",
+      "title": "Did you do your homework?",
+      "subtitle": ""
+    },
+    "note": "Slide de checagem de lição de casa, sem conteúdo de exercício."
+  },
+  {
+    "slide": 5,
+    "template": "Objectives",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "obj1_verb": "USE",
+      "obj1_pre": "nationalities vocabulary to talk about",
+      "obj1_hl": "celebrities you like",
+      "obj1_post": "in a conversation with a friend",
+      "obj2_verb": "",
+      "obj2_text": "",
+      "obj3_verb": "",
+      "obj3_text": ""
+    },
+    "note": "Fonte original tem apenas 1 objetivo declarado ('use nationalities vocabulary to talk about celebrities you like in a conversation with a friend'). Objectives tem 3 slots fixos por design (não é um dos 9 templates elásticos) — OBJ2 e OBJ3 deixados vazios porque a aula só especificou 1 objetivo; não inventei objetivos adicionais para preencher os slots (per hard rule). Highlight (obj1_hl) escolhido em 'celebrities you like' por ser o elemento mais concreto/memorável da frase, já que o texto original não tinha negrito/cor explícita marcando um trecho."
+  },
+  {
+    "slide": 6,
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "title": "Where are they from?",
+      "person_name": "Justin Bieber",
+      "person_role": "Singer",
+      "sentence_pre": "Justin is from",
+      "sentence_gap": "Canada"
+    },
+    "note": "Fit direto — 1 celebridade, nome+profissão, frase com blank e resposta revelada. Foto é conteúdo (pessoa nomeada e endereçada pelo texto), não decorativa — precisa ser a foto real de Justin Bieber, não um placeholder genérico."
+  },
+  {
+    "slide": 7,
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "title": "Where are they from?",
+      "person_name": "Gretchen",
+      "person_role": "Singer",
+      "sentence_pre": "Gretchen is from",
+      "sentence_gap": "Brazil"
+    },
+    "note": "Mesmo padrão do slide 6. Foto de Gretchen é conteúdo, não decorativa."
+  },
+  {
+    "slide": 8,
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "title": "Where are they from?",
+      "person_name": "Cristiano Ronaldo",
+      "person_role": "Soccer Player",
+      "sentence_pre": "Cristiano is from",
+      "sentence_gap": "Portugal"
+    },
+    "note": "Mesmo padrão. Foto de Cristiano Ronaldo é conteúdo, não decorativa."
+  },
+  {
+    "slide": 9,
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "title": "Where are they from?",
+      "person_name": "Shakira",
+      "person_role": "Singer",
+      "sentence_pre": "Shakira is from",
+      "sentence_gap": "Colombia"
+    },
+    "note": "Mesmo padrão. Foto de Shakira é conteúdo, não decorativa."
+  },
+  {
+    "slide": 10,
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "title": "Where are they from?",
+      "person_name": "Ed Sheeran",
+      "person_role": "Singer",
+      "sentence_pre": "Ed Sheeran is from",
+      "sentence_gap": "the U.K"
+    },
+    "note": "Mesmo padrão. Foto de Ed Sheeran é conteúdo, não decorativa."
+  },
+  {
+    "slide": 11,
+    "template": "PhotoExerciseWhoIsThis",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · VOCABULARY",
+      "title": "Where are they from?",
+      "person_name": "Margot Robbie",
+      "person_role": "Actress",
+      "sentence_pre": "Margot Robbie is from",
+      "sentence_gap": "Australia"
+    },
+    "note": "Mesmo padrão. Foto de Margot Robbie é conteúdo, não decorativa."
+  },
+  {
+    "slide": 12,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK",
+      "tag": "BOOKS P. 10 · EXERCISE 1B",
+      "title": "Match the nationalities",
+      "subtitle": "American · Chinese · Mexican · Ecuadorian · Spanish · British · Japanese · Brazilian"
+    },
+    "note": "GAP: exercício original é matching (nacionalidade -> bandeira/imagem rotulada A-H), sem template no catálogo atual para essa forma. A extração não capturou qual letra corresponde a qual país (o exercício depende de imagens de bandeira que não foram transcritas com correspondência clara). Usado SectionTransition com a lista de nacionalidades como aproximação — não é o template ideal, sinalizado para revisão. Candidato a template novo futuro: 'matching de vocabulário com marcadores A-H sem imagem central'."
+  },
+  {
+    "slide": 13,
+    "template": "MatchVocabImage",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK",
+      "title": "Practice the pronunciation!",
+      "instruction": "Look at the map and practice saying each country.",
+      "keywords": ["The U.S.", "Spain", "China", "The U.K. / Britain", "Mexico", "Japan", "Colombia", "Ecuador", "Brazil"]
+    },
+    "note": "ATUALIZADO 2026-07-15: gap fechado reclassificando para MatchVocabImage sem `answers` (campo agora opcional no render.js — quando ausente, a coluna de chips numerados é removida inteiramente em vez de forçar uma lista de respostas fantasma). Fit correto agora — lista de países + mapa central, sem inventar uma etapa de resposta que a fonte não tinha."
+  },
+  {
+    "slide": 14,
+    "template": "MatchVocabImage",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK",
+      "title": "Practice the pronunciation!",
+      "instruction": "Look at the map and practice saying each country.",
+      "keywords": ["Brazil", "Colombia", "Mexico", "the U.S", "Spain", "the U.K", "China", "Japan"]
+    },
+    "note": "ATUALIZADO 2026-07-15: mesmo padrão do slide 13, gap fechado com MatchVocabImage sem answers. Erro de digitação do original ('pronounciation') corrigido para 'pronunciation' — não é conteúdo pedagógico deliberado, só texto de instrução."
+  },
+  {
+    "slide": 15,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "tag": "PAIR WORK",
+      "title": "Pair Work!",
+      "subtitle": "One student says the country, the other the nationality! Brazil! It's Brazilian!"
+    },
+    "note": "Slide de instrução de atividade em dupla com exemplo modelo — fit razoável para SectionTransition (é essencialmente um slide de instrução/transição, não um drill com estrutura fixa)."
+  },
+  {
+    "slide": 16,
+    "template": "MultipleChoice",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · RECAP",
+      "tag": "Books closed! Do you remember?",
+      "question": "Is Heather Watson a _______?",
+      "options": ["Baseball player.", "Tennis player.", "Basketball player."]
+    },
+    "note": "ATUALIZADO 2026-07-15: gap fechado com o novo template MultipleChoice (antes era SectionTransition como aproximação). Fit correto agora — pergunta + 3 alternativas rotuladas A/B/C, sem gabarito marcado (igual ao slide original, a resposta certa não aparecia no slide)."
+  },
+  {
+    "slide": 17,
+    "template": "MultipleChoice",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · RECAP",
+      "tag": "Books closed! Do you remember?",
+      "question": "Is Shohei Ohtani a _______?",
+      "options": ["Baseball player.", "Tennis player.", "Basketball player."]
+    },
+    "note": "ATUALIZADO 2026-07-15: mesmo padrão do slide 16, gap fechado com MultipleChoice."
+  },
+  {
+    "slide": 18,
+    "template": "MultipleChoice",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · RECAP",
+      "tag": "Books closed! Do you remember?",
+      "question": "Are Serena and Venus Williams _______?",
+      "options": ["Baseball players.", "Tennis players.", "Basketball players."]
+    },
+    "note": "ATUALIZADO 2026-07-15: mesmo padrão dos slides 16-17, sujeito plural. Gap fechado com MultipleChoice."
+  },
+  {
+    "slide": 19,
+    "template": "MatchingWithChart",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK",
+      "title": "Match 1-3 with a-c. Listen and check.",
+      "matchLabel": "Match 1-3 with a-c",
+      "matchPrompts": [
+        "Heather Watson is a tennis player.",
+        "Shohei Ohtani is a baseball player.",
+        "Serena and Venus Williams are tennis players."
+      ],
+      "matchOptions": ["He's Japanese.", "They're American.", "She's British."],
+      "matchAnswerKey": "Answers: 1-c, 2-a, 3-b",
+      "chartLabel": "Complete the chart",
+      "chartRows": [
+        { "label": "he is", "answer": "he's" },
+        { "label": "they are", "answer": "they're" }
+      ]
+    },
+    "note": "ATUALIZADO 2026-07-15: gap fechado com o novo template MatchingWithChart (antes era SectionTransition com tudo resumido no subtítulo). Fit correto agora — matching numerado 1-3/a-c com gabarito à esquerda, mini-chart de contração à direita, exatamente a estrutura da página do livro (Cambridge Exercise 2A+2B)."
+  },
+  {
+    "slide": 20,
+    "template": "GrammarBox2YesNo",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · GRAMMAR",
+      "photo1_caption": "\"He's Japanese.\"",
+      "photo2_caption": "\"They're American.\"",
+      "col2_header": "AFFIRMATIVE",
+      "col3_header": "NEGATIVE",
+      "row1_subject": "he",
+      "row1_q_hl": "He's",
+      "row1_q_post": "Japanese.",
+      "row1_a_pre": "",
+      "row1_a_yes": "He's not",
+      "row1_a_mid": "",
+      "row1_a_no": "Japanese",
+      "row2_subject": "she",
+      "row2_q_hl": "She's",
+      "row2_q_post": "Mexican.",
+      "row2_a_pre": "",
+      "row2_a_yes": "She's not",
+      "row2_a_mid": "",
+      "row2_a_no": "Mexican",
+      "row3_subject": "they",
+      "row3_q_hl": "They're",
+      "row3_q_post": "American.",
+      "row3_a_pre": "",
+      "row3_a_yes": "They're not",
+      "row3_a_mid": "",
+      "row3_a_no": "American"
+    },
+    "note": "APROXIMAÇÃO SINALIZADA: GrammarBox2YesNo foi desenhado para tabela SUBJECT / YES-NO-QUESTION / SHORT-ANSWER, mas o conteúdo real do slide 20 é afirmativa vs. negativa (Part 1 + início da Part 2), não perguntas sim/não (essas vêm no slide 21). Forcei o encaixe usando as colunas como 'afirmativa' / 'negativa' em vez de 'pergunta' / 'resposta curta' — isso distorce o papel pedagógico do template (ver regra de 'não confundir apresentação com drill de pergunta'). GrammarBoxLook seria mais adequado ao papel (é o template de 'apresentar a regra', não 'testar'), mas seu schema de tabela é SUBJECT/HL/TEXT de uma coluna só, e este slide tem 2 colunas (afirmativa E negativa) lado a lado — também não é fit perfeito. CORREÇÃO (após teste visual encontrar pontuação duplicada 'He's not. / Japanese..'): o schema real da coluna 3 concatena rigidamente como '{aPre} {aYes}. / {aMid}{aNo}.' (confirmado lendo grammar-box-2-yesno.render.js linha 52) — não há combinação de aPre/aYes/aMid/aNo que produza uma frase única limpa, o template SEMPRE separa em duas frases com ' / ' entre elas. Ajustado para aPre/aMid vazios e aNo sem ponto final (o template já adiciona), produzindo 'He's not. / Japanese.' — gramaticalmente estranho (lê como duas afirmações soltas, não uma frase coesa 'He's not Japanese.'), mas sem erro de pontuação duplicada. Isso é o limite real do fit — o template genuinamente não tem um schema para 'uma frase negativa completa por linha', só para 'pergunta + resposta em duas partes'. Candidato forte a um novo template dedicado a tabelas afirmativa/negativa de frase única (papel de GrammarBoxLook mas com 2 colunas de frase completa lado a lado, não 1)."
+  },
+  {
+    "slide": 21,
+    "template": "GrammarBox2YesNo",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · GRAMMAR",
+      "photo1_caption": "\"Is he Japanese?\"",
+      "photo2_caption": "\"Are they American?\"",
+      "col2_header": "YES/NO QUESTION",
+      "col3_header": "SHORT ANSWER",
+      "row1_subject": "he",
+      "row1_q_hl": "Is",
+      "row1_q_post": "he Japanese?",
+      "row1_a_pre": "Yes, he",
+      "row1_a_yes": "is",
+      "row1_a_mid": "No, he's",
+      "row1_a_no": "not",
+      "row2_subject": "she",
+      "row2_q_hl": "Is",
+      "row2_q_post": "she Mexican?",
+      "row2_a_pre": "Yes, she",
+      "row2_a_yes": "is",
+      "row2_a_mid": "No, she's",
+      "row2_a_no": "not",
+      "row3_subject": "they",
+      "row3_q_hl": "Are",
+      "row3_q_post": "they American?",
+      "row3_a_pre": "Yes, they",
+      "row3_a_yes": "are",
+      "row3_a_mid": "No, they're",
+      "row3_a_no": "not"
+    },
+    "note": "Fit correto e limpo — este é exatamente o schema do template (yes/no question + short answer), correspondendo à Part 2 (Yes/No questions) do slide 21 original. photo1_caption/photo2_caption adaptadas para perguntas (o original tinha exemplos afirmativos nas fotos do topo da página, reaproveitados aqui como perguntas para manter o padrão do template)."
+  },
+  {
+    "slide": 22,
+    "template": "PhotoGridBlank",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK",
+      "title": "Complete the sentences with he's, she's, or they're.",
+      "items": [
+        { "answer": "He's", "text": "Italian." },
+        { "answer": "She's", "text": "Chinese." },
+        { "answer": "She's", "text": "Brazilian." },
+        { "answer": "They're", "text": "Mexican." },
+        { "answer": "They're", "text": "Spanish." },
+        { "answer": "He's", "text": "British." }
+      ]
+    },
+    "note": "ATUALIZADO 2026-07-15: gap fechado com o novo template PhotoGridBlank (antes era SectionTransition com as respostas resumidas no subtítulo). Fit correto agora — 6 fotos anônimas em grade, cada uma com lacuna preenchida. Mantém 1:1 (1 slide fonte = 1 slide gerado), sem precisar forçar PhotoExerciseWhoIsThis (que é para 1 pessoa NOMEADA por slide) nem inventar 6 slides a partir de 1 fonte. Fotos ainda são placeholders — não busquei imagens reais das pessoas anônimas do livro. Notas do apresentador do slide original: 'If you have spare time, do exercise Part 2 a.' — indicando que o próximo slide (23) é atividade opcional conforme tempo disponível."
+  },
+  {
+    "slide": 23,
+    "template": "Exercise1",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK",
+      "title": "Complete the sentences with 's not or 're not.",
+      "instructionPre": "Books p. 117 - Exercise 1B, Part 2:",
+      "instructionHl": "Negative and questions",
+      "instructionPost": "",
+      "rows": [
+        { "orig": "She ___ Italian.", "hl": "'s not", "post": "She's Brazilian." },
+        { "orig": "They ___ American.", "hl": "'re not", "post": "They're English." },
+        { "orig": "He ___ Chinese.", "hl": "'s not", "post": "He's American." },
+        { "orig": "They ___ Colombian.", "hl": "'re not", "post": "They're English." },
+        { "orig": "He ___ Spanish.", "hl": "'s not", "post": "He's Italian." },
+        { "orig": "She ___ Brazilian.", "hl": "'s not", "post": "She's Ecuadorian." }
+      ]
+    },
+    "note": "APROXIMAÇÃO SINALIZADA: Exercise1 foi desenhado para 'frase original -> arrow -> frase transformada com contração destacada', mas o conteúdo real do slide 23 é 'frase com blank de negação + frase de correção com a nacionalidade certa' — duas frases relacionadas mas de naturezas diferentes (uma é lacuna a preencher, a outra é afirmação de contexto), não uma transformação direta da mesma frase. Adaptei orig=frase com blank, hl=resposta da lacuna, post=frase de correção completa — funciona visualmente mas o rótulo 'orig -> hl+post' do template não descreve exatamente o que está acontecendo aqui. Atividade marcada como opcional pelo professor original (ver nota do slide 22: 'if you have spare time'). 6 linhas — o template comporta até 5 na geometria original, aqui usa a versão elástica (6+) que reduz levemente fonte/espaçamento."
+  },
+  {
+    "slide": 24,
+    "template": "ModelExampleList",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · NOTEBOOK",
+      "title": "Talk about nationalities and jobs",
+      "example": "Neymar is brazilian, he is a soccer player.",
+      "items": [
+        "Zhu Ting is chinese, she is a volleyball player.",
+        "Ricky Rubio is spanish, he is a basketball player.",
+        "Javier and Guillermo are soccer players, they are mexican."
+      ]
+    },
+    "note": "ATUALIZADO 2026-07-15: gap fechado com o novo template ModelExampleList (antes era SectionTransition com tudo resumido no subtítulo). Fit correto agora — exemplo modelo destacado + 3 itens de prática numerados, no mesmo formato. Numeração dos itens no original ligeiramente inconsistente ('2.' aparece antes de um item sem número, '3.' depois) — preservado o conteúdo de cada frase em ordem, renumerado 1-2-3 de forma limpa (não é uma peça de conteúdo pedagógico deliberada, a numeração confusa era só um artefato do slide original)."
+  },
+  {
+    "slide": 25,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "tag": "TALK IN PAIRS!",
+      "title": "Talk about their nationalities and jobs!",
+      "subtitle": "Neymar is from ____. He is _____"
+    },
+    "note": "Slide de instrução de prática oral em duplas com frase-modelo — fit razoável para SectionTransition."
+  },
+  {
+    "slide": 26,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1 · PRACTICE",
+      "tag": "FREE PRACTICE",
+      "title": "Google 3 people you like!",
+      "subtitle": "Talk about their nationalities and jobs!"
+    },
+    "note": "Slide de instrução de atividade de pesquisa + prática oral livre, sem conteúdo fixo de exercício — fit direto para SectionTransition."
+  },
+  {
+    "slide": 27,
+    "template": "LessonComplete",
+    "dynamic": true,
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "columns": [
+        {
+          "header": "AFFIRMATIVES",
+          "terms": [
+            { "t": "She's", "d": "Spanish." },
+            { "t": "He's", "d": "Colombian." },
+            { "t": "They're", "d": "American." }
+          ]
+        },
+        {
+          "header": "NEGATIVES",
+          "terms": [
+            { "t": "She's not", "d": "Japanese." },
+            { "t": "He's not", "d": "British." },
+            { "t": "They're not", "d": "Italian." }
+          ]
+        }
+      ]
+    },
+    "note": "ATUALIZADO 2026-07-15: LessonComplete agora aceita 1-4 colunas (render.js novo), então preencho só as 2 categorias reais (Affirmatives, Negatives) que a fonte original recapitulou — sem inventar Questions/Wh-Questions que a aula não cobriu neste slide de fechamento, e sem deixar 2 colunas vazias/desbalanceadas como na versão anterior. As 2 colunas ficam distribuídas uniformemente pela largura do slide em vez de espremidas nas posições fixas 1/2 do layout de 4."
+  },
+  {
+    "slide": 28,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "tag": "ROUTINE",
+      "title": "Assign practice",
+      "subtitle": ""
+    },
+    "note": "Slide de rotina de fechamento (atribuição de lição de casa/prática), sem conteúdo de exercício — fit direto."
+  },
+  {
+    "slide": 29,
+    "template": "SectionTransition",
+    "values": {
+      "breadcrumb": "BASIC 1 · UNIT 1 · LESSON B · PART 1",
+      "tag": "LET'S PLAY!",
+      "title": "Let's play!",
+      "subtitle": "Throw a ball at the board to choose the question!"
+    },
+    "note": "Slide de encerramento com atividade de jogo, sem conteúdo textual adicional de exercício — fit direto."
+  }
+]

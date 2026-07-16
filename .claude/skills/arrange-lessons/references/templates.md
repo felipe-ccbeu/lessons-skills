@@ -586,6 +586,70 @@ height/font to fit the content band.
 
 ---
 
+## 24. MatchLetters
+**File:** `match-letters.html` shell + `match-letters.render.js` (dynamic
+renderer — **do not fill this one by string-replacing `{{TOKEN}}`s**, call
+the render function instead)
+**Role:** letter-matching WITH a photo grid — a pre-built grid image (the
+actual photos/flags/captions from the source lesson, e.g. 8 athletes each
+labeled a-h) on the left, paired with an elastic term↔letter list (e.g.
+nationality → its matching letter) on the right. Fills the "letter-matching
+without a central image" gap noted below in Known gaps — distinct from
+`MatchVocabImage`, which assumes one central image/map with numbered answer
+chips anchored to it (this template's image is a full N-photo grid, not a
+single map).
+**Background:** white.
+**Added 2026-07-16**, for a real case: "Books p. 10 - Exercise 1B - Match the
+nationalities" in `basic-1-unit-1-lesson-b-part-1-v3/`. **Corrected the same
+day**: the first version of this template dropped the photo grid entirely and
+rendered text-only (term↔letter list, no image) — this lost the actual
+content of the exercise, since the grid of real photos (each captioned with
+flag + name + role) *is* the matching puzzle, not decoration around it. Fixed
+by cropping the grid region directly out of the original slide's own
+screenshot (same `export/png` mechanism `extract-lesson-slides` already uses)
+into a single PNG, so the photos, flags, and captions are guaranteed to be the
+real ones from the source lesson — never fabricated or swapped for generic
+placeholders (per the hard rule in `../SKILL.md`).
+**The `gridImage` is a single pre-built image path, not N separate photos
+this template lays out itself.** This template composites one already-correct
+grid image with the elastic term/letter list beside it — it does not attempt
+to place N individual photos into a grid (that's `PhotoGridBlank`'s job for
+anonymous/blank-caption photos; this one assumes the grid arrives pre-built
+because its captions/flags are real book-page content, not something to
+regenerate token by token).
+**Only use the term↔letter pairing when that mapping is already resolved in
+the source content.** If the mapping itself was never captured clearly (e.g.
+flag images that were never transcribed with clear correspondence), this
+template doesn't fix that — that's a re-extraction problem, not a template
+gap. Fall back to `SectionTransition` with the vocabulary list in the
+subtitle in that case, same guidance as before this template existed.
+**Row count is elastic, not fixed to 8.** Call:
+```js
+const { renderMatchLetters } = require('./match-letters.render.js');
+const html = renderMatchLetters({
+  breadcrumb: 'BASIC 1 · UNIT 1 · LESSON B · PART 1 · BOOK',
+  title: 'Match the nationalities',
+  gridImage: 'data:image/png;base64,iVBORw0KG...', // MUST be a data: URI, not a relative/file path — see "Pipeline capabilities" note on file:// + fetch() below
+  rows: [
+    { term: 'American', letter: 'C' },
+    { term: 'Chinese', letter: 'G' },
+    // ...any length
+  ],
+});
+```
+Up to 8 rows render with the original hand-tuned row height/font; 9+ rows
+shrinks row height/font (floor ~12pt) to fit the same content band.
+**`gridImage` must already be a `data:` URI by the time it reaches this
+function** — pass a relative path like `'./nationality-grid.png'` and the
+image will render fine in a visual preview but silently vanish from the
+final `.pptx` (see the `file://` + `fetch()` failure mode documented under
+"Pipeline capabilities" below). Read the PNG with `fs.readFileSync` and
+base64-encode it into the `gridImage` string yourself before calling
+`renderMatchLetters`, in whatever script drives the ficha → HTML generation
+step.
+
+---
+
 ## Pipeline capabilities (extract.js / build.js)
 
 `extract.js` and `build.js` are the two scripts that turn a filled HTML
@@ -603,6 +667,34 @@ end-to-end on a test lesson:
   that box to preserve the image's own aspect ratio. If you're ever
   troubleshooting "an image is in the HTML but missing from the deck," check
   whether these two scripts are older than 2026-07-14 first.
+- **A local `<img src="./file.png">` (a plain relative/file path, not a data:
+  URI or a bundler manifest ref) silently loses its image in the final
+  `.pptx` even though it renders perfectly in every visual preview —
+  `extract.js`'s own resolution step converts each `<img>`'s `src` to a data
+  URI by doing an in-page `fetch(img.currentSrc)`, and Chromium's `fetch()`
+  refuses `file://` URLs outright ("URL scheme 'file' is not supported"),
+  while the same file loads completely normally as an `<img>` for on-screen
+  rendering. The two code paths (visual render vs. the fetch-based data-URI
+  resolution `extract.js` needs before handing off to `build.js`) diverge
+  silently — `extract.js`'s own `catch` swallows the fetch failure into a
+  `console.warn` inside the *page's* console, which never surfaces to your
+  terminal unless you attach a `page.on('console', ...)` listener yourself.
+  Net effect: a screenshot check of the filled HTML looks completely correct,
+  the pipeline logs "N images" with no error, and the image is still just
+  gone from the uploaded deck — found for real 2026-07-16 in
+  `basic-1-unit-1-lesson-b-part-1-v3/` (a custom `MatchLetters` template's
+  photo grid, and a `Fluency2` slide's real game-board photo, both went
+  missing this exact way). **The fix**: never leave a locally-sourced image as
+  a relative/file path in the HTML you hand to `extract.js` — inline it as a
+  `data:image/png;base64,...` URI yourself first (read the file with `fs`,
+  base64-encode it, put that directly in the `src` attribute). `extract.js`'s
+  fetch step already early-returns for any `src` that starts with `data:`
+  (see its own comment: "if data:, use directly"), so this sidesteps the
+  broken fetch path entirely rather than working around it. When you have
+  ficha values with a filesystem path (e.g. `MatchLetters`'s `gridImage`),
+  convert it to a data URI in the generation script *before* calling the
+  template's render function — don't pass the raw path through and assume the
+  template or the pipeline will resolve it later.
 - **Inline SVG is still not supported** — only `<img>` (raster: PNG/JPEG/etc,
   referenced via `src` or a bundler manifest ref). An inline `<svg>` element
   gets walked as a generic DOM node: its `<text>` children get treated as
@@ -709,18 +801,16 @@ approximation in the ficha entry's notes:
   `basic-1-unit-1-lesson-b-part-1-v2/`. The `LessonComplete` fixed-4-column
   imbalance (a 2-category recap leaving 2 columns empty) is also fixed —
   `LessonComplete` is now elastic (1-4 columns), see entry 18.
-- **Letter-matching without a central image** (e.g. "match each nationality to
-  a flag labeled A-H", where the flag-to-letter correspondence lives in an
-  image the extraction didn't capture with clear correspondence) — still no
-  template. This is not purely a template gap, though: in the one real case
-  seen so far, the letter↔country correspondence itself was never captured
-  during extraction (the flag images weren't transcribed with clear
-  correspondence), so even a matching template wouldn't have real content to
-  put in it — re-extracting that slide (re-reading the flag image) is the
-  actual fix, not a new template. `MatchVocabImage` is close but assumes one
-  central image with numbered answer chips tied to it, not N independent
-  lettered matches. Closest fit for now: `SectionTransition` with the
-  vocabulary list in the subtitle.
+- **Letter-matching without a central image** — this gap is now filled:
+  `match-letters.html` / `match-letters.render.js` (entry 24 below), added
+  2026-07-16 for the "Match the nationalities" slide in
+  `basic-1-unit-1-lesson-b-part-1-v3/`, where the extraction had already
+  resolved every letter to its nationality via `summarize_presentation`'s own
+  text output. Only use this template when the letter↔term mapping is
+  actually known — if it isn't (e.g. flag images never transcribed with clear
+  correspondence), that's still a re-extraction problem, not something this
+  template papers over; fall back to `SectionTransition` with the vocabulary
+  list in the subtitle in that case, same as before.
 When a lesson has content that matches this gap, use the nearest-role
 template and say explicitly in the ficha note that it's an approximation —
 don't stretch a template silently, and don't drop the slide.

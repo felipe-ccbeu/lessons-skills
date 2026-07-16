@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>CCBEU Slides — Protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;0,800;1,400;1,700&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  :root {
+    --ccbeu-blue: #0448DF;
+    --ccbeu-pink: #FD3682;
+    --ink: #0E1116;
+    --ink-muted: #6B7280;
+    --ink-footer: #9AA1AC;
+    --border-hair: #ECEDF0;
+    --font-title: 'Poppins', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --app-bg: #1c1f26;
+    --panel-bg: #f4f5f7;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--app-bg); font-family: var(--font-body); }
+  #root { height: 100%; }
+
+  /* ---- App shell ---- */
+  .app { display: flex; flex-direction: column; height: 100%; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 18px; background: #12141a; color: #fff; flex: 0 0 auto;
+    font-size: 13px;
+  }
+  .topbar .brand { font-weight: 700; letter-spacing: 0.02em; color: #fff; display:flex; align-items:center; gap:8px;}
+  .topbar .brand .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--ccbeu-pink); }
+  .topbar .actions { display: flex; gap: 8px; }
+  .btn {
+    appearance: none; border: 1px solid #3a3f4b; background: #20232c; color: #dfe2e8;
+    padding: 6px 12px; border-radius: 6px; font-size: 12.5px; cursor: pointer; font-family: inherit;
+  }
+  .btn:hover { background: #2a2e38; }
+  .btn.primary { background: var(--ccbeu-blue); border-color: var(--ccbeu-blue); color: #fff; }
+  .btn.primary:hover { background: #0339b3; }
+  .btn.danger { background: transparent; border-color: #5c2b2e; color: #ff8a80; }
+
+  .body-row { flex: 1 1 auto; display: flex; min-height: 0; }
+
+  /* ---- Slide rail (thumbnails) ---- */
+  .rail {
+    width: 160px; flex: 0 0 auto; background: #14161c; overflow-y: auto;
+    padding: 12px 10px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .thumb {
+    position: relative; border-radius: 6px; overflow: hidden; cursor: pointer;
+    border: 2px solid transparent; background: #000; aspect-ratio: 1280/720;
+  }
+  .thumb.active { border-color: var(--ccbeu-pink); }
+  .thumb .thumb-inner {
+    position: absolute; top: 0; left: 0; width: 1280px; height: 720px;
+    transform: scale(0.109375); transform-origin: top left; pointer-events: none;
+  }
+  .thumb-label {
+    position: absolute; bottom: 3px; left: 5px; font-size: 9px; color: #aab; background: rgba(0,0,0,0.5);
+    padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ---- Stage (presentation area) ---- */
+  .stage-wrap {
+    flex: 1 1 auto; display: flex; align-items: center; justify-content: center;
+    background: #2b2f36; min-width: 0; padding: 24px; position: relative;
+  }
+  .stage {
+    position: relative; width: 1280px; height: 720px; background: #fff; overflow: hidden;
+    font-family: var(--font-body); flex: 0 0 auto; box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    transform-origin: center;
+  }
+  .stage-scaler { display: flex; align-items: center; justify-content: center; }
+
+  /* editable affordances */
+  .editable { cursor: text; border-radius: 4px; outline: none; }
+  .editable:hover { box-shadow: 0 0 0 2px rgba(4,72,223,0.35); }
+  .editable:focus { box-shadow: 0 0 0 2px var(--ccbeu-blue); background: rgba(4,72,223,0.04); }
+  .edit-mode .editable { cursor: text; }
+  .view-mode .editable { cursor: default; }
+  .view-mode .editable:hover { box-shadow: none; }
+
+  .row-controls {
+    position: absolute; right: -34px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 4px; opacity: 0; transition: opacity .12s;
+  }
+  .ex-row:hover .row-controls, .wrow:hover .row-controls { opacity: 1; }
+  .row-btn {
+    width: 24px; height: 24px; border-radius: 5px; border: 1px solid #d7dae0; background: #fff;
+    color: #667; font-size: 13px; line-height: 1; cursor: pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .row-btn:hover { background: #f0f2f5; }
+  .row-btn.remove:hover { background: #ffe4e4; color: #c0392b; border-color: #e5a3a3; }
+
+  .add-row-btn {
+    margin-top: 10px; font-family: var(--font-body); font-size: 11pt; color: var(--ccbeu-blue);
+    background: #eef2ff; border: 1px dashed #b9c6f5; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+  }
+  .add-row-btn:hover { background: #e2e8fd; }
+
+  /* image slot */
+  .img-slot {
+    position: relative; overflow: hidden; background: #EEF1F8; display: flex; align-items: center; justify-content: center;
+  }
+  .img-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .img-slot .img-placeholder { color: #9aa3b5; font-family: var(--font-body); font-size: 12pt; text-align: center; padding: 12px; }
+  .img-slot .img-overlay {
+    position: absolute; inset: 0; background: rgba(4,72,223,0.72); color: #fff; display: flex;
+    flex-direction: column; align-items: center; justify-content: center; gap: 6px; opacity: 0; transition: opacity .12s;
+    font-family: var(--font-body); font-size: 11pt; text-align: center; padding: 10px;
+  }
+  .img-slot:hover .img-overlay { opacity: 1; }
+  .img-overlay input {
+    width: 80%; padding: 5px 8px; border-radius: 4px; border: none; font-size: 10pt; font-family: var(--font-body);
+  }
+  .view-mode .img-overlay { display: none; }
+
+  /* ---- Right panel: outline / notes (presenter-ish) ---- */
+  .side-panel { width: 300px; flex: 0 0 auto; background: #191b21; color: #cfd3db; padding: 16px; overflow-y: auto; }
+  .side-panel h3 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #7d8394; }
+  .side-panel .hint { font-size: 12.5px; line-height: 1.5; color: #9aa1ac; margin-bottom: 14px; }
+  .kbd { background: #2a2e38; border: 1px solid #3a3f4b; padding: 1px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
+
+  .slide-counter { color: #9aa1ac; font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useRef, useCallback, useEffect } = React;
+
+/* =========================================================================
+   SLIDE DATA MODEL
+   This is intentionally the same shape the real .render.js functions in
+   .scripts/html-to-pptx/*.render.js already take (breadcrumb/title/rows/...).
+   In the real system this JSON is what gets persisted per slide; the HTML
+   the teacher sees is produced by a small React renderer per template
+   (2 templates prototyped here: "exercise1" and "sectionTransition").
+   ========================================================================= */
+
+const initialSlides = [
+  {
+    id: 's1',
+    template: 'sectionTransition',
+    data: {
+      breadcrumb: 'BASIC 1 · UNIT 1 · LESSON B · PART 1 · ROTINA',
+      tag: 'ROLL CALL',
+      title: 'Roll call!',
+      subtitle: 'Study the sentences',
+    },
+  },
+  {
+    id: 's2',
+    template: 'exercise1',
+    data: {
+      breadcrumb: 'UNIT 1 · LESSON A · PART 2 · PRACTICE',
+      title: 'Transform the sentences',
+      instructionPre: 'Rewrite each sentence using the',
+      instructionHl: 'short form',
+      instructionPost: '.',
+      rows: [
+        { orig: 'I am a teacher.', hl: "I'm", post: 'a teacher.' },
+        { orig: 'You are from Brazil.', hl: "You're", post: 'from Brazil.' },
+        { orig: 'We are students.', hl: "We're", post: 'students.' },
+        { orig: 'They are at school.', hl: "They're", post: 'at school.' },
+      ],
+    },
+  },
+  {
+    id: 's3',
+    template: 'photoCaption',
+    data: {
+      breadcrumb: 'UNIT 1 · LESSON B · WHO IS THIS?',
+      title: 'Who is this person?',
+      name: 'Camila Souza',
+      role: 'English Teacher',
+      sentencePre: 'She is a',
+      answer: 'teacher',
+      sentencePost: 'at CCBEU.',
+      imageUrl: '',
+    },
+  },
+];
+
+/* ---------- small content-editable helper ---------- */
+function Editable({ value, onChange, style, className = '', tag: Tag = 'div', editMode }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current && ref.current.innerText !== value) {
+      ref.current.innerText = value;
+    }
+  }, [value]);
+  return (
+    <Tag
+      ref={ref}
+      className={`editable ${className}`}
+      style={style}
+      contentEditable={editMode}
+      suppressContentEditableWarning
+      onBlur={(e) => onChange(e.currentTarget.innerText)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && Tag !== 'div') e.preventDefault();
+      }}
+    />
+  );
+}
+
+/* ---------- image slot with paste / URL support ---------- */
+function ImageSlot({ url, onChange, style, editMode, label = 'Colar imagem (Ctrl+V) ou link' }) {
+  const [showInput, setShowInput] = useState(false);
+  const [draft, setDraft] = useState('');
+  const slotRef = useRef(null);
+
+  const handlePaste = useCallback((e) => {
+    if (!editMode) return;
+    const items = e.clipboardData?.items || [];
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = () => onChange(reader.result);
+        reader.readAsDataURL(file);
+        e.preventDefault();
+        return;
+      }
+    }
+    const text = e.clipboardData?.getData('text');
+    if (text) { onChange(text); setShowInput(false); }
+  }, [editMode, onChange]);
+
+  return (
+    <div
+      ref={slotRef}
+      className="img-slot"
+      style={style}
+      tabIndex={editMode ? 0 : -1}
+      onPaste={handlePaste}
+    >
+      {url
+        ? <img src={url} alt="" />
+        : <div className="img-placeholder">📷<br />sem imagem</div>}
+      {editMode && (
+        <div className="img-overlay">
+          {!showInput ? (
+            <>
+              <div>{label}</div>
+              <button className="btn" style={{fontSize:'10pt'}} onClick={() => setShowInput(true)}>Colar link…</button>
+            </>
+          ) : (
+            <input
+              autoFocus
+              placeholder="https://..."
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') { onChange(draft); setShowInput(false); setDraft(''); }
+                if (e.key === 'Escape') { setShowInput(false); setDraft(''); }
+              }}
+              onBlur={() => { if (draft) { onChange(draft); } setShowInput(false); setDraft(''); }}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
+   TEMPLATE RENDERERS
+   Each mirrors the real *.render.js layout (positions/fonts copied from the
+   actual template HTML) but as React components with editable fields.
+   ========================================================================= */
+
+function SectionTransitionSlide({ data, onEdit, editMode }) {
+  return (
+    <div style={{ position: 'relative', width: 1280, height: 720, background: '#fff', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: 80, top: 62, display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-title)', fontWeight: 500, fontSize: '9pt', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ccbeu-blue)' }}>
+        <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--ccbeu-pink)', flex: '0 0 auto' }} />
+        <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} />
+      </div>
+      <Editable
+        value={data.tag}
+        onChange={(v) => onEdit({ tag: v })}
+        editMode={editMode}
+        style={{ position: 'absolute', left: 80, top: 200, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '12pt', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ccbeu-pink)' }}
+      />
+      <Editable
+        value={data.title}
+        onChange={(v) => onEdit({ title: v })}
+        editMode={editMode}
+        tag="h1"
+        style={{ position: 'absolute', left: 80, top: 260, width: 1120, margin: 0, fontFamily: 'var(--font-title)', fontWeight: 800, fontSize: '54pt', lineHeight: 1.1, color: 'var(--ccbeu-blue)' }}
+      />
+      <Editable
+        value={data.subtitle}
+        onChange={(v) => onEdit({ subtitle: v })}
+        editMode={editMode}
+        tag="p"
+        style={{ position: 'absolute', left: 80, top: 420, width: 900, margin: 0, fontFamily: 'var(--font-body)', fontWeight: 400, fontSize: '18pt', lineHeight: 1.4, color: 'var(--ink-muted)' }}
+      />
+      <div style={{ position: 'absolute', left: 80, top: 636, fontFamily: 'var(--font-body)', fontSize: '9pt', color: 'var(--ink-footer)' }}>CCBEU English Center</div>
+    </div>
+  );
+}
+
+function Exercise1Slide({ data, onEdit, editMode }) {
+  const rows = data.rows;
+  const n = rows.length;
+  const BASE_ROWS = 5, BASE_ROW_H = 68, BASE_FONT = 14, MIN_FONT = 10, MIN_ROW_H = 36;
+  const BAND_H = 620 - 258;
+  const rowH = n <= BASE_ROWS ? BASE_ROW_H : Math.max(MIN_ROW_H, Math.floor(BAND_H / n));
+  const fontPt = n <= BASE_ROWS ? BASE_FONT : Math.max(MIN_FONT, Math.min(BASE_FONT, Math.round(BASE_FONT * (rowH / BASE_ROW_H))));
+
+  const updateRow = (i, patch) => {
+    const next = rows.map((r, idx) => idx === i ? { ...r, ...patch } : r);
+    onEdit({ rows: next });
+  };
+  const addRow = () => onEdit({ rows: [...rows, { orig: 'New sentence.', hl: 'New', post: 'form.' }] });
+  const removeRow = (i) => onEdit({ rows: rows.filter((_, idx) => idx !== i) });
+
+  return (
+    <div style={{ position: 'relative', width: 1280, height: 720, background: '#fff', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: 80, top: 62, display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-title)', fontWeight: 500, fontSize: '9pt', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ccbeu-blue)' }}>
+        <span style={{ width: 10, height: 10, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
+        <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} />
+      </div>
+      <Editable
+        value={data.title} onChange={(v) => onEdit({ title: v })} editMode={editMode} tag="h1"
+        style={{ position: 'absolute', left: 80, top: 124, width: 1120, margin: 0, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '24pt', color: 'var(--ccbeu-blue)' }}
+      />
+      <p style={{ position: 'absolute', left: 80, top: 207, width: 1120, margin: 0, fontFamily: 'var(--font-body)', fontSize: '12pt', color: 'var(--ink)', display: 'flex', gap: 4 }}>
+        <Editable value={data.instructionPre} onChange={(v) => onEdit({ instructionPre: v })} editMode={editMode} tag="span" />
+        <Editable value={data.instructionHl} onChange={(v) => onEdit({ instructionHl: v })} editMode={editMode} tag="span" style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }} />
+        <Editable value={data.instructionPost} onChange={(v) => onEdit({ instructionPost: v })} editMode={editMode} tag="span" />
+      </p>
+
+      <div style={{ position: 'absolute', left: 80, top: 258, width: 1120 }}>
+        {rows.map((row, i) => (
+          <div key={i} className="ex-row" style={{ position: 'relative', display: 'flex', alignItems: 'center', height: rowH, borderBottom: '1px solid var(--border-hair)' }}>
+            <div style={{ flex: '0 0 34px', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '10pt', color: 'var(--ccbeu-blue)' }}>{i + 1}</div>
+            <Editable value={row.orig} onChange={(v) => updateRow(i, { orig: v })} editMode={editMode}
+              style={{ flex: '0 0 545px', fontFamily: 'var(--font-body)', fontSize: `${fontPt}pt`, color: 'var(--ink)' }} />
+            <div style={{ flex: '0 0 48px', textAlign: 'center', fontSize: '11pt', color: 'var(--ink)' }}>→</div>
+            <div style={{ flex: '1 1 auto', display: 'flex', gap: 4, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: `${fontPt}pt`, color: 'var(--ink)' }}>
+              <Editable value={row.hl} onChange={(v) => updateRow(i, { hl: v })} editMode={editMode} tag="span" style={{ color: 'var(--ccbeu-pink)' }} />
+              <Editable value={row.post} onChange={(v) => updateRow(i, { post: v })} editMode={editMode} tag="span" />
+            </div>
+            {editMode && (
+              <div className="row-controls">
+                <button className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>✕</button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {editMode && (
+        <button className="add-row-btn" style={{ position: 'absolute', left: 80, top: 258 + Math.min(n, n) * rowH + 14 }} onClick={addRow}>
+          + Adicionar frase
+        </button>
+      )}
+      <div style={{ position: 'absolute', left: 80, top: 636, fontFamily: 'var(--font-body)', fontSize: '9pt', color: 'var(--ink-footer)' }}>CCBEU English Center</div>
+    </div>
+  );
+}
+
+function PhotoCaptionSlide({ data, onEdit, editMode }) {
+  return (
+    <div style={{ position: 'relative', width: 1280, height: 720, background: '#fff', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: 80, top: 62, display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-title)', fontWeight: 500, fontSize: '9pt', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ccbeu-blue)' }}>
+        <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
+        <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} />
+      </div>
+      <Editable
+        value={data.title} onChange={(v) => onEdit({ title: v })} editMode={editMode} tag="h1"
+        style={{ position: 'absolute', left: 80, top: 130, width: 560, margin: 0, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '30pt', color: 'var(--ccbeu-blue)' }}
+      />
+      <Editable value={data.name} onChange={(v) => onEdit({ name: v })} editMode={editMode}
+        style={{ position: 'absolute', left: 80, top: 300, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '20pt', color: 'var(--ccbeu-pink)' }} />
+      <Editable value={data.role} onChange={(v) => onEdit({ role: v })} editMode={editMode}
+        style={{ position: 'absolute', left: 80, top: 344, fontFamily: 'var(--font-body)', fontSize: '13pt', color: 'var(--ink-muted)' }} />
+
+      <p style={{ position: 'absolute', left: 80, top: 430, width: 560, margin: 0, fontFamily: 'var(--font-body)', fontSize: '15pt', color: 'var(--ink)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <Editable value={data.sentencePre} onChange={(v) => onEdit({ sentencePre: v })} editMode={editMode} tag="span" />
+        <Editable value={data.answer} onChange={(v) => onEdit({ answer: v })} editMode={editMode} tag="span" style={{ fontWeight: 700, color: 'var(--ccbeu-pink)', borderBottom: '2px solid var(--ccbeu-pink)' }} />
+        <Editable value={data.sentencePost} onChange={(v) => onEdit({ sentencePost: v })} editMode={editMode} tag="span" />
+      </p>
+
+      <ImageSlot
+        url={data.imageUrl}
+        onChange={(v) => onEdit({ imageUrl: v })}
+        editMode={editMode}
+        style={{ position: 'absolute', left: 680, top: 0, width: 600, height: 720 }}
+      />
+      <div style={{ position: 'absolute', left: 80, top: 636, fontFamily: 'var(--font-body)', fontSize: '9pt', color: 'var(--ink-footer)' }}>CCBEU English Center</div>
+    </div>
+  );
+}
+
+const RENDERERS = {
+  sectionTransition: SectionTransitionSlide,
+  exercise1: Exercise1Slide,
+  photoCaption: PhotoCaptionSlide,
+};
+
+/* =========================================================================
+   APP
+   ========================================================================= */
+
+function App() {
+  const [slides, setSlides] = useState(initialSlides);
+  const [activeId, setActiveId] = useState(initialSlides[0].id);
+  const [editMode, setEditMode] = useState(true);
+  const [scale, setScale] = useState(0.6);
+  const stageWrapRef = useRef(null);
+
+  const active = slides.find(s => s.id === activeId);
+
+  const updateActiveData = useCallback((patch) => {
+    setSlides(prev => prev.map(s => s.id === activeId ? { ...s, data: { ...s.data, ...patch } } : s));
+  }, [activeId]);
+
+  useEffect(() => {
+    function computeScale() {
+      const el = stageWrapRef.current;
+      if (!el) return;
+      const availW = el.clientWidth - 48;
+      const availH = el.clientHeight - 48;
+      setScale(Math.min(availW / 1280, availH / 720, 1));
+    }
+    computeScale();
+    window.addEventListener('resize', computeScale);
+    return () => window.removeEventListener('resize', computeScale);
+  }, []);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (document.activeElement && document.activeElement.isContentEditable) return;
+      const idx = slides.findIndex(s => s.id === activeId);
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        if (idx < slides.length - 1) setActiveId(slides[idx + 1].id);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        if (idx > 0) setActiveId(slides[idx - 1].id);
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [slides, activeId]);
+
+  const Renderer = RENDERERS[active.template];
+  const idx = slides.findIndex(s => s.id === activeId);
+
+  return (
+    <div className="app">
+      <div className="topbar">
+        <div className="brand"><span className="dot" /> CCBEU Slides — protótipo</div>
+        <div className="slide-counter">Slide {idx + 1} / {slides.length}</div>
+        <div className="actions">
+          <button className={`btn ${editMode ? 'primary' : ''}`} onClick={() => setEditMode(m => !m)}>
+            {editMode ? '✎ Modo edição' : '▶ Modo apresentação'}
+          </button>
+          <button className="btn" onClick={() => {
+            const blob = new Blob([JSON.stringify(slides, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'lesson-slides.json';
+            a.click();
+          }}>Exportar JSON</button>
+        </div>
+      </div>
+
+      <div className={`body-row ${editMode ? 'edit-mode' : 'view-mode'}`}>
+        <div className="rail">
+          {slides.map((s, i) => {
+            const R = RENDERERS[s.template];
+            return (
+              <div key={s.id} className={`thumb ${s.id === activeId ? 'active' : ''}`} onClick={() => setActiveId(s.id)}>
+                <div className="thumb-inner">
+                  <R data={s.data} editMode={false} onEdit={() => {}} />
+                </div>
+                <div className="thumb-label">{i + 1}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="stage-wrap" ref={stageWrapRef}>
+          <div className="stage-scaler" style={{ transform: `scale(${scale})` }}>
+            <div className="stage">
+              <Renderer data={active.data} editMode={editMode} onEdit={updateActiveData} />
+            </div>
+          </div>
+        </div>
+
+        <div className="side-panel">
+          <h3>Como testar</h3>
+          <div className="hint">
+            <b>Modo edição</b> (ligado): clique em qualquer texto azul-realçado
+            para editar. Passe o mouse numa linha da lista (slide 2) para ver
+            o botão de remover; use "+ Adicionar frase" para incluir uma nova.
+            No slide 3, passe o mouse na área da foto para colar uma imagem
+            (<span className="kbd">Ctrl+V</span>) ou colar um link.
+          </div>
+          <div className="hint">
+            <b>Modo apresentação</b>: nada é editável, usa <span className="kbd">←</span>/<span className="kbd">→</span> para navegar entre slides — é o que o professor veria em sala.
+          </div>
+          <div className="hint">
+            "Exportar JSON" baixa o estado atual dos 3 slides — esse é o
+            formato que, no sistema real, ficaria salvo no banco por aula
+            (mesma estrutura que os <code>*.render.js</code> do pipeline já
+            usam para <code>rows</code>/tokens).
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
