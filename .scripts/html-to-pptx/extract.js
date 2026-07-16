@@ -146,25 +146,32 @@ async function extract(htmlPath, rootSelector) {
     // True for elements like <span>/<em>/<b>/<strong> that exist to carry an
     // inline run of differently-styled text inside a running sentence (e.g.
     // the pink contraction inside "I ___ Camila. (= 'm)"), as opposed to a
-    // standalone block-level chunk of content in its own right. Deliberately
-    // NOT based on computed `display`: a <span> that's a direct child of a
+    // standalone block-level chunk of content in its own right. Mostly NOT
+    // based on computed `display`: a <span> that's a direct child of a
     // `display: flex` parent (a common pattern in these templates, e.g.
     // `.cc-row { display: flex }`) computes to `display: block` as a flex
     // item even though it's written and behaves exactly like an inline
-    // highlight span in the source markup — checking display here silently
-    // excluded exactly the "sentence with a colored contraction inside it"
-    // case this function exists to catch.
+    // highlight span in the source markup — checking display unconditionally
+    // here silently excluded exactly the "sentence with a colored
+    // contraction inside it" case this function exists to catch.
     //
-    // A span with its OWN background fill is excluded — that's a real
-    // visual shape wearing a <span> tag (e.g. a "seal-pill" badge), not a
-    // colored run inside a sentence, and it must still get its own
-    // shape+text-box pass so its background rect is emitted (confirmed by a
-    // regression: the LSRW skill pills in Objectives silently lost their
-    // translucent background shapes when this check was tag-name-only).
+    // The one case display DOES matter: a genuinely block-level parent (not
+    // flex) with explicit CSS `display: block` on the child, e.g.
+    // `.term b { display: block }` stacking a bold term above its plain-text
+    // gloss on its own line. There the parent isn't flex, so `display: block`
+    // isn't a flex-item side effect — it's the deliberate layout, and
+    // treating the <b> as an inline run merged its text into the sibling
+    // <span>'s box with no space between them (confirmed by a regression:
+    // LessonComplete's "She's" + "Spanish." glued into "She'sSpanish." once
+    // the column layout stopped being pure single-line-per-term).
     const INLINE_RUN_TAGS = new Set(["SPAN", "EM", "B", "STRONG", "I"]);
     function isInlineRunCarrier(el) {
       if (!INLINE_RUN_TAGS.has(el.tagName)) return false;
-      return !rgbToHex(getComputedStyle(el).backgroundColor);
+      if (rgbToHex(getComputedStyle(el).backgroundColor)) return false;
+      const parentDisplay = el.parentElement ? getComputedStyle(el.parentElement).display : "";
+      const isFlexChild = parentDisplay.includes("flex");
+      if (!isFlexChild && getComputedStyle(el).display === "block") return false;
+      return true;
     }
 
     // Collects every text-bearing child (direct text nodes and inline run
