@@ -9,12 +9,14 @@ import { PresentationOverlay } from '@/components/PresentationOverlay';
 type Props = {
   /** When provided, the app loads/saves this part's slides via the API instead of the in-memory sample deck. */
   partApiUrl?: string;
+  /** DB id of this Part — required to start a live poll session from the presentation overlay. */
+  partId?: string;
   initialSlides?: Slide[];
   partTitle?: string;
   breadcrumbHref?: { label: string; href: string }[];
 };
 
-export function PresenterApp({ partApiUrl, initialSlides, partTitle, breadcrumbHref }: Props) {
+export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, breadcrumbHref }: Props) {
   const [slides, setSlides] = useState<Slide[]>(initialSlides ?? sampleSlides);
   const [activeId, setActiveId] = useState((initialSlides ?? sampleSlides)[0].id);
   const [editMode, setEditMode] = useState(true);
@@ -136,6 +138,23 @@ export function PresenterApp({ partApiUrl, initialSlides, partTitle, breadcrumbH
     }
   }, []);
 
+  const addPollSlide = useCallback(() => {
+    const newSlide: Slide = {
+      id: `poll-${Date.now()}`,
+      template: 'poll',
+      data: {
+        breadcrumb: 'Enquete',
+        question: 'Qual a forma correta?',
+        options: [
+          { id: `opt-${Date.now()}-1`, label: 'Opção A' },
+          { id: `opt-${Date.now()}-2`, label: 'Opção B' },
+        ],
+      },
+    };
+    setSlides((prev) => [...prev, newSlide]);
+    setActiveId(newSlide.id);
+  }, []);
+
   const Renderer = RENDERERS[active.template];
 
   return (
@@ -173,6 +192,9 @@ export function PresenterApp({ partApiUrl, initialSlides, partTitle, breadcrumbH
           <button className="btn" disabled={importing} onClick={() => fileInputRef.current?.click()}>
             {importing ? 'Convertendo…' : '📄 Importar .pptx'}
           </button>
+          <button className="btn" onClick={addPollSlide}>
+            📊 Adicionar enquete
+          </button>
           <button
             className="btn"
             onClick={() => {
@@ -189,26 +211,26 @@ export function PresenterApp({ partApiUrl, initialSlides, partTitle, breadcrumbH
       </div>
 
       {breadcrumbHref && (
-        <div style={{ background: '#14161c', padding: '8px 18px', fontSize: 12.5 }}>
+        <div style={{ background: 'var(--chrome-bg-subtle)', borderBottom: '1px solid var(--chrome-border)', padding: '8px 18px', fontSize: 12.5 }}>
           {breadcrumbHref.map((item, i) => (
             <span key={i}>
-              <a href={item.href} style={{ color: '#9aa1ac' }}>
+              <a href={item.href} style={{ color: 'var(--chrome-text-muted)' }}>
                 {item.label}
               </a>
-              {i < breadcrumbHref.length - 1 && <span style={{ color: '#565b68', margin: '0 6px' }}>/</span>}
+              {i < breadcrumbHref.length - 1 && <span style={{ color: 'var(--chrome-text-faint)', margin: '0 6px' }}>/</span>}
             </span>
           ))}
         </div>
       )}
 
       {saveError && (
-        <div style={{ background: '#3a1414', color: '#ffb4b4', padding: '8px 18px', fontSize: 12.5 }}>
+        <div style={{ background: '#fdecec', color: '#b3261e', padding: '8px 18px', fontSize: 12.5 }}>
           Erro ao salvar: {saveError}
         </div>
       )}
 
       {importError && (
-        <div style={{ background: '#3a1414', color: '#ffb4b4', padding: '8px 18px', fontSize: 12.5 }}>
+        <div style={{ background: '#fdecec', color: '#b3261e', padding: '8px 18px', fontSize: 12.5 }}>
           Erro ao importar pptx: {importError}
         </div>
       )}
@@ -270,7 +292,7 @@ export function PresenterApp({ partApiUrl, initialSlides, partTitle, breadcrumbH
       </div>
 
       {presenting && (
-        <PresentationOverlay slides={slides} startIndex={idx} onExit={() => setPresenting(false)} />
+        <PresentationOverlay slides={slides} startIndex={idx} onExit={() => setPresenting(false)} partId={partId} />
       )}
     </div>
   );

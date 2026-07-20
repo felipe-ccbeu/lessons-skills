@@ -10,6 +10,24 @@ datasource db {
   provider = "sqlite"
 }
 
+enum Role {
+  ADMIN
+  COORDINATOR
+  TEACHER
+  NONE
+}
+
+model User {
+  id    String  @id @default(cuid())
+  email String  @unique
+  name  String?
+  image String?
+  role  Role    @default(NONE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Basic 1, Basic 2, ...
 model Level {
   id    String @id @default(cuid())
@@ -68,10 +86,71 @@ model Part {
   // Full slide deck, same shape as the presenter's `Slide[]` type.
   slides Json @default("[]")
 
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson       Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  pollSessions PollSession[]
+  classSession ClassSession?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([lessonId, slug])
+}
+
+// One persistent "join the class" session per Part — created lazily the
+// first time it's needed and reused forever after for that same deck (today,
+// tomorrow, next semester). Distinct from PollSession, which is always a
+// fresh per-round row; this is the opposite: get-or-create, never recreated.
+model ClassSession {
+  id             String  @id @default(cuid())
+  code           String  @unique
+  partId         String  @unique
+  currentSlideId String? // Slide.id of whatever the teacher is currently showing; null = not presenting right now
+
+  part Part @relation(fields: [partId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// One "round" of live voting for a poll slide — a fresh row is created each
+// time the teacher (re-)opens voting on that slide, so re-runs never inherit
+// old votes and old rounds stay around as history.
+model PollSession {
+  id       String @id @default(cuid())
+  code     String @unique
+  partId   String
+  slideId  String
+  question String // snapshot of the slide's question at round-start time
+  status   String @default("open") // "open" | "closed"
+
+  part    Part         @relation(fields: [partId], references: [id], onDelete: Cascade)
+  options PollOption[]
+  votes   PollVote[]
+
+  createdAt DateTime  @default(now())
+  closedAt  DateTime?
+}
+
+model PollOption {
+  id            String @id @default(cuid())
+  pollSessionId String
+  label         String
+  order         Int    @default(0)
+
+  pollSession PollSession @relation(fields: [pollSessionId], references: [id], onDelete: Cascade)
+  votes       PollVote[]
+}
+
+model PollVote {
+  id            String @id @default(cuid())
+  pollSessionId String
+  optionId      String
+  voterKey      String // opaque per-device id, from the voter's localStorage
+
+  pollSession PollSession @relation(fields: [pollSessionId], references: [id], onDelete: Cascade)
+  option      PollOption  @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([pollSessionId, voterKey]) // one vote per device per round
 }

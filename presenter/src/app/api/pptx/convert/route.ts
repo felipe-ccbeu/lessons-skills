@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireRoleApi } from '@/lib/dal';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { mkdtemp, writeFile, mkdir, rm, readdir } from 'fs/promises';
@@ -48,6 +49,9 @@ print(doc.page_count)
 `;
 
 export async function POST(req: NextRequest) {
+  const guard = await requireRoleApi(['ADMIN', 'COORDINATOR', 'TEACHER']);
+  if ('error' in guard) return NextResponse.json({ error: guard.error }, { status: guard.status });
+
   const formData = await req.formData();
   const file = formData.get('file');
 

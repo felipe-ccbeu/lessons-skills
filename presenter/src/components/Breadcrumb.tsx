@@ -2,11 +2,11 @@ import Link from 'next/link';
 
 export function Breadcrumb({ items }: { items: { label: string; href?: string }[] }) {
   return (
-    <nav className="text-[12.5px] text-[#7d8394] flex items-center gap-1.5">
+    <nav className="text-[12.5px] text-[#9aa1ac] flex items-center gap-1.5">
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1.5">
           {item.href ? (
-            <Link href={item.href} className="hover:text-[#dfe2e8]">
+            <Link href={item.href} className="hover:text-[#1c2027]">
               {item.label}
             </Link>
           ) : (

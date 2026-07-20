@@ -97,6 +97,20 @@ this skill can have, worse than an incomplete deck.
 
 ## Workflow
 
+**Output location**: if this skill is invoked directly (not via `regenerate-lesson`,
+which already sets this up), put every artifact this run produces — the ficha,
+filled HTML, layout JSON, per-slide pptx, merged pptx — inside
+`lessons-output/<level>/<unit>/<lesson>/<part>/` at the repo root (same nesting
+as the presenter's `/lessons/[level]/[unit]/[lesson]/[part]` URL — e.g.
+`lessons-output/basic-1/unit-1/lesson-a/part-2/`), not loose at the repo root
+or in `.scripts/html-to-pptx/` (templates only, never output). This is the
+shared convention every generation run follows, so the repo root stays free of
+one-off lesson artifacts and lessons are found by the same path as their
+presenter URL. If this run is a re-do of a lesson that already has output
+there, move the previous content into a dated `runs/<YYYY-MM-DD>-<reason>/`
+subfolder first rather than overwriting it or inventing a `-v2` folder name
+— see `regenerate-lesson`'s SKILL.md step 0 for the full convention.
+
 ### 1. Get the lesson content
 
 Either:

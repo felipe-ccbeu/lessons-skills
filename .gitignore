@@ -11,7 +11,10 @@ __pycache__/
 *.pyc
 
 # Lesson build artifacts — regenerable from <lesson-slug>/*.md + *-ficha.json
-*/slides/
-*/img/
-*/fill.js
+**/slides/
+**/img/
+**/fill.js
 *.pptx
+
+# Downloaded binaries — see poll-quicktest/bin/README.md to fetch again
+poll-quicktest/bin/

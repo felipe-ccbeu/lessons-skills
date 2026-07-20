@@ -17,6 +17,7 @@ export default async function PartEditorPage({ params }: Props) {
   return (
     <PresenterApp
       partApiUrl={`/api/lessons/${levelSlug}/${unitSlug}/${lessonSlug}/${partSlug}`}
+      partId={part.id}
       initialSlides={slides}
       partTitle={`${level.title} · ${unit.title} · ${lesson.title} · ${part.title}`}
       breadcrumbHref={[

@@ -93,6 +93,13 @@ async function main() {
     prisma.part.count(),
   ]);
   console.log('Seed complete:', { levels: counts[0], units: counts[1], lessons: counts[2], parts: counts[3] });
+
+  const admin = await prisma.user.upsert({
+    where: { email: 'felipe@ccbeuguarapuava.com.br' },
+    update: { role: 'ADMIN' },
+    create: { email: 'felipe@ccbeuguarapuava.com.br', name: 'Felipe', role: 'ADMIN' },
+  });
+  console.log('Admin seed:', admin.email, admin.role);
 }
 
 main()
