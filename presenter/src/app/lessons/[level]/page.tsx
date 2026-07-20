@@ -40,13 +40,13 @@ export default async function UnitsPage({ params }: Props) {
               <li key={unit.id} className="relative">
                 <Link
                   href={`/lessons/${level.slug}/${unit.slug}`}
-                  className="group block h-full rounded-xl border border-[#e4e6eb] bg-white px-6 py-6 hover:border-[#fd3682] transition-colors duration-200"
+                  className="group block h-full rounded-2xl border border-[#e4e6eb] bg-white px-6 py-6 hover:border-[#fd3682] transition-colors duration-200"
                 >
                   <div className="flex flex-col h-full">
-                    <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#9aa1ac] mb-1 pr-6">
+                    <p className="text-[10.5px] font-semibold uppercase tracking-widest text-[#9aa1ac] mb-1 pr-8">
                       Unit {i + 1}
                     </p>
-                    <h3 className="font-[family-name:var(--font-title)] text-[17px] font-bold text-[#1c2027] mb-6 pr-6">
+                    <h3 className="font-[family-name:var(--font-title)] text-[17px] font-bold text-[#1c2027] mb-6 pr-8">
                       {unit.title}
                     </h3>
                     <div className="mt-auto flex items-center justify-between">

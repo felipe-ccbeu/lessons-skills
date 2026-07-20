@@ -59,7 +59,7 @@ export function AddCard({
 
   if (open) {
     return (
-      <div className="h-full rounded-xl border border-[#e4e6eb] bg-white px-6 py-6">
+      <div className="h-full rounded-2xl border border-[#e4e6eb] bg-white px-6 py-6">
         <InlineForm action={action} hiddenFields={hiddenFields} onCancel={() => setOpen(false)} />
       </div>
     );
