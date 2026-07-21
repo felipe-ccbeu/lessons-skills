@@ -1,11 +1,11 @@
 import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { PhotoCaptionData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { PhotoExerciseWhoIsThisData, StyleOverrides, TextStyleOverride } from '@/lib/types';
 
 type Props = {
-  data: PhotoCaptionData;
-  onEdit: (patch: Partial<PhotoCaptionData>) => void;
+  data: PhotoExerciseWhoIsThisData;
+  onEdit: (patch: Partial<PhotoExerciseWhoIsThisData>) => void;
   editMode: boolean;
   answerFields?: string[];
   onToggleAnswerField?: (key: string) => void;
@@ -14,7 +14,7 @@ type Props = {
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
 };
 
-export function PhotoCaptionSlide({
+export function PhotoExerciseWhoIsThisSlide({
   data,
   onEdit,
   editMode,
@@ -37,6 +37,18 @@ export function PhotoCaptionSlide({
       <SlideStagger disabled={editMode}>
         <SlideStaggerItem
           disabled={editMode}
+          style={{ position: 'absolute', left: 677, top: 93, width: 533, height: 534 }}
+        >
+          <ImageSlot
+            url={data.imageUrl}
+            onChange={(v) => onEdit({ imageUrl: v })}
+            editMode={editMode}
+            style={{ width: '100%', height: '100%', borderRadius: 6 }}
+          />
+        </SlideStaggerItem>
+
+        <SlideStaggerItem
+          disabled={editMode}
           style={{
             position: 'absolute',
             left: 80,
@@ -52,10 +64,11 @@ export function PhotoCaptionSlide({
             color: 'var(--ccbeu-blue)',
           }}
         >
-          <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
+          <span style={{ width: 10, height: 10, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 130, width: 560 }}>
+
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 115, width: 520 }}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -66,17 +79,18 @@ export function PhotoCaptionSlide({
               margin: 0,
               fontFamily: 'var(--font-title)',
               fontWeight: 700,
-              fontSize: '30pt',
+              fontSize: '24pt',
               color: 'var(--ccbeu-blue)',
             }}
           />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 300 }}>
+
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 250, width: 567 }}>
           <Editable
-            value={data.name}
-            onChange={(v) => onEdit({ name: v })}
+            value={data.personName}
+            onChange={(v) => onEdit({ personName: v })}
             editMode={editMode}
-            {...answerProps('name')}
+            {...answerProps('personName')}
             style={{
               fontFamily: 'var(--font-title)',
               fontWeight: 700,
@@ -85,26 +99,28 @@ export function PhotoCaptionSlide({
             }}
           />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 344 }}>
+
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 296, width: 520 }}>
           <Editable
-            value={data.role}
-            onChange={(v) => onEdit({ role: v })}
+            value={data.personRole}
+            onChange={(v) => onEdit({ personRole: v })}
             editMode={editMode}
-            {...answerProps('role')}
+            {...answerProps('personRole')}
             style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '13pt',
-              color: 'var(--ink-muted)',
+              fontFamily: 'var(--font-title)',
+              fontWeight: 700,
+              fontSize: '20pt',
+              color: 'var(--ccbeu-pink)',
             }}
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 430, width: 560 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 490, width: 623 }}>
           <p
             style={{
               margin: 0,
               fontFamily: 'var(--font-body)',
-              fontSize: '15pt',
+              fontSize: '20pt',
               color: 'var(--ink)',
               display: 'flex',
               gap: 6,
@@ -113,27 +129,15 @@ export function PhotoCaptionSlide({
           >
             <Editable value={data.sentencePre} onChange={(v) => onEdit({ sentencePre: v })} editMode={editMode} tag="span" {...answerProps('sentencePre')} />
             <Editable
-              value={data.answer}
-              onChange={(v) => onEdit({ answer: v })}
+              value={data.sentenceGap}
+              onChange={(v) => onEdit({ sentenceGap: v })}
               editMode={editMode}
               tag="span"
-              {...answerProps('answer')}
-              style={{ fontWeight: 700, color: 'var(--ccbeu-pink)', borderBottom: '2px solid var(--ccbeu-pink)' }}
+              {...answerProps('sentenceGap')}
+              style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
             />
-            <Editable value={data.sentencePost} onChange={(v) => onEdit({ sentencePost: v })} editMode={editMode} tag="span" {...answerProps('sentencePost')} />
+            <span>.</span>
           </p>
-        </SlideStaggerItem>
-
-        <SlideStaggerItem
-          disabled={editMode}
-          style={{ position: 'absolute', left: 680, top: 0, width: 600, height: 720 }}
-        >
-          <ImageSlot
-            url={data.imageUrl}
-            onChange={(v) => onEdit({ imageUrl: v })}
-            editMode={editMode}
-            style={{ width: '100%', height: '100%' }}
-          />
         </SlideStaggerItem>
       </SlideStagger>
       <div

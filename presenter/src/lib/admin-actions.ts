@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { requireRole, requireUser } from '@/lib/dal';
+import { requireRole } from '@/lib/dal';
 import { signOut } from '@/auth';
 import {
   createLevel,
@@ -102,6 +102,5 @@ export async function deleteUserAction(formData: FormData) {
 }
 
 export async function signOutAction() {
-  await requireUser();
   await signOut({ redirectTo: '/login' });
 }

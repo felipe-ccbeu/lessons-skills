@@ -1,10 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Slide } from '@/lib/types';
+import { Slide, SlideTemplate, TextStyleOverride } from '@/lib/types';
 import { sampleSlides } from '@/lib/sample-slides';
+import { createSlide } from '@/lib/slide-templates';
 import { RENDERERS } from '@/components/slides';
 import { PresentationOverlay } from '@/components/PresentationOverlay';
+import { AddSlideMenu } from '@/components/ui/AddSlideMenu';
 
 type Props = {
   /** When provided, the app loads/saves this part's slides via the API instead of the in-memory sample deck. */
@@ -27,6 +29,8 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [addSlideMenu, setAddSlideMenu] = useState<{ x: number; y: number } | null>(null);
   const stageWrapRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,6 +60,25 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     [activeId]
   );
 
+  /** `patch === null` clears the override entirely, restoring the template's default styling. */
+  const updateFieldStyle = useCallback(
+    (key: string, patch: TextStyleOverride | null) => {
+      setSlides((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeId) return s;
+          const current = { ...(s.styleOverrides ?? {}) };
+          if (patch === null) {
+            delete current[key];
+          } else {
+            current[key] = patch;
+          }
+          return { ...s, styleOverrides: current };
+        })
+      );
+    },
+    [activeId]
+  );
+
   const skipDirtyRef = useRef(true);
   useEffect(() => {
     if (skipDirtyRef.current) {
@@ -65,8 +88,10 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     setDirty(true);
   }, [slides]);
 
+  const savingRef = useRef(false);
   const handleSave = useCallback(async () => {
-    if (!partApiUrl) return;
+    if (!partApiUrl || savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     setSaveError(null);
     try {
@@ -81,9 +106,27 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Falha ao salvar');
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }, [partApiUrl, slides]);
+
+  useEffect(() => {
+    if (!dirty || !partApiUrl) return;
+    const t = setTimeout(() => handleSave(), 1500);
+    return () => clearTimeout(t);
+  }, [dirty, partApiUrl, handleSave]);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleSave]);
 
   useEffect(() => {
     function computeScale() {
@@ -138,19 +181,8 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     }
   }, []);
 
-  const addPollSlide = useCallback(() => {
-    const newSlide: Slide = {
-      id: `poll-${Date.now()}`,
-      template: 'poll',
-      data: {
-        breadcrumb: 'Enquete',
-        question: 'Qual a forma correta?',
-        options: [
-          { id: `opt-${Date.now()}-1`, label: 'Opção A' },
-          { id: `opt-${Date.now()}-2`, label: 'Opção B' },
-        ],
-      },
-    };
+  const addSlide = useCallback((template: SlideTemplate) => {
+    const newSlide = createSlide(template);
     setSlides((prev) => [...prev, newSlide]);
     setActiveId(newSlide.id);
   }, []);
@@ -168,9 +200,7 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
         </div>
         <div className="actions">
           {partApiUrl && (
-            <button className="btn primary" disabled={saving || !dirty} onClick={handleSave}>
-              {saving ? 'Salvando…' : dirty ? '💾 Salvar' : '✓ Salvo'}
-            </button>
+            <span className="save-status">{saving ? 'Salvando…' : dirty ? 'Alterações não salvas' : '✓ Salvo'}</span>
           )}
           <button className={`btn ${editMode ? 'primary' : ''}`} onClick={() => setEditMode((m) => !m)}>
             {editMode ? '✎ Modo edição' : '👁 Modo visualização'}
@@ -192,9 +222,6 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
           <button className="btn" disabled={importing} onClick={() => fileInputRef.current?.click()}>
             {importing ? 'Convertendo…' : '📄 Importar .pptx'}
           </button>
-          <button className="btn" onClick={addPollSlide}>
-            📊 Adicionar enquete
-          </button>
           <button
             className="btn"
             onClick={() => {
@@ -206,6 +233,14 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
             }}
           >
             Exportar JSON
+          </button>
+          <button
+            className="btn icon-btn"
+            onClick={() => setShowHelp(true)}
+            aria-label="Como testar"
+            title="Como testar"
+          >
+            ?
           </button>
         </div>
       </div>
@@ -248,6 +283,26 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
               </div>
             );
           })}
+          {editMode && (
+            <button
+              className="thumb thumb-add"
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setAddSlideMenu({ x: rect.right + 8, y: rect.top });
+              }}
+              aria-label="Adicionar slide"
+            >
+              +
+            </button>
+          )}
+          {addSlideMenu && (
+            <AddSlideMenu
+              x={addSlideMenu.x}
+              y={addSlideMenu.y}
+              onSelect={addSlide}
+              onClose={() => setAddSlideMenu(null)}
+            />
+          )}
         </div>
 
         <div className="stage-wrap" ref={stageWrapRef}>
@@ -259,37 +314,51 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
                 onEdit={updateActiveData}
                 answerFields={active.answerFields ?? []}
                 onToggleAnswerField={toggleAnswerField}
+                styleOverrides={active.styleOverrides ?? {}}
+                onStyleFieldChange={updateFieldStyle}
                 revealAnswers
               />
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="side-panel">
-          <h3>Como testar</h3>
-          <div className="hint">
-            <b>Modo edição</b> (ligado): clique em qualquer texto azul-realçado para editar. Passe o mouse numa
-            linha da lista (slide 2) para ver o botão de remover; use &quot;+ Adicionar frase&quot; para incluir
-            uma nova. No slide 3, passe o mouse na área da foto para colar uma imagem (
-            <span className="kbd">Ctrl+V</span>) ou colar um link.
-          </div>
-          <div className="hint">
-            <b>Marcar resposta</b>: passe o mouse em qualquer texto editável e clique no ícone 👁 ao lado para
-            marcar (ou desmarcar) aquele campo como resposta. Na apresentação, respostas marcadas ficam escondidas
-            até o professor avançar.
-          </div>
-          <div className="hint">
-            <b>Modo apresentação</b>: nada é editável, usa <span className="kbd">←</span>/<span className="kbd">→</span>{' '}
-            para navegar entre slides — é o que o professor veria em sala. Se o slide tiver uma resposta marcada,
-            o primeiro <span className="kbd">→</span> revela a resposta; o próximo avança pro slide seguinte.
-          </div>
-          <div className="hint">
-            &quot;Exportar JSON&quot; baixa o estado atual dos 3 slides — esse é o formato que, no sistema real,
-            ficaria salvo no banco por aula (mesma estrutura que os <code>*.render.js</code> do pipeline já usam
-            para <code>rows</code>/tokens).
+      {showHelp && (
+        <div className="modal-overlay" onClick={() => setShowHelp(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Como testar</h3>
+              <button className="modal-close" onClick={() => setShowHelp(false)} aria-label="Fechar">
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="hint">
+                <b>Modo edição</b> (ligado): clique em qualquer texto azul-realçado para editar. Passe o mouse numa
+                linha da lista (slide 2) para ver o botão de remover; use &quot;+ Adicionar frase&quot; para incluir
+                uma nova. No slide 3, passe o mouse na área da foto para colar uma imagem (
+                <span className="kbd">Ctrl+V</span>) ou colar um link.
+              </div>
+              <div className="hint">
+                <b>Marcar resposta</b>: passe o mouse em qualquer texto editável e clique no ícone 👁 ao lado para
+                marcar (ou desmarcar) aquele campo como resposta. Na apresentação, respostas marcadas ficam
+                escondidas até o professor avançar.
+              </div>
+              <div className="hint">
+                <b>Modo apresentação</b>: nada é editável, usa <span className="kbd">←</span>/
+                <span className="kbd">→</span> para navegar entre slides — é o que o professor veria em sala. Se o
+                slide tiver uma resposta marcada, o primeiro <span className="kbd">→</span> revela a resposta; o
+                próximo avança pro slide seguinte.
+              </div>
+              <div className="hint">
+                &quot;Exportar JSON&quot; baixa o estado atual dos 3 slides — esse é o formato que, no sistema real,
+                ficaria salvo no banco por aula (mesma estrutura que os <code>*.render.js</code> do pipeline já
+                usam para <code>rows</code>/tokens).
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {presenting && (
         <PresentationOverlay slides={slides} startIndex={idx} onExit={() => setPresenting(false)} partId={partId} />

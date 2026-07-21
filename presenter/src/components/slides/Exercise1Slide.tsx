@@ -1,6 +1,7 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { Exercise1Data, ExerciseRow } from '@/lib/types';
+import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
+import { Exercise1Data, ExerciseRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
 
 type Props = {
   data: Exercise1Data;
@@ -9,6 +10,8 @@ type Props = {
   answerFields?: string[];
   onToggleAnswerField?: (key: string) => void;
   revealAnswers?: boolean;
+  styleOverrides?: StyleOverrides;
+  onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
 };
 
 const BASE_ROWS = 5;
@@ -25,11 +28,15 @@ export function Exercise1Slide({
   answerFields = [],
   onToggleAnswerField,
   revealAnswers = true,
+  styleOverrides = {},
+  onStyleFieldChange,
 }: Props) {
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
     onToggleAnswer: onToggleAnswerField ? () => onToggleAnswerField(key) : undefined,
+    styleOverride: styleOverrides[key],
+    onStyleChange: onStyleFieldChange ? (patch: TextStyleOverride | null) => onStyleFieldChange(key, patch) : undefined,
   });
   const rows = data.rows;
   const n = rows.length;
@@ -45,6 +52,7 @@ export function Exercise1Slide({
   };
   const addRow = () => onEdit({ rows: [...rows, { orig: 'New sentence.', hl: 'New', post: 'form.' }] });
   const removeRow = (i: number) => onEdit({ rows: rows.filter((_, idx) => idx !== i) });
+  const { openOnContextMenu, menuElement } = useRemoveItemMenu();
 
   return (
     <div style={{ position: 'relative', width: 1280, height: 720, background: '#fff', overflow: 'hidden' }}>
@@ -121,6 +129,7 @@ export function Exercise1Slide({
                   height: rowH,
                   borderBottom: '1px solid var(--border-hair)',
                 }}
+                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
               >
                 <div
                   style={{
@@ -196,6 +205,7 @@ export function Exercise1Slide({
       >
         CCBEU English Center
       </div>
+      {menuElement}
     </div>
   );
 }

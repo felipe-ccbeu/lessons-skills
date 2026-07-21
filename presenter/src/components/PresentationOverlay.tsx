@@ -8,48 +8,51 @@ import { RENDERERS } from '@/components/slides';
 import { usePollTallies } from '@/lib/usePollTallies';
 import { PollLiveResults } from '@/components/slides/PollSlide';
 
-const slideTransition: Record<SlideTemplate, { variants: Variants; transition: Transition }> = {
-  sectionTransition: {
-    variants: {
-      enter: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? 48 : -48 }),
-      center: { opacity: 1, x: 0 },
-      exit: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? -48 : 48 }),
-    },
-    transition: { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 },
+const DEFAULT_SLIDE_TRANSITION: { variants: Variants; transition: Transition } = {
+  variants: {
+    enter: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? 48 : -48 }),
+    center: { opacity: 1, x: 0 },
+    exit: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? -48 : 48 }),
   },
-  exercise1: {
-    variants: {
-      enter: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? 48 : -48 }),
-      center: { opacity: 1, x: 0 },
-      exit: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? -48 : 48 }),
-    },
-    transition: { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 },
-  },
-  photoCaption: {
-    variants: {
-      enter: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? 48 : -48 }),
-      center: { opacity: 1, x: 0 },
-      exit: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? -48 : 48 }),
-    },
-    transition: { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 },
-  },
-  pptxImage: {
-    variants: {
-      enter: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? 48 : -48 }),
-      center: { opacity: 1, x: 0 },
-      exit: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? -48 : 48 }),
-    },
-    transition: { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 },
-  },
-  poll: {
-    variants: {
-      enter: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? 48 : -48 }),
-      center: { opacity: 1, x: 0 },
-      exit: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? -48 : 48 }),
-    },
-    transition: { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 },
-  },
+  transition: { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 },
 };
+
+const ALL_TEMPLATES: SlideTemplate[] = [
+  'sectionTransition',
+  'exercise1',
+  'photoCaption',
+  'pptxImage',
+  'poll',
+  'blank',
+  'objectives',
+  'gettingStarted',
+  'comparative',
+  'multipleChoice',
+  'guessFourImages',
+  'coverImage',
+  'changePlaces',
+  'completeTheChart',
+  'fluency1',
+  'fluency2',
+  'fluency3',
+  'warmupOralTransform',
+  'listenAndRepeat',
+  'photoExerciseWhoIsThis',
+  'photoGridBlank',
+  'grammarBoxLook',
+  'grammarBox2YesNo',
+  'matchVocabImage',
+  'modelExampleList',
+  'lessonComplete',
+  'practiceQaBadges',
+  'matchingWithChart',
+  'matchLetters',
+];
+
+// Every template currently uses the same transition — swap a template's entry here if it ever needs a different one.
+const slideTransition: Record<SlideTemplate, { variants: Variants; transition: Transition }> = Object.fromEntries(
+  ALL_TEMPLATES.map((t) => [t, DEFAULT_SLIDE_TRANSITION])
+) as Record<SlideTemplate, { variants: Variants; transition: Transition }>;
 
 type Props = {
   slides: Slide[];

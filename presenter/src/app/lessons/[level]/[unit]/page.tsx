@@ -43,7 +43,7 @@ export default async function LessonsPage({ params }: Props) {
               <li key={lesson.id} className="relative">
                 <Link
                   href={`/lessons/${level.slug}/${unit.slug}/${lesson.slug}`}
-                  className="flex items-center justify-between gap-4 rounded-lg border border-[#e4e6eb] bg-white px-5 py-4 hover:border-[#fd3682] transition-colors"
+                  className="flex items-center justify-between gap-4 rounded-lg border border-[#e4e6eb] bg-white pl-5 pr-14 py-4 hover:border-[#fd3682] transition-colors"
                 >
                   <span className="font-semibold text-[15px] pr-8">{lesson.title}</span>
                   <span className="flex-none text-[12px] text-[#6b7280] bg-[#f3f4f7] border border-[#e4e6eb] rounded-full px-2.5 py-1">

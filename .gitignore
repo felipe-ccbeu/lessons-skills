@@ -11,7 +11,9 @@ __pycache__/
 *.pyc
 
 # Lesson build artifacts — regenerable from <lesson-slug>/*.md + *-ficha.json
+# (excludes presenter/'s own source code, which happens to live under a "slides" dir too)
 **/slides/
+!presenter/src/components/slides/
 **/img/
 **/fill.js
 *.pptx

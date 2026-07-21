@@ -1,10 +1,11 @@
 import { Editable } from '@/components/ui/Editable';
+import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { SectionTransitionData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { Fluency3Data, StyleOverrides, TextStyleOverride } from '@/lib/types';
 
 type Props = {
-  data: SectionTransitionData;
-  onEdit: (patch: Partial<SectionTransitionData>) => void;
+  data: Fluency3Data;
+  onEdit: (patch: Partial<Fluency3Data>) => void;
   editMode: boolean;
   answerFields?: string[];
   onToggleAnswerField?: (key: string) => void;
@@ -13,7 +14,7 @@ type Props = {
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
 };
 
-export function SectionTransitionSlide({
+export function Fluency3Slide({
   data,
   onEdit,
   editMode,
@@ -46,84 +47,45 @@ export function SectionTransitionSlide({
             fontFamily: 'var(--font-title)',
             fontWeight: 500,
             fontSize: '9pt',
-            letterSpacing: '0.06em',
+            letterSpacing: '0.08em',
             textTransform: 'uppercase',
             color: 'var(--ccbeu-blue)',
           }}
         >
-          <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--ccbeu-pink)', flex: '0 0 auto' }} />
+          <span style={{ width: 10, height: 10, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
-        <SlideStaggerItem
-          disabled={editMode}
-          style={{ position: 'absolute', left: 80, top: 200 }}
-        >
-          <Editable
-            value={data.tag}
-            onChange={(v) => onEdit({ tag: v })}
-            editMode={editMode}
-            {...answerProps('tag')}
-            style={{
-              fontFamily: 'var(--font-title)',
-              fontWeight: 700,
-              fontSize: '12pt',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: 'var(--ccbeu-pink)',
-            }}
-          />
-        </SlideStaggerItem>
-        <SlideStaggerItem
-          disabled={editMode}
-          style={{ position: 'absolute', left: 80, top: 260, width: 1120 }}
-        >
+
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 835 }}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
             editMode={editMode}
             tag="h1"
             {...answerProps('title')}
-            style={{
-              margin: 0,
-              fontFamily: 'var(--font-title)',
-              fontWeight: 800,
-              fontSize: '54pt',
-              lineHeight: 1.1,
-              color: 'var(--ccbeu-blue)',
-            }}
+            style={{ margin: 0, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '24pt', color: 'var(--ccbeu-blue)' }}
           />
         </SlideStaggerItem>
-        <SlideStaggerItem
-          disabled={editMode}
-          style={{ position: 'absolute', left: 80, top: 420, width: 900 }}
-        >
+
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 210, width: 835 }}>
           <Editable
-            value={data.subtitle}
-            onChange={(v) => onEdit({ subtitle: v })}
+            value={data.instruction}
+            onChange={(v) => onEdit({ instruction: v })}
             editMode={editMode}
             tag="p"
-            {...answerProps('subtitle')}
-            style={{
-              margin: 0,
-              fontFamily: 'var(--font-body)',
-              fontWeight: 400,
-              fontSize: '18pt',
-              lineHeight: 1.4,
-              color: 'var(--ink-muted)',
-            }}
+            {...answerProps('instruction')}
+            style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: '13pt', color: 'var(--ink)', lineHeight: 1.4 }}
           />
         </SlideStaggerItem>
+
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 270, width: 439, height: 300 }}>
+          <ImageSlot url={data.imageUrl1} onChange={(v) => onEdit({ imageUrl1: v })} editMode={editMode} label="PHOTO 1" style={{ width: '100%', height: '100%', borderRadius: 6 }} />
+        </SlideStaggerItem>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 542, top: 270, width: 439, height: 300 }}>
+          <ImageSlot url={data.imageUrl2} onChange={(v) => onEdit({ imageUrl2: v })} editMode={editMode} label="PHOTO 2" style={{ width: '100%', height: '100%', borderRadius: 6 }} />
+        </SlideStaggerItem>
       </SlideStagger>
-      <div
-        style={{
-          position: 'absolute',
-          left: 80,
-          top: 636,
-          fontFamily: 'var(--font-body)',
-          fontSize: '9pt',
-          color: 'var(--ink-footer)',
-        }}
-      >
+      <div style={{ position: 'absolute', left: 80, top: 636, fontFamily: 'var(--font-body)', fontSize: '9pt', color: 'var(--ink-footer)' }}>
         CCBEU English Center
       </div>
     </div>
