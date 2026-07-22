@@ -29,7 +29,7 @@ export function LevelChrome({
 
   return (
     <div className="min-h-full">
-      <TopHeader />
+      <TopHeader user={user} />
       <div className="flex pt-[65px]">
         <Sidebar level={level} units={units} user={user} />
         <div className="flex-1 min-w-0">{children}</div>

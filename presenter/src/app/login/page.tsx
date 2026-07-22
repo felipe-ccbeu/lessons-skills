@@ -2,6 +2,7 @@ import { AuthError } from 'next-auth';
 import { signIn } from '@/auth';
 import { getCurrentUser } from '@/lib/dal';
 import { redirect } from 'next/navigation';
+import { PasswordInput } from './PasswordInput';
 
 export default async function LoginPage({
   searchParams,
@@ -64,15 +65,7 @@ export default async function LoginPage({
             <label htmlFor="password" className="block text-[12px] font-medium text-[#5b6472] mb-1">
               Senha
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              className="w-full rounded-md border border-[#dde0e6] px-3 py-2 text-[13.5px] outline-none focus:border-[var(--ccbeu-blue)]"
-              placeholder="••••••••"
-            />
+            <PasswordInput />
           </div>
           <button type="submit" className="btn primary w-full flex items-center justify-center py-2.5 text-[13.5px] mt-1">
             Entrar

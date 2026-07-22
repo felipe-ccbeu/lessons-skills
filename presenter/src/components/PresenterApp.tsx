@@ -7,6 +7,9 @@ import { createSlide } from '@/lib/slide-templates';
 import { RENDERERS } from '@/components/slides';
 import { PresentationOverlay } from '@/components/PresentationOverlay';
 import { AddSlideMenu } from '@/components/ui/AddSlideMenu';
+import { TopbarMenu } from '@/components/ui/TopbarMenu';
+import { exportSlidesToPptx } from '@/lib/deckExport';
+import { importHtmlFile, importZipFile, importPptxFile } from '@/lib/deckImport';
 
 type Props = {
   /** When provided, the app loads/saves this part's slides via the API instead of the in-memory sample deck. */
@@ -18,10 +21,46 @@ type Props = {
   breadcrumbHref?: { label: string; href: string }[];
 };
 
+const MAX_HISTORY = 20;
+
 export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, breadcrumbHref }: Props) {
   const [slides, setSlides] = useState<Slide[]>(initialSlides ?? sampleSlides);
   const [activeId, setActiveId] = useState((initialSlides ?? sampleSlides)[0].id);
-  const [editMode, setEditMode] = useState(true);
+
+  // Undo history: a stack of past (slides, activeId) snapshots, capped at MAX_HISTORY.
+  // `pushHistory` must be called with the state *before* a mutation, right before applying it.
+  const historyRef = useRef<{ slides: Slide[]; activeId: string }[]>([]);
+  const slidesRef = useRef(slides);
+  const activeIdRef = useRef(activeId);
+  useEffect(() => {
+    slidesRef.current = slides;
+    activeIdRef.current = activeId;
+  }, [slides, activeId]);
+
+  const pushHistory = useCallback(() => {
+    historyRef.current = [...historyRef.current, { slides: slidesRef.current, activeId: activeIdRef.current }].slice(
+      -MAX_HISTORY
+    );
+  }, []);
+
+  const undo = useCallback(() => {
+    const prev = historyRef.current.pop();
+    if (!prev) return;
+    setSlides(prev.slides);
+    setActiveId(prev.activeId);
+  }, []);
+
+  useEffect(() => {
+    function onUndoKey(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        undo();
+      }
+    }
+    window.addEventListener('keydown', onUndoKey);
+    return () => window.removeEventListener('keydown', onUndoKey);
+  }, [undo]);
+
   const [scale, setScale] = useState(0.6);
   const [presenting, setPresenting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -30,24 +69,29 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
   const [saveError, setSaveError] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [shareLinkStatus, setShareLinkStatus] = useState<'idle' | 'loading' | 'copied' | 'error'>('idle');
   const [addSlideMenu, setAddSlideMenu] = useState<{ x: number; y: number } | null>(null);
   const stageWrapRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pptxInputRef = useRef<HTMLInputElement>(null);
+  const htmlInputRef = useRef<HTMLInputElement>(null);
+  const zipInputRef = useRef<HTMLInputElement>(null);
 
   const active = slides.find((s) => s.id === activeId)!;
   const idx = slides.findIndex((s) => s.id === activeId);
 
   const updateActiveData = useCallback(
     (patch: Record<string, unknown>) => {
+      pushHistory();
       setSlides((prev) =>
         prev.map((s) => (s.id === activeId ? ({ ...s, data: { ...s.data, ...patch } } as Slide) : s))
       );
     },
-    [activeId]
+    [activeId, pushHistory]
   );
 
   const toggleAnswerField = useCallback(
     (key: string) => {
+      pushHistory();
       setSlides((prev) =>
         prev.map((s) => {
           if (s.id !== activeId) return s;
@@ -57,12 +101,13 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
         })
       );
     },
-    [activeId]
+    [activeId, pushHistory]
   );
 
   /** `patch === null` clears the override entirely, restoring the template's default styling. */
   const updateFieldStyle = useCallback(
     (key: string, patch: TextStyleOverride | null) => {
+      pushHistory();
       setSlides((prev) =>
         prev.map((s) => {
           if (s.id !== activeId) return s;
@@ -76,7 +121,7 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
         })
       );
     },
-    [activeId]
+    [activeId, pushHistory]
   );
 
   const skipDirtyRef = useRef(true);
@@ -157,35 +202,89 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     return () => window.removeEventListener('keydown', onKey);
   }, [slides, activeId, presenting]);
 
-  const handlePptxSelected = useCallback(async (file: File) => {
-    setImporting(true);
+  const runImport = useCallback(
+    async (file: File, importer: (file: File) => Promise<Slide[]>, errorLabel: string) => {
+      setImporting(true);
+      setImportError(null);
+      try {
+        const newSlides = await importer(file);
+        if (newSlides.length === 0) throw new Error('Nenhum slide encontrado no arquivo');
+        pushHistory();
+        setSlides((prev) => [...prev, ...newSlides]);
+        setActiveId(newSlides[0].id);
+      } catch (err) {
+        setImportError(err instanceof Error ? err.message : errorLabel);
+      } finally {
+        setImporting(false);
+      }
+    },
+    [pushHistory]
+  );
+
+  const handlePptxSelected = useCallback(
+    (file: File) => runImport(file, importPptxFile, 'Falha ao importar o .pptx'),
+    [runImport]
+  );
+  const handleHtmlSelected = useCallback(
+    (file: File) => runImport(file, importHtmlFile, 'Falha ao importar o .html'),
+    [runImport]
+  );
+  const handleZipSelected = useCallback(
+    (file: File) => runImport(file, importZipFile, 'Falha ao importar o .zip'),
+    [runImport]
+  );
+
+  const [exportingPptx, setExportingPptx] = useState(false);
+  const handleExportPptx = useCallback(async () => {
+    setExportingPptx(true);
     setImportError(null);
     try {
-      const form = new FormData();
-      form.append('file', file);
-      const res = await fetch('/api/pptx/convert', { method: 'POST', body: form });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Falha ao converter o arquivo');
-
-      const newSlides: Slide[] = (json.urls as string[]).map((url, i) => ({
-        id: `pptx-${Date.now()}-${i}`,
-        template: 'pptxImage',
-        data: { imageUrl: url, sourceFile: json.sourceFile as string, slideNumber: i + 1 },
-      }));
-      setSlides((prev) => [...prev, ...newSlides]);
-      setActiveId(newSlides[0].id);
+      await exportSlidesToPptx(slides, `${(partTitle ?? 'aula').replace(/[^a-z0-9]+/gi, '-')}.pptx`);
     } catch (err) {
-      setImportError(err instanceof Error ? err.message : 'Falha ao importar o arquivo');
+      setImportError(err instanceof Error ? err.message : 'Falha ao exportar .pptx');
     } finally {
-      setImporting(false);
+      setExportingPptx(false);
     }
-  }, []);
+  }, [slides, partTitle]);
 
-  const addSlide = useCallback((template: SlideTemplate) => {
-    const newSlide = createSlide(template);
-    setSlides((prev) => [...prev, newSlide]);
-    setActiveId(newSlide.id);
-  }, []);
+  const handleCopyShareLink = useCallback(async () => {
+    if (!partId) return;
+    setShareLinkStatus('loading');
+    try {
+      const res = await fetch('/api/class/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partId }),
+      });
+      if (!res.ok) throw new Error('Falha ao gerar o link');
+      const session = await res.json();
+      const joinUrl = `${window.location.origin}/class/${session.code}`;
+      await navigator.clipboard.writeText(joinUrl);
+      setShareLinkStatus('copied');
+    } catch {
+      setShareLinkStatus('error');
+    } finally {
+      setTimeout(() => setShareLinkStatus('idle'), 2500);
+    }
+  }, [partId]);
+
+  const handleExportJson = useCallback(() => {
+    const blob = new Blob([JSON.stringify(slides, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'lesson-slides.json';
+    a.click();
+  }, [slides]);
+
+  const addSlide = useCallback(
+    (template: SlideTemplate) => {
+      pushHistory();
+      const newSlide = createSlide(template);
+      setSlides((prev) => [...prev, newSlide]);
+      setActiveId(newSlide.id);
+    },
+    [pushHistory]
+  );
 
   const Renderer = RENDERERS[active.template];
 
@@ -202,14 +301,12 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
           {partApiUrl && (
             <span className="save-status">{saving ? 'Salvando…' : dirty ? 'Alterações não salvas' : '✓ Salvo'}</span>
           )}
-          <button className={`btn ${editMode ? 'primary' : ''}`} onClick={() => setEditMode((m) => !m)}>
-            {editMode ? '✎ Modo edição' : '👁 Modo visualização'}
-          </button>
           <button className="btn primary" onClick={() => setPresenting(true)}>
             ▶ Apresentar
           </button>
+
           <input
-            ref={fileInputRef}
+            ref={pptxInputRef}
             type="file"
             accept=".pptx"
             style={{ display: 'none' }}
@@ -219,31 +316,73 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
               e.target.value = '';
             }}
           />
-          <button className="btn" disabled={importing} onClick={() => fileInputRef.current?.click()}>
-            {importing ? 'Convertendo…' : '📄 Importar .pptx'}
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              const blob = new Blob([JSON.stringify(slides, null, 2)], { type: 'application/json' });
-              const a = document.createElement('a');
-              a.href = URL.createObjectURL(blob);
-              a.download = 'lesson-slides.json';
-              a.click();
+          <input
+            ref={htmlInputRef}
+            type="file"
+            accept=".html,.htm"
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleHtmlSelected(file);
+              e.target.value = '';
             }}
-          >
-            Exportar JSON
-          </button>
-          <button
-            className="btn icon-btn"
-            onClick={() => setShowHelp(true)}
-            aria-label="Como testar"
-            title="Como testar"
-          >
-            ?
-          </button>
+          />
+          <input
+            ref={zipInputRef}
+            type="file"
+            accept=".zip"
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleZipSelected(file);
+              e.target.value = '';
+            }}
+          />
+
+          <TopbarMenu
+            label={importing ? 'Importando…' : '⬇ Importar'}
+            disabled={importing}
+            items={[
+              { key: 'html', label: 'Importar HTML', onClick: () => htmlInputRef.current?.click() },
+              { key: 'zip', label: 'Importar ZIP', onClick: () => zipInputRef.current?.click() },
+              { key: 'pptx', label: 'Importar PPTX', onClick: () => pptxInputRef.current?.click() },
+            ]}
+          />
+
+          <TopbarMenu
+            label={exportingPptx ? 'Exportando…' : '⬆ Compartilhar'}
+            disabled={exportingPptx}
+            items={[
+              {
+                key: 'link',
+                label:
+                  shareLinkStatus === 'copied'
+                    ? 'Link copiado!'
+                    : shareLinkStatus === 'loading'
+                      ? 'Gerando link…'
+                      : shareLinkStatus === 'error'
+                        ? 'Falha ao gerar link'
+                        : 'Link para compartilhar a apresentação',
+                onClick: handleCopyShareLink,
+                disabled: !partId || shareLinkStatus === 'loading',
+                title: !partId ? 'Salve a aula para gerar um link de compartilhamento' : undefined,
+              },
+              { key: 'json', label: 'Exportar JSON', onClick: handleExportJson },
+              { key: 'pptx', label: 'Exportar PPTX', onClick: handleExportPptx, disabled: exportingPptx },
+            ]}
+          />
         </div>
       </div>
+
+      <button
+        type="button"
+        className="help-fab"
+        onClick={() => setShowHelp(true)}
+        aria-label="Como testar"
+        title="Como testar"
+      >
+        ?
+      </button>
 
       {breadcrumbHref && (
         <div style={{ background: 'var(--chrome-bg-subtle)', borderBottom: '1px solid var(--chrome-border)', padding: '8px 18px', fontSize: 12.5 }}>
@@ -266,11 +405,11 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
 
       {importError && (
         <div style={{ background: '#fdecec', color: '#b3261e', padding: '8px 18px', fontSize: 12.5 }}>
-          Erro ao importar pptx: {importError}
+          Erro ao importar: {importError}
         </div>
       )}
 
-      <div className={`body-row ${editMode ? 'edit-mode' : 'view-mode'}`}>
+      <div className="body-row edit-mode">
         <div className="rail">
           {slides.map((s, i) => {
             const R = RENDERERS[s.template];
@@ -283,18 +422,16 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
               </div>
             );
           })}
-          {editMode && (
-            <button
-              className="thumb thumb-add"
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                setAddSlideMenu({ x: rect.right + 8, y: rect.top });
-              }}
-              aria-label="Adicionar slide"
-            >
-              +
-            </button>
-          )}
+          <button
+            className="thumb thumb-add"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              setAddSlideMenu({ x: rect.right + 8, y: rect.top });
+            }}
+            aria-label="Adicionar slide"
+          >
+            +
+          </button>
           {addSlideMenu && (
             <AddSlideMenu
               x={addSlideMenu.x}
@@ -310,7 +447,7 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
             <div className="stage">
               <Renderer
                 data={active.data}
-                editMode={editMode}
+                editMode
                 onEdit={updateActiveData}
                 answerFields={active.answerFields ?? []}
                 onToggleAnswerField={toggleAnswerField}
@@ -334,10 +471,10 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
             </div>
             <div className="modal-body">
               <div className="hint">
-                <b>Modo edição</b> (ligado): clique em qualquer texto azul-realçado para editar. Passe o mouse numa
-                linha da lista (slide 2) para ver o botão de remover; use &quot;+ Adicionar frase&quot; para incluir
-                uma nova. No slide 3, passe o mouse na área da foto para colar uma imagem (
-                <span className="kbd">Ctrl+V</span>) ou colar um link.
+                <b>Edição</b>: clique em qualquer texto azul-realçado para editar. Passe o mouse numa linha da lista
+                para ver o botão de remover; use &quot;+ Adicionar frase&quot; para incluir uma nova. Passe o mouse
+                numa área de foto para colar uma imagem (<span className="kbd">Ctrl+V</span>) ou colar um link.
+                <span className="kbd">Ctrl+Z</span> desfaz as últimas alterações.
               </div>
               <div className="hint">
                 <b>Marcar resposta</b>: passe o mouse em qualquer texto editável e clique no ícone 👁 ao lado para

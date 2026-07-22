@@ -13,7 +13,7 @@ export default async function LevelsPage() {
 
   return (
     <div className="min-h-full">
-      <TopHeader />
+      <TopHeader user={user} />
       <div className="bg-[#f3f4f7] text-[#1c2027] px-8 py-10 pt-[calc(65px+2.5rem)]">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-2 mb-2">
