@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { LessonCompleteData, LessonCompleteTerm, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, LessonCompleteData, LessonCompleteTerm, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: LessonCompleteData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const BASE_TERMS = 4;
@@ -32,7 +38,21 @@ export function LessonCompleteSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -91,7 +111,7 @@ export function LessonCompleteSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 217, width: 1085 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 217, width: 1085 }} {...dragProps('title')}>
           <h1
             style={{
               margin: 0,
@@ -106,7 +126,12 @@ export function LessonCompleteSlide({
         </SlideStaggerItem>
 
         {columns.map((col, ci) => (
-          <div key={ci} style={{ position: 'absolute', left: 80 + ci * (COL_W + COL_GAP), top: 311, width: COL_W }}>
+          <SlideStaggerItem
+            key={ci}
+            disabled={editMode}
+            style={{ position: 'absolute', left: 80 + ci * (COL_W + COL_GAP), top: 311, width: COL_W }}
+            {...dragProps(`column${ci}`)}
+          >
             <SlideStaggerItem disabled={editMode}>
               <Editable
                 value={col.header}
@@ -162,7 +187,7 @@ export function LessonCompleteSlide({
                 + Adicionar termo
               </button>
             )}
-          </div>
+          </SlideStaggerItem>
         ))}
       </SlideStagger>
 

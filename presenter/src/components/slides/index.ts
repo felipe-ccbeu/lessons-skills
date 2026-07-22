@@ -2,6 +2,7 @@ import { SectionTransitionSlide } from './SectionTransitionSlide';
 import { Exercise1Slide } from './Exercise1Slide';
 import { PhotoCaptionSlide } from './PhotoCaptionSlide';
 import { PptxImageSlide } from './PptxImageSlide';
+import { CustomHtmlSlide } from './CustomHtmlSlide';
 import { PollSlide } from './PollSlide';
 import { BlankSlide } from './BlankSlide';
 import { ObjectivesSlide } from './ObjectivesSlide';
@@ -34,6 +35,7 @@ export const RENDERERS: Record<SlideTemplate, React.ComponentType<any>> = {
   exercise1: Exercise1Slide,
   photoCaption: PhotoCaptionSlide,
   pptxImage: PptxImageSlide,
+  customHtml: CustomHtmlSlide,
   poll: PollSlide,
   blank: BlankSlide,
   objectives: ObjectivesSlide,

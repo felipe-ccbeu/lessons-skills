@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { MatchingWithChartData, MatchingWithChartRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, MatchingWithChartData, MatchingWithChartRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: MatchingWithChartData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
@@ -25,7 +31,21 @@ export function MatchingWithChartSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -76,7 +96,7 @@ export function MatchingWithChartSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 108, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 108, width: 1120 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -89,7 +109,7 @@ export function MatchingWithChartSlide({
 
         <div style={{ position: 'absolute', left: 640, top: 190, width: 1.5, height: 400, background: 'var(--border-hair)' }} />
 
-        <div style={{ position: 'absolute', left: 80, top: 190, width: 520 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 190, width: 520 }} {...dragProps('matchColumn')}>
           <SlideStaggerItem disabled={editMode}>
             <Editable
               value={data.matchLabel}
@@ -188,9 +208,9 @@ export function MatchingWithChartSlide({
               />
             </SlideStaggerItem>
           )}
-        </div>
+        </SlideStaggerItem>
 
-        <div style={{ position: 'absolute', left: 680, top: 190, width: 520 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 680, top: 190, width: 520 }} {...dragProps('chartColumn')}>
           <SlideStaggerItem disabled={editMode}>
             <Editable
               value={data.chartLabel}
@@ -245,7 +265,7 @@ export function MatchingWithChartSlide({
               + Adicionar linha
             </button>
           )}
-        </div>
+        </SlideStaggerItem>
       </SlideStagger>
 
       <div style={{ position: 'absolute', left: 80, top: 636, fontFamily: 'var(--font-body)', fontSize: '9pt', color: 'var(--ink-footer)' }}>

@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { ChangePlacesData, ChangePlacesRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, ChangePlacesData, ChangePlacesRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: ChangePlacesData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const CARD_H = 88;
@@ -27,7 +33,21 @@ export function ChangePlacesSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -70,7 +90,7 @@ export function ChangePlacesSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 128, top: 124, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 128, top: 124, width: 1120 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -95,6 +115,7 @@ export function ChangePlacesSlide({
               borderRadius: 4,
               overflow: 'hidden',
             }}
+            {...dragProps(`row${i}`)}
           >
             <div
               style={{ position: 'relative', width: '100%', height: '100%' }}

@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { ListenAndRepeatData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, ListenAndRepeatData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: ListenAndRepeatData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 export function ListenAndRepeatSlide({
@@ -23,7 +29,21 @@ export function ListenAndRepeatSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -56,7 +76,7 @@ export function ListenAndRepeatSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 210, width: 560 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 210, width: 560 }} {...dragProps('title')}>
           <h1 style={{ margin: 0, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '29pt', color: 'var(--ccbeu-blue)' }}>
             Listen &amp; Repeat
           </h1>
@@ -74,11 +94,16 @@ export function ListenAndRepeatSlide({
             textTransform: 'uppercase',
             color: 'var(--ink)',
           }}
+          {...dragProps('pairWorkLabel')}
         >
           Pair Work
         </SlideStaggerItem>
 
-        <div style={{ position: 'absolute', left: 80, top: 340, width: 470, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <SlideStaggerItem
+          disabled={editMode}
+          style={{ position: 'absolute', left: 80, top: 340, width: 470, display: 'flex', flexDirection: 'column', gap: 16 }}
+          {...dragProps('steps')}
+        >
           <SlideStaggerItem disabled={editMode} style={{ display: 'flex', gap: '0.7em' }}>
             <div style={{ flex: '0 0 auto', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '11pt', color: 'var(--ccbeu-blue)', lineHeight: 1.3, minWidth: '1.4em' }}>
               1
@@ -116,9 +141,9 @@ export function ListenAndRepeatSlide({
               />
             </div>
           </SlideStaggerItem>
-        </div>
+        </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 124, top: 500, width: 430 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 124, top: 500, width: 430 }} {...dragProps('tip')}>
           <Editable
             value={data.tip}
             onChange={(v) => onEdit({ tip: v })}
@@ -139,6 +164,7 @@ export function ListenAndRepeatSlide({
         <SlideStaggerItem
           disabled={editMode}
           style={{ position: 'absolute', left: 720, top: 195, width: 340, background: '#eaf0ff', borderRadius: 14, padding: '14px 18px', boxSizing: 'border-box' }}
+          {...dragProps('dialogue1')}
         >
           <Editable
             value={data.dialogueLine1}
@@ -148,16 +174,17 @@ export function ListenAndRepeatSlide({
             style={{ fontFamily: 'var(--font-body)', fontSize: '13pt', color: 'var(--ink)' }}
           />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 729, top: 264, width: 121, height: 152 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 729, top: 264, width: 121, height: 152 }} {...dragProps('avatar1')}>
           <ImageSlot url={data.avatar1Url} onChange={(v) => onEdit({ avatar1Url: v })} editMode={editMode} style={{ width: 56, height: 56, borderRadius: '50%' }} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 1050, top: 308, width: 131, height: 161 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 1050, top: 308, width: 131, height: 161 }} {...dragProps('avatar2')}>
           <ImageSlot url={data.avatar2Url} onChange={(v) => onEdit({ avatar2Url: v })} editMode={editMode} style={{ width: 56, height: 56, borderRadius: '50%' }} />
         </SlideStaggerItem>
         <SlideStaggerItem
           disabled={editMode}
           style={{ position: 'absolute', left: 728, top: 489, width: 340, background: '#feeaf3', borderRadius: 14, padding: '14px 18px', boxSizing: 'border-box' }}
+          {...dragProps('dialogue2')}
         >
           <Editable
             value={data.dialogueLine2}

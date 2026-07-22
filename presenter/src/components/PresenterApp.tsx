@@ -1,7 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Slide, SlideTemplate, TextStyleOverride } from '@/lib/types';
+import { AiSlideAction, LayoutOffset, PastedBlock, Slide, SlideTemplate, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
+import { SlideBlockClipboardProvider, useSlideBlockClipboard } from '@/components/ui/SlideBlockClipboard';
+import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
+import { ChatSidebar } from '@/components/ui/ChatSidebar';
+import { useContextActionMenu } from '@/components/ui/useContextActionMenu';
+import { Icon } from '@/components/ui/Icon';
+import { AnimationPickerMenu } from '@/components/ui/AnimationPickerMenu';
+import { SLIDE_ANIMATIONS, DEFAULT_SLIDE_ANIMATION, SlideAnimationId } from '@/lib/slideAnimations';
+import { DRAG_KEYS_BY_TEMPLATE } from '@/lib/dragKeys';
+import { pushAtPath, removeAtPath, setAtPath } from '@/lib/dataPath';
 import { sampleSlides } from '@/lib/sample-slides';
 import { createSlide } from '@/lib/slide-templates';
 import { RENDERERS } from '@/components/slides';
@@ -23,7 +33,15 @@ type Props = {
 
 const MAX_HISTORY = 20;
 
-export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, breadcrumbHref }: Props) {
+export function PresenterApp(props: Props) {
+  return (
+    <SlideBlockClipboardProvider>
+      <PresenterAppInner {...props} />
+    </SlideBlockClipboardProvider>
+  );
+}
+
+function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, breadcrumbHref }: Props) {
   const [slides, setSlides] = useState<Slide[]>(initialSlides ?? sampleSlides);
   const [activeId, setActiveId] = useState((initialSlides ?? sampleSlides)[0].id);
 
@@ -61,7 +79,112 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     return () => window.removeEventListener('keydown', onUndoKey);
   }, [undo]);
 
+  const addPastedBlock = useCallback(
+    (block: PastedBlock) => {
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => (s.id === activeId ? { ...s, pastedBlocks: [...(s.pastedBlocks ?? []), block] } : s))
+      );
+    },
+    [activeId, pushHistory]
+  );
+
+  const updatePastedBlock = useCallback(
+    (id: string, patch: Partial<PastedBlock>) => {
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeId) return s;
+          return { ...s, pastedBlocks: (s.pastedBlocks ?? []).map((b) => (b.id === id ? { ...b, ...patch } : b)) };
+        })
+      );
+    },
+    [activeId, pushHistory]
+  );
+
+  const removePastedBlock = useCallback(
+    (id: string) => {
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => (s.id === activeId ? { ...s, pastedBlocks: (s.pastedBlocks ?? []).filter((b) => b.id !== id) } : s))
+      );
+    },
+    [activeId, pushHistory]
+  );
+
+  const applyAiActions = useCallback(
+    (actions: AiSlideAction[]) => {
+      if (!actions.length) return;
+      pushHistory();
+
+      let next = [...slidesRef.current];
+      let targetId = activeIdRef.current;
+
+      function patchTarget(fn: (s: Slide) => Slide) {
+        next = next.map((s) => (s.id === targetId ? fn(s) : s));
+      }
+
+      for (const action of actions) {
+        if (action.kind === 'addSlide') {
+          const newSlide = createSlide(action.template);
+          next = [...next, newSlide];
+          targetId = newSlide.id;
+        } else if (action.kind === 'reorderSlide') {
+          const { fromIndex, toIndex } = action;
+          if (fromIndex >= 0 && fromIndex < next.length && toIndex >= 0 && toIndex < next.length) {
+            const reordered = [...next];
+            const [moved] = reordered.splice(fromIndex, 1);
+            reordered.splice(toIndex, 0, moved);
+            next = reordered;
+          }
+        } else if (action.kind === 'setField') {
+          patchTarget((s) => ({ ...s, data: setAtPath(s.data as object, action.path, action.value) } as Slide));
+        } else if (action.kind === 'addListItem') {
+          patchTarget((s) => ({ ...s, data: pushAtPath(s.data as object, action.listPath, action.item) } as Slide));
+        } else if (action.kind === 'removeListItem') {
+          patchTarget((s) => ({ ...s, data: removeAtPath(s.data as object, action.listPath, action.index) } as Slide));
+        } else if (action.kind === 'moveBlock') {
+          patchTarget((s) => {
+            const current = { ...(s.layoutOverrides ?? {}) };
+            const base = current[action.dragKey] ?? { dx: 0, dy: 0 };
+            current[action.dragKey] = { dx: base.dx + action.dx, dy: base.dy + action.dy };
+            return { ...s, layoutOverrides: current };
+          });
+        }
+      }
+
+      setSlides(next);
+      if (targetId !== activeIdRef.current) setActiveId(targetId);
+    },
+    [pushHistory]
+  );
+
+  const clipboard = useSlideBlockClipboard();
+
+  useEffect(() => {
+    function isInsideEditableField(target: EventTarget | null) {
+      return target instanceof HTMLElement && !!target.closest('[contenteditable="true"]');
+    }
+    function onCopyPasteKey(e: KeyboardEvent) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const key = e.key.toLowerCase();
+      if (key === 'c') {
+        if (!clipboard.selected || isInsideEditableField(e.target) || !stageRef.current) return;
+        e.preventDefault();
+        clipboard.copySelected(stageRef.current);
+      } else if (key === 'v') {
+        if (!clipboard.hasClipboard || isInsideEditableField(e.target)) return;
+        e.preventDefault();
+        clipboard.pasteInto(addPastedBlock);
+      }
+    }
+    window.addEventListener('keydown', onCopyPasteKey);
+    return () => window.removeEventListener('keydown', onCopyPasteKey);
+  }, [clipboard, addPastedBlock]);
+
   const [scale, setScale] = useState(0.6);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [presenting, setPresenting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -72,6 +195,7 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
   const [shareLinkStatus, setShareLinkStatus] = useState<'idle' | 'loading' | 'copied' | 'error'>('idle');
   const [addSlideMenu, setAddSlideMenu] = useState<{ x: number; y: number } | null>(null);
   const stageWrapRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const pptxInputRef = useRef<HTMLInputElement>(null);
   const htmlInputRef = useRef<HTMLInputElement>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
@@ -118,6 +242,36 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
             current[key] = patch;
           }
           return { ...s, styleOverrides: current };
+        })
+      );
+    },
+    [activeId, pushHistory]
+  );
+
+  const updateLayoutOffset = useCallback(
+    (key: string, offset: LayoutOffset) => {
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeId) return s;
+          const current = { ...(s.layoutOverrides ?? {}) };
+          current[key] = offset;
+          return { ...s, layoutOverrides: current };
+        })
+      );
+    },
+    [activeId, pushHistory]
+  );
+
+  const updateBlockAnimation = useCallback(
+    (key: string, animation: BlockAnimationId) => {
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeId) return s;
+          const current = { ...(s.blockAnimations ?? {}) };
+          current[key] = animation;
+          return { ...s, blockAnimations: current };
         })
       );
     },
@@ -276,6 +430,20 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     a.click();
   }, [slides]);
 
+  const reorderSlide = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (fromIndex === toIndex) return;
+      pushHistory();
+      setSlides((prev) => {
+        const next = [...prev];
+        const [moved] = next.splice(fromIndex, 1);
+        next.splice(toIndex, 0, moved);
+        return next;
+      });
+    },
+    [pushHistory]
+  );
+
   const addSlide = useCallback(
     (template: SlideTemplate) => {
       pushHistory();
@@ -286,7 +454,57 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
     [pushHistory]
   );
 
+  const duplicateSlideIdCounter = useRef(0);
+  const duplicateSlide = useCallback(
+    (id: string) => {
+      const current = slidesRef.current;
+      const idx = current.findIndex((s) => s.id === id);
+      if (idx === -1) return;
+      pushHistory();
+      const source = current[idx];
+      duplicateSlideIdCounter.current += 1;
+      const copy: Slide = {
+        ...source,
+        id: `${source.template}-${Date.now()}-${duplicateSlideIdCounter.current}`,
+        data: JSON.parse(JSON.stringify(source.data)),
+      };
+      const next = [...current];
+      next.splice(idx + 1, 0, copy);
+      setSlides(next);
+      setActiveId(copy.id);
+    },
+    [pushHistory]
+  );
+
+  const removeSlide = useCallback(
+    (id: string) => {
+      const current = slidesRef.current;
+      if (current.length <= 1) return;
+      const idx = current.findIndex((s) => s.id === id);
+      if (idx === -1) return;
+      pushHistory();
+      const next = current.filter((s) => s.id !== id);
+      setSlides(next);
+      if (activeIdRef.current === id) {
+        const fallback = next[Math.min(idx, next.length - 1)];
+        setActiveId(fallback.id);
+      }
+    },
+    [pushHistory]
+  );
+
+  const setSlideAnimation = useCallback(
+    (id: string, animation: SlideAnimationId) => {
+      pushHistory();
+      setSlides((prev) => prev.map((s) => (s.id === id ? { ...s, animation } : s)));
+    },
+    [pushHistory]
+  );
+
+  const [animationPickerSlideId, setAnimationPickerSlideId] = useState<string | null>(null);
+
   const Renderer = RENDERERS[active.template];
+  const { openMenu: openSlideMenu, menuElement: slideMenuElement } = useContextActionMenu();
 
   return (
     <div className="app">
@@ -414,7 +632,44 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
           {slides.map((s, i) => {
             const R = RENDERERS[s.template];
             return (
-              <div key={s.id} className={`thumb ${s.id === activeId ? 'active' : ''}`} onClick={() => setActiveId(s.id)}>
+              <div
+                key={s.id}
+                className={`thumb ${s.id === activeId ? 'active' : ''} ${dragIndex === i ? 'dragging' : ''} ${dragOverIndex === i && dragIndex !== null && dragIndex !== i ? 'drag-over' : ''}`}
+                onClick={() => setActiveId(s.id)}
+                draggable
+                onDragStart={(e) => {
+                  setDragIndex(i);
+                  e.dataTransfer.effectAllowed = 'move';
+                }}
+                onDragOver={(e) => {
+                  if (dragIndex === null) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  setDragOverIndex(i);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (dragIndex !== null) reorderSlide(dragIndex, i);
+                  setDragIndex(null);
+                  setDragOverIndex(null);
+                }}
+                onDragEnd={() => {
+                  setDragIndex(null);
+                  setDragOverIndex(null);
+                }}
+                onContextMenu={(e) =>
+                  openSlideMenu(e, [
+                    { label: 'Duplicar slide', icon: 'content_copy', onSelect: () => duplicateSlide(s.id) },
+                    { label: 'Mudar animação', icon: 'auto_awesome', onSelect: () => setAnimationPickerSlideId(s.id) },
+                    {
+                      label: 'Apagar slide',
+                      icon: 'delete',
+                      destructive: true,
+                      onSelect: () => removeSlide(s.id),
+                    },
+                  ])
+                }
+              >
                 <div className="thumb-inner">
                   <R data={s.data} editMode={false} onEdit={() => {}} />
                 </div>
@@ -422,6 +677,17 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
               </div>
             );
           })}
+          {slideMenuElement}
+          {animationPickerSlideId && (
+            <AnimationPickerMenu
+              title="Animação do slide"
+              options={SLIDE_ANIMATIONS}
+              currentId={slides.find((s) => s.id === animationPickerSlideId)?.animation ?? DEFAULT_SLIDE_ANIMATION}
+              previewVariants={['enter', 'center']}
+              onSelect={(id) => setSlideAnimation(animationPickerSlideId, id as SlideAnimationId)}
+              onClose={() => setAnimationPickerSlideId(null)}
+            />
+          )}
           <button
             className="thumb thumb-add"
             onClick={(e) => {
@@ -444,7 +710,7 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
 
         <div className="stage-wrap" ref={stageWrapRef}>
           <div className="stage-scaler" style={{ transform: `scale(${scale})` }}>
-            <div className="stage">
+            <div className="stage" ref={stageRef} style={{ position: 'relative' }}>
               <Renderer
                 data={active.data}
                 editMode
@@ -453,11 +719,32 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
                 onToggleAnswerField={toggleAnswerField}
                 styleOverrides={active.styleOverrides ?? {}}
                 onStyleFieldChange={updateFieldStyle}
+                layoutOverrides={active.layoutOverrides ?? {}}
+                onLayoutOffsetChange={updateLayoutOffset}
+                blockAnimations={active.blockAnimations ?? {}}
+                onBlockAnimationChange={updateBlockAnimation}
+                stageScale={scale}
                 revealAnswers
+              />
+              <PastedBlocksLayer
+                blocks={active.pastedBlocks ?? []}
+                editMode
+                stageScale={scale}
+                onUpdate={updatePastedBlock}
+                onRemove={removePastedBlock}
               />
             </div>
           </div>
         </div>
+
+        <ChatSidebar
+          slideData={active.data}
+          template={active.template}
+          dragKeys={DRAG_KEYS_BY_TEMPLATE[active.template] ?? []}
+          deckOverview={slides.map((s) => ({ template: s.template }))}
+          activeIndex={idx}
+          onApplyActions={applyAiActions}
+        />
       </div>
 
       {showHelp && (
@@ -466,7 +753,7 @@ export function PresenterApp({ partApiUrl, partId, initialSlides, partTitle, bre
             <div className="modal-header">
               <h3>Como testar</h3>
               <button className="modal-close" onClick={() => setShowHelp(false)} aria-label="Fechar">
-                ✕
+                <Icon name="close" size={16} />
               </button>
             </div>
             <div className="modal-body">

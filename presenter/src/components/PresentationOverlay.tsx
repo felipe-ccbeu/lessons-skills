@@ -2,57 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { AnimatePresence, motion, Transition, Variants } from 'motion/react';
-import { Slide, SlideTemplate } from '@/lib/types';
+import { AnimatePresence, motion } from 'motion/react';
+import { Slide } from '@/lib/types';
+import { getSlideAnimation } from '@/lib/slideAnimations';
 import { RENDERERS } from '@/components/slides';
+import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
 import { usePollTallies } from '@/lib/usePollTallies';
 import { PollLiveResults } from '@/components/slides/PollSlide';
-
-const DEFAULT_SLIDE_TRANSITION: { variants: Variants; transition: Transition } = {
-  variants: {
-    enter: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? 48 : -48 }),
-    center: { opacity: 1, x: 0 },
-    exit: (direction: 1 | -1) => ({ opacity: 0, x: direction === 1 ? -48 : 48 }),
-  },
-  transition: { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 },
-};
-
-const ALL_TEMPLATES: SlideTemplate[] = [
-  'sectionTransition',
-  'exercise1',
-  'photoCaption',
-  'pptxImage',
-  'poll',
-  'blank',
-  'objectives',
-  'gettingStarted',
-  'comparative',
-  'multipleChoice',
-  'guessFourImages',
-  'coverImage',
-  'changePlaces',
-  'completeTheChart',
-  'fluency1',
-  'fluency2',
-  'fluency3',
-  'warmupOralTransform',
-  'listenAndRepeat',
-  'photoExerciseWhoIsThis',
-  'photoGridBlank',
-  'grammarBoxLook',
-  'grammarBox2YesNo',
-  'matchVocabImage',
-  'modelExampleList',
-  'lessonComplete',
-  'practiceQaBadges',
-  'matchingWithChart',
-  'matchLetters',
-];
-
-// Every template currently uses the same transition — swap a template's entry here if it ever needs a different one.
-const slideTransition: Record<SlideTemplate, { variants: Variants; transition: Transition }> = Object.fromEntries(
-  ALL_TEMPLATES.map((t) => [t, DEFAULT_SLIDE_TRANSITION])
-) as Record<SlideTemplate, { variants: Variants; transition: Transition }>;
 
 type Props = {
   slides: Slide[];
@@ -250,7 +206,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
 
   const slide = slides[index];
   const Renderer = RENDERERS[slide.template];
-  const { variants, transition } = slideTransition[slide.template];
+  const { variants, transition } = getSlideAnimation(slide.animation);
 
   return (
     <div
@@ -273,6 +229,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
           width: 1280,
           height: 720,
           background: '#fff',
+          perspective: 1600,
         }}
       >
         <AnimatePresence mode="popLayout" custom={direction} initial={false}>
@@ -292,6 +249,8 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
               editMode={false}
               onEdit={() => {}}
               answerFields={slide.answerFields ?? []}
+              layoutOverrides={slide.layoutOverrides ?? {}}
+              blockAnimations={slide.blockAnimations ?? {}}
               revealAnswers={revealed}
               liveResults={
                 slide.template === 'poll' && pollSession
@@ -300,6 +259,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
               }
               onStartVoting={slide.template === 'poll' && partId ? startVoting : undefined}
             />
+            <PastedBlocksLayer blocks={slide.pastedBlocks ?? []} editMode={false} stageScale={1} />
           </motion.div>
         </AnimatePresence>
       </div>

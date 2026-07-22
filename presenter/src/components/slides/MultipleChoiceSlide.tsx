@@ -2,7 +2,8 @@ import { MouseEvent } from 'react';
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { MultipleChoiceData, MultipleChoiceOptionDraft, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, MultipleChoiceData, MultipleChoiceOptionDraft, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: MultipleChoiceData;
@@ -13,6 +14,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const MIN_OPTIONS = 2;
@@ -28,8 +34,22 @@ export function MultipleChoiceSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
   const options = data.options;
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -76,7 +96,7 @@ export function MultipleChoiceSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124 }} {...dragProps('tag')}>
           <Editable
             value={data.tag}
             onChange={(v) => onEdit({ tag: v })}
@@ -86,7 +106,7 @@ export function MultipleChoiceSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 160, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 160, width: 1120 }} {...dragProps('question')}>
           <Editable
             value={data.question}
             onChange={(v) => onEdit({ question: v })}
@@ -97,7 +117,7 @@ export function MultipleChoiceSlide({
           />
         </SlideStaggerItem>
 
-        <div style={{ position: 'absolute', left: 80, top: 290, width: 1000 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 290, width: 1000 }} {...dragProps('options')}>
           {options.map((opt, i) => (
             <SlideStaggerItem key={opt.id} disabled={editMode} style={{ marginBottom: 14 }}>
               <MultipleChoiceOption
@@ -111,7 +131,7 @@ export function MultipleChoiceSlide({
               />
             </SlideStaggerItem>
           ))}
-        </div>
+        </SlideStaggerItem>
 
         {editMode && options.length < MAX_OPTIONS && (
           <button

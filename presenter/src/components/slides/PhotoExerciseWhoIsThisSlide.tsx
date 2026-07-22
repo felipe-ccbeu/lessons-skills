@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { PhotoExerciseWhoIsThisData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, PhotoExerciseWhoIsThisData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: PhotoExerciseWhoIsThisData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 export function PhotoExerciseWhoIsThisSlide({
@@ -23,7 +29,21 @@ export function PhotoExerciseWhoIsThisSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -38,6 +58,7 @@ export function PhotoExerciseWhoIsThisSlide({
         <SlideStaggerItem
           disabled={editMode}
           style={{ position: 'absolute', left: 677, top: 93, width: 533, height: 534 }}
+          {...dragProps('photo')}
         >
           <ImageSlot
             url={data.imageUrl}
@@ -68,7 +89,7 @@ export function PhotoExerciseWhoIsThisSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 115, width: 520 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 115, width: 520 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -85,7 +106,7 @@ export function PhotoExerciseWhoIsThisSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 250, width: 567 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 250, width: 567 }} {...dragProps('personName')}>
           <Editable
             value={data.personName}
             onChange={(v) => onEdit({ personName: v })}
@@ -100,7 +121,7 @@ export function PhotoExerciseWhoIsThisSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 296, width: 520 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 296, width: 520 }} {...dragProps('personRole')}>
           <Editable
             value={data.personRole}
             onChange={(v) => onEdit({ personRole: v })}
@@ -115,7 +136,7 @@ export function PhotoExerciseWhoIsThisSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 490, width: 623 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 490, width: 623 }} {...dragProps('sentence')}>
           <p
             style={{
               margin: 0,

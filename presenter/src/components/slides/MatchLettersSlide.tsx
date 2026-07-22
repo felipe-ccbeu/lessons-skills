@@ -2,7 +2,8 @@ import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { MatchLettersData, MatchLettersRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, MatchLettersData, MatchLettersRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: MatchLettersData;
@@ -13,6 +14,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const BASE_ROWS = 8;
@@ -31,7 +37,21 @@ export function MatchLettersSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -76,7 +96,7 @@ export function MatchLettersSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 66, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 66, width: 1120 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -87,7 +107,7 @@ export function MatchLettersSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 700, top: 118, width: 500 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 700, top: 118, width: 500 }} {...dragProps('instruction')}>
           <Editable
             value={data.instruction}
             onChange={(v) => onEdit({ instruction: v })}
@@ -98,7 +118,7 @@ export function MatchLettersSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 140 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 140 }} {...dragProps('gridImage')}>
           <ImageSlot
             url={data.gridImageUrl}
             onChange={(v) => onEdit({ gridImageUrl: v })}
@@ -107,7 +127,7 @@ export function MatchLettersSlide({
           />
         </SlideStaggerItem>
 
-        <div style={{ position: 'absolute', left: 700, top: 172, width: 500 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 700, top: 172, width: 500 }} {...dragProps('rows')}>
           {rows.map((row, i) => (
             <SlideStaggerItem key={i} disabled={editMode}>
               <div
@@ -139,7 +159,7 @@ export function MatchLettersSlide({
               </div>
             </SlideStaggerItem>
           ))}
-        </div>
+        </SlideStaggerItem>
       </SlideStagger>
       {editMode && (
         <button type="button" className="add-row-btn" style={{ position: 'absolute', left: 700, top: 172 + n * rowH + 14 }} onClick={addRow}>

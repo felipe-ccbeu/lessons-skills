@@ -48,7 +48,13 @@ export default async function LevelsPage() {
                       </div>
                     </div>
                   </Link>
-                  {canEdit && <RemoveIconButton id={level.id} deleteAction={deleteLevelAction} />}
+                  {canEdit && (
+                    <RemoveIconButton
+                      id={level.id}
+                      deleteAction={deleteLevelAction}
+                      positionClassName="absolute top-4 right-6"
+                    />
+                  )}
                 </li>
               ))}
               {canEdit && (

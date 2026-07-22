@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { PhotoCaptionData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, PhotoCaptionData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: PhotoCaptionData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 export function PhotoCaptionSlide({
@@ -23,7 +29,21 @@ export function PhotoCaptionSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -55,7 +75,7 @@ export function PhotoCaptionSlide({
           <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 130, width: 560 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 130, width: 560 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -71,7 +91,7 @@ export function PhotoCaptionSlide({
             }}
           />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 300 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 300 }} {...dragProps('name')}>
           <Editable
             value={data.name}
             onChange={(v) => onEdit({ name: v })}
@@ -85,7 +105,7 @@ export function PhotoCaptionSlide({
             }}
           />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 344 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 344 }} {...dragProps('role')}>
           <Editable
             value={data.role}
             onChange={(v) => onEdit({ role: v })}
@@ -99,7 +119,7 @@ export function PhotoCaptionSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 430, width: 560 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 430, width: 560 }} {...dragProps('sentence')}>
           <p
             style={{
               margin: 0,
@@ -127,6 +147,7 @@ export function PhotoCaptionSlide({
         <SlideStaggerItem
           disabled={editMode}
           style={{ position: 'absolute', left: 680, top: 0, width: 600, height: 720 }}
+          {...dragProps('photo')}
         >
           <ImageSlot
             url={data.imageUrl}

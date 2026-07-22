@@ -2,7 +2,8 @@ import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { GrammarBox2YesNoData, GrammarBox2YesNoRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, GrammarBox2YesNoData, GrammarBox2YesNoRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: GrammarBox2YesNoData;
@@ -13,6 +14,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const BASE_ROWS = 4;
@@ -31,7 +37,21 @@ export function GrammarBox2YesNoSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -79,7 +99,7 @@ export function GrammarBox2YesNoSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 156 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 156 }} {...dragProps('title')}>
           <h1 style={{ margin: 0, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '41pt', color: 'var(--ink)' }}>LOOK!</h1>
         </SlideStaggerItem>
         <SlideStaggerItem
@@ -89,7 +109,7 @@ export function GrammarBox2YesNoSlide({
           {null}
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 707, top: 74, width: 240 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 707, top: 74, width: 240 }} {...dragProps('photo1')}>
           <ImageSlot
             url={data.imageUrl1}
             onChange={(v) => onEdit({ imageUrl1: v })}
@@ -100,7 +120,7 @@ export function GrammarBox2YesNoSlide({
             <Editable value={data.photo1Caption} onChange={(v) => onEdit({ photo1Caption: v })} editMode={editMode} tag="span" {...answerProps('photo1Caption')} />
           </figcaption>
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 968, top: 74, width: 240 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 968, top: 74, width: 240 }} {...dragProps('photo2')}>
           <ImageSlot
             url={data.imageUrl2}
             onChange={(v) => onEdit({ imageUrl2: v })}
@@ -123,6 +143,7 @@ export function GrammarBox2YesNoSlide({
             borderRadius: 6,
             overflow: 'hidden',
           }}
+          {...dragProps('grammarBox')}
         >
           <div style={{ display: 'flex', background: 'var(--ccbeu-blue)', color: '#fff' }}>
             <div style={{ flex: '0 0 15%', padding: '9px 14px', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '9pt', letterSpacing: '0.06em', color: '#fff' }}>SUBJECT</div>

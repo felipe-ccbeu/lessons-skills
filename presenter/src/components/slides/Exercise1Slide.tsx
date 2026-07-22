@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { Exercise1Data, ExerciseRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, Exercise1Data, ExerciseRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: Exercise1Data;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const BASE_ROWS = 5;
@@ -30,7 +36,21 @@ export function Exercise1Slide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -77,7 +97,7 @@ export function Exercise1Slide({
           <span style={{ width: 10, height: 10, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 1120 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -93,7 +113,7 @@ export function Exercise1Slide({
             }}
           />
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 207, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 207, width: 1120 }} {...dragProps('instruction')}>
           <p
             style={{
               margin: 0,
@@ -117,7 +137,7 @@ export function Exercise1Slide({
           </p>
         </SlideStaggerItem>
 
-        <div style={{ position: 'absolute', left: 80, top: 258, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 258, width: 1120 }} {...dragProps('rows')}>
           {rows.map((row, i) => (
             <SlideStaggerItem key={i} disabled={editMode}>
               <div
@@ -181,7 +201,7 @@ export function Exercise1Slide({
               </div>
             </SlideStaggerItem>
           ))}
-        </div>
+        </SlideStaggerItem>
       </SlideStagger>
       {editMode && (
         <button

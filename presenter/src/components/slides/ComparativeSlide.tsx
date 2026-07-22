@@ -1,6 +1,7 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { ComparativeData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, ComparativeData, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: ComparativeData;
@@ -11,6 +12,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 export function ComparativeSlide({
@@ -22,7 +28,21 @@ export function ComparativeSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -55,7 +75,7 @@ export function ComparativeSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 1120 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 1120 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -69,6 +89,7 @@ export function ComparativeSlide({
         <SlideStaggerItem
           disabled={editMode}
           style={{ position: 'absolute', left: 80, top: 303, width: 544, height: 187, background: '#f3f4f7', borderRadius: 8, overflow: 'hidden' }}
+          {...dragProps('leftBox')}
         >
           <div style={{ height: 4, background: 'var(--ccbeu-blue)' }} />
           <p style={{ margin: '30px 35px', fontFamily: 'var(--font-title)', fontWeight: 400, fontSize: '24pt', lineHeight: 1.3, color: 'var(--ink)' }}>
@@ -81,6 +102,7 @@ export function ComparativeSlide({
         <SlideStaggerItem
           disabled={editMode}
           style={{ position: 'absolute', left: 656, top: 303, width: 544, height: 187, background: '#fdecf3', borderRadius: 8, overflow: 'hidden' }}
+          {...dragProps('rightBox')}
         >
           <div style={{ height: 4, background: 'var(--ccbeu-pink)' }} />
           <p style={{ margin: '30px 35px', fontFamily: 'var(--font-title)', fontWeight: 400, fontSize: '24pt', lineHeight: 1.3, color: 'var(--ink)' }}>

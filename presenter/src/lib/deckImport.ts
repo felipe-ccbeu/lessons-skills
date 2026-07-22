@@ -19,6 +19,14 @@ function makeImageSlide(imageUrl: string, sourceFile: string, slideNumber: numbe
   };
 }
 
+function makeCustomHtmlSlide(html: string, sourceFile: string, slideNumber: number): Slide {
+  return {
+    id: `import-${Date.now()}-${slideNumber}-${Math.random().toString(36).slice(2, 8)}`,
+    template: 'customHtml',
+    data: { html, sourceFile },
+  };
+}
+
 /** Renders an HTML document off-screen in an iframe and captures it as a single full-slide image. */
 async function captureHtmlDocument(html: string, sourceFile: string, slideNumber: number): Promise<Slide> {
   const iframe = document.createElement('iframe');
@@ -40,10 +48,10 @@ async function captureHtmlDocument(html: string, sourceFile: string, slideNumber
   }
 }
 
+/** A single standalone .html file becomes a live customHtml slide (kept editable), not a rasterized image. */
 export async function importHtmlFile(file: File): Promise<Slide[]> {
   const html = await file.text();
-  const slide = await captureHtmlDocument(html, file.name, 1);
-  return [slide];
+  return [makeCustomHtmlSlide(html, file.name, 1)];
 }
 
 const IMAGE_RE = /\.(png|jpe?g|gif|webp|bmp)$/i;

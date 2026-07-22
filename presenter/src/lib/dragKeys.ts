@@ -1,0 +1,31 @@
+// Lists every dragProps(...) key used by each slide template, so chat AI can reference drag targets without having to open each component file.
+import { SlideTemplate } from './types';
+
+export const DRAG_KEYS_BY_TEMPLATE: Partial<Record<SlideTemplate, string[]>> = {
+  sectionTransition: ['tag', 'title', 'subtitle'],
+  exercise1: ['title', 'instruction', 'rows'],
+  photoCaption: ['title', 'name', 'role', 'sentence', 'photo'],
+  poll: ['question', 'options'],
+  objectives: ['title', 'objective1', 'objective2', 'objective3'],
+  gettingStarted: ['photo', 'title', 'subtitle'],
+  comparative: ['title', 'leftBox', 'rightBox'],
+  multipleChoice: ['tag', 'question', 'options'],
+  guessFourImages: ['title', 'instruction', 'example'],
+  changePlaces: ['title'],
+  completeTheChart: ['title', 'imagePlaceholder1', 'imagePlaceholder2', 'imagePlaceholder3'],
+  fluency1: ['title', 'instruction', 'leftColumn', 'rightColumn'],
+  fluency2: ['title', 'instruction', 'image'],
+  fluency3: ['title', 'instruction', 'photo1', 'photo2'],
+  warmupOralTransform: ['title', 'instruction', 'rows', 'ctaBox'],
+  listenAndRepeat: ['title', 'pairWorkLabel', 'steps', 'tip', 'dialogue1', 'avatar1', 'avatar2', 'dialogue2'],
+  photoExerciseWhoIsThis: ['photo', 'title', 'personName', 'personRole', 'sentence'],
+  photoGridBlank: ['title', 'items'],
+  grammarBoxLook: ['grammarBoxLabel', 'title', 'example1', 'example2', 'grammarBox', 'tips'],
+  grammarBox2YesNo: ['title', 'photo1', 'photo2', 'grammarBox'],
+  matchVocabImage: ['title', 'instruction', 'keywords', 'image', 'answers'],
+  modelExampleList: ['title', 'list'],
+  lessonComplete: ['title'],
+  practiceQaBadges: ['title', 'rows'],
+  matchingWithChart: ['title', 'matchColumn', 'chartColumn'],
+  matchLetters: ['title', 'instruction', 'gridImage', 'rows'],
+};

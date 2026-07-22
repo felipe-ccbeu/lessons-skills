@@ -41,7 +41,7 @@ export function RemoveItemMenu({ x, y, label, onRemove, onClose }: Props) {
     <div ref={ref} className="text-ctx-menu" style={{ ...pos, width: MENU_WIDTH, gap: 0, padding: 6 }} onContextMenu={(e) => e.preventDefault()}>
       <button
         type="button"
-        className="remove-item-menu-btn"
+        className="remove-item-menu-btn destructive"
         onClick={() => {
           onRemove();
           onClose();

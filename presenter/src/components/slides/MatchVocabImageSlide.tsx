@@ -2,7 +2,8 @@ import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { MatchVocabImageData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, MatchVocabImageData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: MatchVocabImageData;
@@ -13,6 +14,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 export function MatchVocabImageSlide({
@@ -24,7 +30,21 @@ export function MatchVocabImageSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -69,7 +89,7 @@ export function MatchVocabImageSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 124, width: 587 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 81, top: 124, width: 587 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -83,7 +103,7 @@ export function MatchVocabImageSlide({
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 82, top: 183, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '11pt', color: 'var(--ccbeu-blue)' }}>
           1
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 129, top: 181, width: 900 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 129, top: 181, width: 900 }} {...dragProps('instruction')}>
           <Editable
             value={data.instruction}
             onChange={(v) => onEdit({ instruction: v })}
@@ -94,7 +114,7 @@ export function MatchVocabImageSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 230, width: 1120, display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 230, width: 1120, display: 'flex', gap: 32, flexWrap: 'wrap' }} {...dragProps('keywords')}>
           {keywords.map((kw, i) => (
             <div
               key={i}
@@ -126,7 +146,7 @@ export function MatchVocabImageSlide({
           )}
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 76, top: 290, width: 847, height: 318 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 76, top: 290, width: 847, height: 318 }} {...dragProps('image')}>
           <ImageSlot
             url={data.imageUrl}
             onChange={(v) => onEdit({ imageUrl: v })}
@@ -136,7 +156,7 @@ export function MatchVocabImageSlide({
         </SlideStaggerItem>
 
         {answers.length > 0 && (
-          <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 960, top: 320, width: 240, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 960, top: 320, width: 240, display: 'flex', flexDirection: 'column', gap: 14 }} {...dragProps('answers')}>
             {answers.map((ans, i) => (
               <div
                 key={i}

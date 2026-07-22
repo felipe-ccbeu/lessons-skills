@@ -70,6 +70,8 @@ export function createSlideData(template: SlideTemplate): Slide['data'] {
       };
     case 'pptxImage':
       return { imageUrl: '', sourceFile: '', slideNumber: 1 };
+    case 'customHtml':
+      return { html: '<!doctype html>\n<html>\n<body>\n</body>\n</html>', sourceFile: '' };
     case 'blank':
       return {};
     case 'objectives':

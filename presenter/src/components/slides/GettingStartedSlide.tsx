@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { GettingStartedData, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, GettingStartedData, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: GettingStartedData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 export function GettingStartedSlide({
@@ -23,7 +29,21 @@ export function GettingStartedSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -34,7 +54,7 @@ export function GettingStartedSlide({
 
   return (
     <div style={{ position: 'relative', width: 1280, height: 720, background: '#fff', overflow: 'hidden' }}>
-      <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', top: 0, left: 574, width: 706, height: 720 }}>
+      <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', top: 0, left: 574, width: 706, height: 720 }} {...dragProps('photo')}>
         <ImageSlot url={data.imageUrl} onChange={(v) => onEdit({ imageUrl: v })} editMode={editMode} style={{ width: '100%', height: '100%' }} />
       </SlideStaggerItem>
 
@@ -66,7 +86,7 @@ export function GettingStartedSlide({
 
         <div style={{ position: 'absolute', left: 80, top: 330, width: 93, height: 6, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 350, width: 430 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 350, width: 430 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -77,7 +97,7 @@ export function GettingStartedSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 430, width: 420 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 430, width: 420 }} {...dragProps('subtitle')}>
           <Editable
             value={data.subtitle}
             onChange={(v) => onEdit({ subtitle: v })}

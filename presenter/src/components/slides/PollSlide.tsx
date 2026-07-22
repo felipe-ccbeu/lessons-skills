@@ -5,7 +5,8 @@ import type { MouseEvent } from 'react';
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { PollData, PollOptionDraft, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, LayoutOffset, LayoutOverrides, PollData, PollOptionDraft, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 export type PollLiveResults = {
   code: string;
@@ -29,6 +30,11 @@ type Props = {
   onStartVoting?: () => void;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const MIN_OPTIONS = 2;
@@ -42,8 +48,22 @@ export function PollSlide({
   onStartVoting,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
   const options = data.options;
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const styleProps = (key: string) => ({
     styleOverride: styleOverrides[key],
     onStyleChange: onStyleFieldChange ? (patch: TextStyleOverride | null) => onStyleFieldChange(key, patch) : undefined,
@@ -87,7 +107,7 @@ export function PollSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...styleProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 700 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 700 }} {...dragProps('question')}>
           <Editable
             value={data.question}
             onChange={(v) => onEdit({ question: v })}
@@ -105,7 +125,7 @@ export function PollSlide({
           />
         </SlideStaggerItem>
 
-        <div style={{ position: 'absolute', left: 80, top: 260, width: 700 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 260, width: 700 }} {...dragProps('options')}>
           {options.map((opt, i) => (
             <SlideStaggerItem key={opt.id} disabled={editMode} style={{ marginBottom: 16 }}>
               <PollOptionBar
@@ -121,7 +141,7 @@ export function PollSlide({
               />
             </SlideStaggerItem>
           ))}
-        </div>
+        </SlideStaggerItem>
 
         {editMode && options.length < MAX_OPTIONS && (
           <button

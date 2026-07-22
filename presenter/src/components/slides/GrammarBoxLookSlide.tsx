@@ -2,7 +2,8 @@ import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { GrammarBoxLookData, GrammarBoxLookRow, GrammarBoxLookTip, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, GrammarBoxLookData, GrammarBoxLookRow, GrammarBoxLookTip, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: GrammarBoxLookData;
@@ -13,6 +14,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const BASE_ROWS = 4;
@@ -37,7 +43,21 @@ export function GrammarBoxLookSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -120,6 +140,7 @@ export function GrammarBoxLookSlide({
             padding: '0.5em 1.05em',
             lineHeight: 1,
           }}
+          {...dragProps('grammarBoxLabel')}
         >
           <span>GRAMMAR BOX</span>
         </SlideStaggerItem>
@@ -136,6 +157,7 @@ export function GrammarBoxLookSlide({
         <SlideStaggerItem
           disabled={editMode}
           style={{ position: 'absolute', left: 80, top: 162, width: 178, height: 90 }}
+          {...dragProps('title')}
         >
           <h1 style={{ margin: 0, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '41pt', color: 'var(--ink)' }}>LOOK!</h1>
         </SlideStaggerItem>
@@ -146,7 +168,7 @@ export function GrammarBoxLookSlide({
           {null}
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 78, top: 320, width: 240 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 78, top: 320, width: 240 }} {...dragProps('example1')}>
           <ImageSlot
             url={data.imageUrl1}
             onChange={(v) => onEdit({ imageUrl1: v })}
@@ -166,7 +188,7 @@ export function GrammarBoxLookSlide({
             <Editable value={data.ex1Post} onChange={(v) => onEdit({ ex1Post: v })} editMode={editMode} tag="span" {...answerProps('ex1Post')} />
           </figcaption>
         </SlideStaggerItem>
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 338, top: 320, width: 240 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 338, top: 320, width: 240 }} {...dragProps('example2')}>
           <ImageSlot
             url={data.imageUrl2}
             onChange={(v) => onEdit({ imageUrl2: v })}
@@ -199,6 +221,7 @@ export function GrammarBoxLookSlide({
             overflow: 'hidden',
             fontFamily: 'var(--font-body)',
           }}
+          {...dragProps('grammarBox')}
         >
           <div style={{ display: 'flex', background: 'var(--ccbeu-blue)' }}>
             <div style={{ flex: '0 0 21%', padding: '8px 14px', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '9pt', letterSpacing: '0.06em', color: '#fff' }}>SUBJECT</div>
@@ -259,6 +282,7 @@ export function GrammarBoxLookSlide({
             borderRadius: 12,
             overflow: 'hidden',
           }}
+          {...dragProps('tips')}
         >
           <div style={{ flex: '0 0 52px', background: 'var(--ccbeu-pink)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 4px' }}>
             <span style={{ fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '14pt', color: '#fff', letterSpacing: '0.06em' }}>TIPS!</span>

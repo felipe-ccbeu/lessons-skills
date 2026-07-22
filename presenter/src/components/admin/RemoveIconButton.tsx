@@ -54,7 +54,7 @@ export function RemoveIconButton({
         e.preventDefault();
         setConfirming(true);
       }}
-      className={`${position} z-10 w-[30px] h-[30px] rounded-full border border-[#ecedf0] bg-white text-[#6b7280] flex items-center justify-center hover:bg-[#f7f8fa] hover:text-[#c0392b] transition-colors`}
+      className={`${position} z-10 w-8 h-8 rounded-full border border-[#ecedf0] bg-white text-[#6b7280] flex items-center justify-center hover:bg-[#f7f8fa] hover:text-[#c0392b] transition-colors`}
       title="Remover"
       aria-label="Remover"
     >

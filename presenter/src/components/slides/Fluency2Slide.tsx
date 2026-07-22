@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
-import { Fluency2Data, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, Fluency2Data, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: Fluency2Data;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 export function Fluency2Slide({
@@ -23,7 +29,21 @@ export function Fluency2Slide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -56,7 +76,7 @@ export function Fluency2Slide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 584 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 584 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -67,7 +87,7 @@ export function Fluency2Slide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 192, width: 547 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 192, width: 547 }} {...dragProps('instruction')}>
           <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: '13pt', color: 'var(--ink)', display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             <Editable value={data.instructionPre} onChange={(v) => onEdit({ instructionPre: v })} editMode={editMode} tag="span" {...answerProps('instructionPre')} />
             <Editable
@@ -82,7 +102,7 @@ export function Fluency2Slide({
           </p>
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 257, width: 1114, height: 346 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 257, width: 1114, height: 346 }} {...dragProps('image')}>
           <ImageSlot url={data.imageUrl} onChange={(v) => onEdit({ imageUrl: v })} editMode={editMode} style={{ width: '100%', height: '100%', borderRadius: 6 }} />
         </SlideStaggerItem>
       </SlideStagger>

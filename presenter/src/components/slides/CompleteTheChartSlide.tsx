@@ -1,7 +1,8 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
-import { CompleteTheChartData, CompleteTheChartGroup, CompleteTheChartRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimations, CompleteTheChartData, CompleteTheChartGroup, CompleteTheChartRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
+import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 type Props = {
   data: CompleteTheChartData;
@@ -12,6 +13,11 @@ type Props = {
   revealAnswers?: boolean;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
+  layoutOverrides?: LayoutOverrides;
+  onLayoutOffsetChange?: (key: string, offset: LayoutOffset) => void;
+  stageScale?: number;
+  blockAnimations?: BlockAnimations;
+  onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
 };
 
 const ROW_H = 40;
@@ -25,7 +31,21 @@ export function CompleteTheChartSlide({
   revealAnswers = true,
   styleOverrides = {},
   onStyleFieldChange,
+  layoutOverrides = {},
+  onLayoutOffsetChange,
+  stageScale = 1,
+  blockAnimations = {},
+  onBlockAnimationChange,
 }: Props) {
+  const dragProps = (key: string) => ({
+    dragKey: key,
+    editMode,
+    layoutOffset: layoutOverrides[key],
+    onLayoutOffsetChange,
+    stageScale,
+    blockAnimation: blockAnimations[key],
+    onBlockAnimationChange,
+  });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
     revealed: revealAnswers,
@@ -70,6 +90,7 @@ export function CompleteTheChartSlide({
           borderRadius: 6,
           overflow: 'hidden',
         }}
+        {...dragProps(groupKey)}
       >
         <div
           style={{
@@ -169,7 +190,7 @@ export function CompleteTheChartSlide({
           <Editable value={data.breadcrumb} onChange={(v) => onEdit({ breadcrumb: v })} editMode={editMode} {...answerProps('breadcrumb')} />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 587 }}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 124, width: 587 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -204,6 +225,7 @@ export function CompleteTheChartSlide({
             letterSpacing: '0.06em',
             color: '#9AA1AC',
           }}
+          {...dragProps('imagePlaceholder1')}
         >
           IMAGE
         </SlideStaggerItem>
@@ -235,6 +257,7 @@ export function CompleteTheChartSlide({
             letterSpacing: '0.06em',
             color: '#9AA1AC',
           }}
+          {...dragProps('imagePlaceholder2')}
         >
           IMAGE
         </SlideStaggerItem>
@@ -266,6 +289,7 @@ export function CompleteTheChartSlide({
             letterSpacing: '0.06em',
             color: '#9AA1AC',
           }}
+          {...dragProps('imagePlaceholder3')}
         >
           IMAGE
         </SlideStaggerItem>
