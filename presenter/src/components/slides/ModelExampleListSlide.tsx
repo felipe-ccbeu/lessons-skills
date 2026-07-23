@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, ModelExampleListData, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -50,6 +51,7 @@ export function ModelExampleListSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'modelExampleList' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -130,28 +132,29 @@ export function ModelExampleListSlide({
           </div>
 
           {items.map((item, i) => (
-            <div
-              key={i}
-              className="ex-row"
-              style={{ position: 'relative', display: 'flex', alignItems: 'baseline', gap: 14, height: itemH }}
-              onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeItem(i)) : undefined}
-            >
-              <div style={{ flex: '0 0 32px', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '13pt', color: 'var(--ccbeu-blue)' }}>{i + 1}</div>
-              <Editable
-                value={item}
-                onChange={(v) => updateItem(i, v)}
-                editMode={editMode}
-                {...answerProps(`items.${i}`)}
-                style={{ fontFamily: 'var(--font-body)', fontWeight: 400, fontSize: `${fontPt}pt`, color: 'var(--ink)' }}
-              />
-              {editMode && (
-                <div className="row-controls">
-                  <button type="button" className="row-btn remove" title="Remover item" onClick={() => removeItem(i)}>
-                    ✕
-                  </button>
-                </div>
-              )}
-            </div>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`list.${i}`)}>
+              <div
+                className="ex-row"
+                style={{ position: 'relative', display: 'flex', alignItems: 'baseline', gap: 14, height: itemH }}
+                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeItem(i)) : undefined}
+              >
+                <div style={{ flex: '0 0 32px', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '13pt', color: 'var(--ccbeu-blue)' }}>{i + 1}</div>
+                <Editable
+                  value={item}
+                  onChange={(v) => updateItem(i, v)}
+                  editMode={editMode}
+                  {...answerProps(`items.${i}`)}
+                  style={{ fontFamily: 'var(--font-body)', fontWeight: 400, fontSize: `${fontPt}pt`, color: 'var(--ink)' }}
+                />
+                {editMode && (
+                  <div className="row-controls">
+                    <button type="button" className="row-btn remove" title="Remover item" onClick={() => removeItem(i)}>
+                      <Icon name="close" size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </SlideStaggerItem>
           ))}
         </SlideStaggerItem>
       </SlideStagger>

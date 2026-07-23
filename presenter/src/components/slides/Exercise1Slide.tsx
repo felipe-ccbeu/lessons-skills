@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, Exercise1Data, ExerciseRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -50,6 +51,7 @@ export function Exercise1Slide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'exercise1' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -139,7 +141,7 @@ export function Exercise1Slide({
 
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 258, width: 1120 }} {...dragProps('rows')}>
           {rows.map((row, i) => (
-            <SlideStaggerItem key={i} disabled={editMode}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`rows.${i}`)}>
               <div
                 className="ex-row"
                 style={{
@@ -194,7 +196,7 @@ export function Exercise1Slide({
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </div>
                 )}

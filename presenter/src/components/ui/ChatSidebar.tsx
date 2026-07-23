@@ -10,7 +10,7 @@ type Props = {
   slideData: unknown;
   template: string;
   dragKeys: string[];
-  deckOverview: { template: string }[];
+  deckOverview: { template: string; data: unknown }[];
   activeIndex: number;
   onApplyActions: (actions: AiSlideAction[]) => void;
 };
@@ -68,8 +68,8 @@ export function ChatSidebar({ slideData, template, dragKeys, deckOverview, activ
       <div className="chat-sidebar-messages" ref={listRef}>
         {messages.length === 0 && (
           <div className="chat-sidebar-empty">
-            Peça pra mudar textos, adicionar/remover itens de listas, mover blocos deste slide, criar um novo
-            slide no fim do deck, ou reordenar os slides existentes.
+            Peça pra mudar textos, adicionar/remover itens de listas, gerar e inserir imagens, mover blocos deste
+            slide, criar um novo slide no fim do deck, ou reordenar os slides existentes.
           </div>
         )}
         {messages.map((m, i) => (

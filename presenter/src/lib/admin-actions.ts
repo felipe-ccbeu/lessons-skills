@@ -14,6 +14,7 @@ import {
   deletePart,
 } from '@/lib/lessons';
 import { updateUserRole, deleteUser } from '@/lib/users';
+import { setUserAiSpendCap, resetUserAiSpend } from '@/lib/aiUsage';
 import type { Role } from '@/generated/prisma/client';
 
 const ADMIN_OR_COORDINATOR: Role[] = ['ADMIN', 'COORDINATOR'];
@@ -99,6 +100,23 @@ export async function deleteUserAction(formData: FormData) {
   if (id === currentUser.id) return;
   await deleteUser(id);
   revalidatePath('/admin/users');
+}
+
+export async function setUserAiSpendCapAction(formData: FormData) {
+  await requireRole(['ADMIN']);
+  const id = String(formData.get('id'));
+  const raw = String(formData.get('capUsd') ?? '').trim();
+  const capUsd = raw === '' ? null : Number(raw);
+  if (capUsd !== null && (!Number.isFinite(capUsd) || capUsd < 0)) return;
+  await setUserAiSpendCap(id, capUsd);
+  revalidatePath('/admin/ai-usage');
+}
+
+export async function resetUserAiSpendAction(formData: FormData) {
+  await requireRole(['ADMIN']);
+  const id = String(formData.get('id'));
+  await resetUserAiSpend(id);
+  revalidatePath('/admin/ai-usage');
 }
 
 export async function signOutAction() {

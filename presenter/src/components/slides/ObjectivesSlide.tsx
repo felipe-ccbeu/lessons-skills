@@ -1,5 +1,6 @@
 import { Editable } from '@/components/ui/Editable';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
+import { Icon } from '@/components/ui/Icon';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, ObjectivesData, StyleOverrides, TextStyleOverride } from '@/lib/types';
 import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
@@ -20,10 +21,10 @@ type Props = {
 };
 
 const SKILLS = [
-  { key: 'listening', label: 'Listening', icon: '👂' },
-  { key: 'speaking', label: 'Speaking', icon: '🗣️' },
-  { key: 'reading', label: 'Reading', icon: '📖' },
-  { key: 'writing', label: 'Writing', icon: '✍️' },
+  { key: 'listening', label: 'Listening', icon: 'hearing' },
+  { key: 'speaking', label: 'Speaking', icon: 'record_voice_over' },
+  { key: 'reading', label: 'Reading', icon: 'menu_book' },
+  { key: 'writing', label: 'Writing', icon: 'edit' },
 ];
 
 export function ObjectivesSlide({
@@ -110,7 +111,7 @@ export function ObjectivesSlide({
         <div style={{ position: 'absolute', left: 80, top: 534, display: 'flex', gap: 40 }}>
           {SKILLS.map((s) => (
             <div key={s.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 28 }}>{s.icon}</span>
+              <Icon name={s.icon} size={28} />
               <span
                 style={{
                   fontFamily: 'var(--font-title)',

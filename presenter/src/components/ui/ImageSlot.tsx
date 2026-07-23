@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState, CSSProperties, ClipboardEvent, KeyboardEvent } from 'react';
+import { Icon } from '@/components/ui/Icon';
 
 type ImageSlotProps = {
   url: string;
@@ -70,7 +71,7 @@ export function ImageSlot({
         <img src={url} alt="" />
       ) : (
         <div className="img-placeholder">
-          📷
+          <Icon name="photo_camera" size={22} />
           <br />
           sem imagem
         </div>

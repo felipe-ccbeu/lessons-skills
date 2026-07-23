@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, LessonCompleteData, LessonCompleteTerm, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -52,6 +53,7 @@ export function LessonCompleteSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'lessonComplete' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -150,7 +152,7 @@ export function LessonCompleteSlide({
               />
             </SlideStaggerItem>
             {col.terms.map((term, ti) => (
-              <SlideStaggerItem key={ti} disabled={editMode}>
+              <SlideStaggerItem key={ti} disabled={editMode} {...dragProps(`column${ci}.terms.${ti}`)}>
                 <div
                   className="ex-row"
                   style={{ position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: termH }}
@@ -175,7 +177,7 @@ export function LessonCompleteSlide({
                   {editMode && (
                     <div className="row-controls">
                       <button type="button" className="row-btn remove" title="Remover termo" onClick={() => removeTerm(ci, ti)}>
-                        ✕
+                        <Icon name="close" size={14} />
                       </button>
                     </div>
                   )}

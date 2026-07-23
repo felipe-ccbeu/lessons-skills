@@ -25,6 +25,13 @@ model User {
   role         Role    @default(NONE)
   passwordHash String?
 
+  // Anti-abuse spend cap for the AI slide assistant (text + image generation).
+  // Null = no cap. Spend is summed from AiUsageLog rows created at/after
+  // aiSpendResetAt, so "releasing" a blocked user (see admin AI usage panel)
+  // just bumps this timestamp forward instead of deleting log history.
+  aiSpendCapUsd  Float?
+  aiSpendResetAt DateTime @default(now())
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -154,4 +161,21 @@ model PollVote {
   createdAt DateTime @default(now())
 
   @@unique([pollSessionId, voterKey]) // one vote per device per round
+}
+
+// One row per OpenAI call made from the slide chat assistant (one text completion,
+// or one image generation) — lets us estimate spend without leaving the app.
+model AiUsageLog {
+  id     String @id @default(cuid())
+  kind   String // "text" | "image"
+  userId String? // requester's User.id, when available
+
+  model            String // e.g. "gpt-4.1-mini", "gpt-image-1"
+  promptTokens     Int? // text calls only
+  completionTokens Int? // text calls only
+  imageSize        String? // image calls only, e.g. "1536x1024"
+  imageQuality     String? // image calls only, e.g. "medium"
+  estimatedCostUsd Float
+
+  createdAt DateTime @default(now())
 }

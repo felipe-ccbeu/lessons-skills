@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, Fluency1Data, Fluency1Question, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -43,6 +44,7 @@ export function Fluency1Slide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'fluency1' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -74,7 +76,7 @@ export function Fluency1Slide({
       const isBlank = typeof q !== 'string';
       const value = typeof q === 'string' ? q : q.pre;
       return (
-        <SlideStaggerItem key={i} disabled={editMode}>
+        <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`questions.${i}`)}>
           <div
             style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 18 }}
             onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeQuestion(i)) : undefined}
@@ -98,7 +100,7 @@ export function Fluency1Slide({
             {editMode && (
               <div className="row-controls">
                 <button type="button" className="row-btn remove" title="Remover pergunta" onClick={() => removeQuestion(i)}>
-                  ✕
+                  <Icon name="close" size={14} />
                 </button>
               </div>
             )}

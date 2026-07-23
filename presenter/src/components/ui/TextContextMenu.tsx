@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { TextStyleOverride } from '@/lib/types';
+import { Icon } from '@/components/ui/Icon';
 
 const MENU_WIDTH = 220;
 const MENU_MAX_HEIGHT = 420;
@@ -17,6 +18,8 @@ type Props = {
   /** When provided, shows a "mark as answer" toggle at the top of the menu. */
   answer?: boolean;
   onToggleAnswer?: () => void;
+  /** When provided, shows a "change entrance animation" item that opens the block's AnimationPickerMenu. */
+  onOpenAnimationPicker?: () => void;
 };
 
 const COLORS = [
@@ -32,12 +35,12 @@ const COLORS = [
 const FONT_SIZES = [12, 14, 16, 18, 24, 32, 40, 54, 72];
 
 const ALIGNS: { label: string; value: NonNullable<TextStyleOverride['align']>; icon: string }[] = [
-  { label: 'Esquerda', value: 'left', icon: '⟸' },
-  { label: 'Centro', value: 'center', icon: '⇔' },
-  { label: 'Direita', value: 'right', icon: '⟹' },
+  { label: 'Esquerda', value: 'left', icon: 'format_align_left' },
+  { label: 'Centro', value: 'center', icon: 'format_align_center' },
+  { label: 'Direita', value: 'right', icon: 'format_align_right' },
 ];
 
-export function TextContextMenu({ x, y, value, onChange, onReset, onClose, answer, onToggleAnswer }: Props) {
+export function TextContextMenu({ x, y, value, onChange, onReset, onClose, answer, onToggleAnswer, onOpenAnimationPicker }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const pos = {
     left: Math.max(8, Math.min(x, window.innerWidth - MENU_WIDTH - 8)),
@@ -73,7 +76,9 @@ export function TextContextMenu({ x, y, value, onChange, onReset, onClose, answe
             className={`text-ctx-answer ${answer ? 'active' : ''}`}
             onClick={onToggleAnswer}
           >
-            <span>👁 Marcar como resposta</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Icon name="visibility" size={16} /> Marcar como resposta
+            </span>
             <span className={`text-ctx-check ${answer ? 'on' : ''}`} />
           </button>
         </div>
@@ -144,11 +149,21 @@ export function TextContextMenu({ x, y, value, onChange, onReset, onClose, answe
               title={a.label}
               onClick={() => onChange({ align: value.align === a.value ? undefined : a.value })}
             >
-              {a.icon}
+              <Icon name={a.icon} size={16} />
             </button>
           ))}
         </div>
       </div>
+
+      {onOpenAnimationPicker && (
+        <div className="text-ctx-section">
+          <button type="button" className="text-ctx-answer" onClick={onOpenAnimationPicker}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Icon name="auto_awesome" size={16} /> Mudar animação de entrada
+            </span>
+          </button>
+        </div>
+      )}
 
       <button type="button" className="text-ctx-reset" onClick={onReset}>
         Restaurar padrão

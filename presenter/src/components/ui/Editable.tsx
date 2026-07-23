@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, CSSProperties, ElementType } from 'react';
 import { TextStyleOverride } from '@/lib/types';
 import { TextContextMenu } from '@/components/ui/TextContextMenu';
+import { useBlockAnimationMenu } from '@/components/ui/SlideStagger';
+import { Icon } from '@/components/ui/Icon';
 
 type EditableProps = {
   value: string;
@@ -50,6 +52,7 @@ export function Editable({
 }: EditableProps) {
   const ref = useRef<HTMLElement>(null);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const blockAnimationMenu = useBlockAnimationMenu();
 
   useEffect(() => {
     if (ref.current && ref.current.innerText !== value) {
@@ -72,9 +75,10 @@ export function Editable({
         if (e.key === 'Enter' && Tag !== 'div') e.preventDefault();
       }}
       onContextMenu={
-        editMode && (onStyleChange || onToggleAnswer)
+        editMode && (onStyleChange || onToggleAnswer || blockAnimationMenu)
           ? (e: React.MouseEvent<HTMLElement>) => {
               e.preventDefault();
+              e.stopPropagation();
               setMenu({ x: e.clientX, y: e.clientY });
             }
           : undefined
@@ -83,7 +87,7 @@ export function Editable({
   );
 
   const contextMenu =
-    menu && (onStyleChange || onToggleAnswer) ? (
+    menu && (onStyleChange || onToggleAnswer || blockAnimationMenu) ? (
       <TextContextMenu
         x={menu.x}
         y={menu.y}
@@ -96,6 +100,14 @@ export function Editable({
         onClose={() => setMenu(null)}
         answer={answer}
         onToggleAnswer={onToggleAnswer}
+        onOpenAnimationPicker={
+          blockAnimationMenu
+            ? () => {
+                blockAnimationMenu.onOpenAnimationPicker();
+                setMenu(null);
+              }
+            : undefined
+        }
       />
     ) : null;
 
@@ -135,7 +147,7 @@ export function Editable({
           setMenu({ x: rect.left, y: rect.bottom + 4 });
         }}
       >
-        👁
+        <Icon name="visibility" size={13} />
       </button>
       {contextMenu}
     </span>

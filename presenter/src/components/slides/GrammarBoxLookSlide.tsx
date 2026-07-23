@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
@@ -57,6 +58,7 @@ export function GrammarBoxLookSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'grammarBoxLook' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -230,38 +232,39 @@ export function GrammarBoxLookSlide({
             </div>
           </div>
           {rows.map((row, i) => (
-            <div
-              key={i}
-              className="ex-row"
-              style={{ position: 'relative', display: 'flex', background: i % 2 === 0 ? '#fff' : 'var(--chrome-bg-subtle)' }}
-              onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
-            >
-              <Editable
-                value={row.subject}
-                onChange={(v) => updateRow(i, { subject: v })}
-                editMode={editMode}
-                {...answerProps(`rows.${i}.subject`)}
-                style={{ flex: '0 0 21%', padding: '7px 14px', fontSize: `${rowFont}pt`, color: 'var(--ink)' }}
-              />
-              <div style={{ flex: '1 1 auto', padding: '7px 14px', display: 'flex', gap: 4, flexWrap: 'wrap', fontSize: `${rowFont}pt`, color: 'var(--ink)' }}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`rows.${i}`)}>
+              <div
+                className="ex-row"
+                style={{ position: 'relative', display: 'flex', background: i % 2 === 0 ? '#fff' : 'var(--chrome-bg-subtle)' }}
+                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
+              >
                 <Editable
-                  value={row.hl}
-                  onChange={(v) => updateRow(i, { hl: v })}
+                  value={row.subject}
+                  onChange={(v) => updateRow(i, { subject: v })}
                   editMode={editMode}
-                  tag="span"
-                  {...answerProps(`rows.${i}.hl`)}
-                  style={{ fontFamily: 'var(--font-title)', fontWeight: 700, color: 'var(--ccbeu-pink)' }}
+                  {...answerProps(`rows.${i}.subject`)}
+                  style={{ flex: '0 0 21%', padding: '7px 14px', fontSize: `${rowFont}pt`, color: 'var(--ink)' }}
                 />
-                <Editable value={row.text} onChange={(v) => updateRow(i, { text: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.text`)} />
-              </div>
-              {editMode && (
-                <div className="row-controls">
-                  <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
-                    ✕
-                  </button>
+                <div style={{ flex: '1 1 auto', padding: '7px 14px', display: 'flex', gap: 4, flexWrap: 'wrap', fontSize: `${rowFont}pt`, color: 'var(--ink)' }}>
+                  <Editable
+                    value={row.hl}
+                    onChange={(v) => updateRow(i, { hl: v })}
+                    editMode={editMode}
+                    tag="span"
+                    {...answerProps(`rows.${i}.hl`)}
+                    style={{ fontFamily: 'var(--font-title)', fontWeight: 700, color: 'var(--ccbeu-pink)' }}
+                  />
+                  <Editable value={row.text} onChange={(v) => updateRow(i, { text: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.text`)} />
                 </div>
-              )}
-            </div>
+                {editMode && (
+                  <div className="row-controls">
+                    <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
+                      <Icon name="close" size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </SlideStaggerItem>
           ))}
         </SlideStaggerItem>
         {editMode && (
@@ -289,37 +292,38 @@ export function GrammarBoxLookSlide({
           </div>
           <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: tipGap, padding: '14px 18px', fontSize: `${tipFont}pt` }}>
             {tips.map((tip, i) => (
-              <div
-                key={i}
-                className="ex-row"
-                style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}
-                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeTip(i)) : undefined}
-              >
-                <Editable
-                  value={tip.full}
-                  onChange={(v) => updateTip(i, { full: v })}
-                  editMode={editMode}
-                  tag="span"
-                  {...answerProps(`tips.${i}.full`)}
-                  style={{ fontFamily: 'var(--font-title)', fontWeight: 500, color: 'var(--ink)', fontSize: `${tipFont}pt` }}
-                />
-                <span style={{ color: 'var(--ccbeu-blue)', fontWeight: 700 }}>→</span>
-                <Editable
-                  value={tip.short}
-                  onChange={(v) => updateTip(i, { short: v })}
-                  editMode={editMode}
-                  tag="span"
-                  {...answerProps(`tips.${i}.short`)}
-                  style={{ fontFamily: 'var(--font-title)', fontWeight: 700, color: 'var(--ccbeu-pink)', fontSize: `${tipFont}pt` }}
-                />
-                {editMode && (
-                  <div className="row-controls">
-                    <button type="button" className="row-btn remove" title="Remover dica" onClick={() => removeTip(i)}>
-                      ✕
-                    </button>
-                  </div>
-                )}
-              </div>
+              <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`tips.${i}`)}>
+                <div
+                  className="ex-row"
+                  style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}
+                  onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeTip(i)) : undefined}
+                >
+                  <Editable
+                    value={tip.full}
+                    onChange={(v) => updateTip(i, { full: v })}
+                    editMode={editMode}
+                    tag="span"
+                    {...answerProps(`tips.${i}.full`)}
+                    style={{ fontFamily: 'var(--font-title)', fontWeight: 500, color: 'var(--ink)', fontSize: `${tipFont}pt` }}
+                  />
+                  <span style={{ color: 'var(--ccbeu-blue)', fontWeight: 700 }}>→</span>
+                  <Editable
+                    value={tip.short}
+                    onChange={(v) => updateTip(i, { short: v })}
+                    editMode={editMode}
+                    tag="span"
+                    {...answerProps(`tips.${i}.short`)}
+                    style={{ fontFamily: 'var(--font-title)', fontWeight: 700, color: 'var(--ccbeu-pink)', fontSize: `${tipFont}pt` }}
+                  />
+                  {editMode && (
+                    <div className="row-controls">
+                      <button type="button" className="row-btn remove" title="Remover dica" onClick={() => removeTip(i)}>
+                        <Icon name="close" size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </SlideStaggerItem>
             ))}
             {editMode && (
               <button type="button" className="add-row-btn" onClick={addTip}>

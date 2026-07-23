@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
@@ -44,6 +45,7 @@ export function MatchVocabImageSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'matchVocabImage' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -116,28 +118,29 @@ export function MatchVocabImageSlide({
 
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 230, width: 1120, display: 'flex', gap: 32, flexWrap: 'wrap' }} {...dragProps('keywords')}>
           {keywords.map((kw, i) => (
-            <div
-              key={i}
-              className="ex-row"
-              style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
-              onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeKeyword(i)) : undefined}
-            >
-              <Editable
-                value={kw}
-                onChange={(v) => updateKeyword(i, v)}
-                editMode={editMode}
-                tag="span"
-                {...answerProps(`keywords.${i}`)}
-                style={{ fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '11pt', color: 'var(--ccbeu-pink)' }}
-              />
-              {editMode && (
-                <div className="row-controls">
-                  <button type="button" className="row-btn remove" title="Remover palavra" onClick={() => removeKeyword(i)}>
-                    ✕
-                  </button>
-                </div>
-              )}
-            </div>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`keywords.${i}`)}>
+              <div
+                className="ex-row"
+                style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeKeyword(i)) : undefined}
+              >
+                <Editable
+                  value={kw}
+                  onChange={(v) => updateKeyword(i, v)}
+                  editMode={editMode}
+                  tag="span"
+                  {...answerProps(`keywords.${i}`)}
+                  style={{ fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '11pt', color: 'var(--ccbeu-pink)' }}
+                />
+                {editMode && (
+                  <div className="row-controls">
+                    <button type="button" className="row-btn remove" title="Remover palavra" onClick={() => removeKeyword(i)}>
+                      <Icon name="close" size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </SlideStaggerItem>
           ))}
           {editMode && (
             <button type="button" className="add-row-btn" onClick={addKeyword}>
@@ -158,37 +161,38 @@ export function MatchVocabImageSlide({
         {answers.length > 0 && (
           <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 960, top: 320, width: 240, display: 'flex', flexDirection: 'column', gap: 14 }} {...dragProps('answers')}>
             {answers.map((ans, i) => (
-              <div
-                key={i}
-                className="ex-row"
-                style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}
-                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeAnswer(i)) : undefined}
-              >
-                <span style={{ fontFamily: 'var(--font-title)', fontWeight: 700, color: 'var(--ccbeu-blue)' }}>{i + 1}</span>
-                <Editable
-                  value={ans}
-                  onChange={(v) => updateAnswer(i, v)}
-                  editMode={editMode}
-                  tag="span"
-                  {...answerProps(`answers.${i}`)}
-                  style={{
-                    background: '#F2F5FF',
-                    borderRadius: 999,
-                    padding: '7px 18px',
-                    fontFamily: 'var(--font-title)',
-                    fontWeight: 700,
-                    fontSize: '11pt',
-                    color: 'var(--ccbeu-pink)',
-                  }}
-                />
-                {editMode && (
-                  <div className="row-controls">
-                    <button type="button" className="row-btn remove" title="Remover resposta" onClick={() => removeAnswer(i)}>
-                      ✕
-                    </button>
-                  </div>
-                )}
-              </div>
+              <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`answers.${i}`)}>
+                <div
+                  className="ex-row"
+                  style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}
+                  onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeAnswer(i)) : undefined}
+                >
+                  <span style={{ fontFamily: 'var(--font-title)', fontWeight: 700, color: 'var(--ccbeu-blue)' }}>{i + 1}</span>
+                  <Editable
+                    value={ans}
+                    onChange={(v) => updateAnswer(i, v)}
+                    editMode={editMode}
+                    tag="span"
+                    {...answerProps(`answers.${i}`)}
+                    style={{
+                      background: '#F2F5FF',
+                      borderRadius: 999,
+                      padding: '7px 18px',
+                      fontFamily: 'var(--font-title)',
+                      fontWeight: 700,
+                      fontSize: '11pt',
+                      color: 'var(--ccbeu-pink)',
+                    }}
+                  />
+                  {editMode && (
+                    <div className="row-controls">
+                      <button type="button" className="row-btn remove" title="Remover resposta" onClick={() => removeAnswer(i)}>
+                        <Icon name="close" size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </SlideStaggerItem>
             ))}
             {editMode && (
               <button type="button" className="add-row-btn" onClick={addAnswer}>

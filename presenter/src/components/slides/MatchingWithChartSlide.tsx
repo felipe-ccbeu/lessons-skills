@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, MatchingWithChartData, MatchingWithChartRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -45,6 +46,7 @@ export function MatchingWithChartSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'matchingWithChart' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -129,7 +131,7 @@ export function MatchingWithChartSlide({
           </SlideStaggerItem>
 
           {prompts.map((p, i) => (
-            <SlideStaggerItem key={i} disabled={editMode}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`matchColumn.prompts.${i}`)}>
               <div
                 className="ex-row"
                 style={{ position: 'relative', display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 12 }}
@@ -148,7 +150,7 @@ export function MatchingWithChartSlide({
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover" onClick={() => removePrompt(i)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </div>
                 )}
@@ -164,7 +166,7 @@ export function MatchingWithChartSlide({
           <div style={{ height: 14 }} />
 
           {options.map((o, i) => (
-            <SlideStaggerItem key={i} disabled={editMode}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`matchColumn.options.${i}`)}>
               <div
                 className="ex-row"
                 style={{ position: 'relative', display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 12 }}
@@ -183,7 +185,7 @@ export function MatchingWithChartSlide({
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover" onClick={() => removeOption(i)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </div>
                 )}
@@ -230,7 +232,7 @@ export function MatchingWithChartSlide({
           </SlideStaggerItem>
 
           {chartRows.map((row, i) => (
-            <SlideStaggerItem key={i} disabled={editMode}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`chartColumn.rows.${i}`)}>
               <div
                 className="ex-row"
                 style={{ position: 'relative', display: 'flex', alignItems: 'center', height: 44, borderBottom: '1px solid var(--border-hair)' }}
@@ -253,7 +255,7 @@ export function MatchingWithChartSlide({
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover" onClick={() => removeChartRow(i)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </div>
                 )}

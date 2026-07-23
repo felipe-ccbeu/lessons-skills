@@ -7,6 +7,7 @@ import { Slide } from '@/lib/types';
 import { getSlideAnimation } from '@/lib/slideAnimations';
 import { RENDERERS } from '@/components/slides';
 import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
+import { Icon } from '@/components/ui/Icon';
 import { usePollTallies } from '@/lib/usePollTallies';
 import { PollLiveResults } from '@/components/slides/PollSlide';
 
@@ -337,7 +338,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
             transition: 'opacity 300ms',
           }}
         >
-          📱 Entrar na aula
+          <Icon name="smartphone" size={15} /> Entrar na aula
         </button>
       )}
 

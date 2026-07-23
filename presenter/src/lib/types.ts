@@ -313,16 +313,18 @@ export type PastedBlock = {
 
 /**
  * One resolved AI tool call the client applies via its existing edit handlers. `addSlide` targets
- * the deck as a whole (appends + activates); the rest target whichever slide is active *after* any
- * prior `addSlide` in the same batch has been applied — see `applyAiActions` in PresenterApp.
+ * the deck as a whole (appends + activates); the rest target a specific slide — `slideIndex` (into
+ * the deck as it existed *before* this action batch) when the AI targeted a slide other than the
+ * active one, or the active slide otherwise (or whichever slide is active *after* a prior `addSlide`
+ * in the same batch has been applied) — see `applyAiActions` in PresenterApp.
  */
 export type AiSlideAction =
   | { kind: 'addSlide'; template: SlideTemplate }
   | { kind: 'reorderSlide'; fromIndex: number; toIndex: number }
-  | { kind: 'setField'; path: string; value: string }
-  | { kind: 'addListItem'; listPath: string; item: Record<string, unknown> }
-  | { kind: 'removeListItem'; listPath: string; index: number }
-  | { kind: 'moveBlock'; dragKey: string; dx: number; dy: number };
+  | { kind: 'setField'; slideIndex?: number; path: string; value: string }
+  | { kind: 'addListItem'; slideIndex?: number; listPath: string; item: Record<string, unknown> }
+  | { kind: 'removeListItem'; slideIndex?: number; listPath: string; index: number }
+  | { kind: 'moveBlock'; slideIndex?: number; dragKey: string; dx: number; dy: number };
 
 export type Slide =
   | { id: string; template: 'sectionTransition'; data: SectionTransitionData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }

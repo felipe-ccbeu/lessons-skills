@@ -4,14 +4,17 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AiSlideAction, LayoutOffset, PastedBlock, Slide, SlideTemplate, TextStyleOverride } from '@/lib/types';
 import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 import { SlideBlockClipboardProvider, useSlideBlockClipboard } from '@/components/ui/SlideBlockClipboard';
+import { GroupSelectionHandle } from '@/components/ui/SlideStagger';
 import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
+import { StageOverlayProvider } from '@/components/ui/StageOverlay';
 import { ChatSidebar } from '@/components/ui/ChatSidebar';
 import { useContextActionMenu } from '@/components/ui/useContextActionMenu';
 import { Icon } from '@/components/ui/Icon';
 import { AnimationPickerMenu } from '@/components/ui/AnimationPickerMenu';
 import { SLIDE_ANIMATIONS, DEFAULT_SLIDE_ANIMATION, SlideAnimationId } from '@/lib/slideAnimations';
 import { DRAG_KEYS_BY_TEMPLATE } from '@/lib/dragKeys';
-import { pushAtPath, removeAtPath, setAtPath } from '@/lib/dataPath';
+import { getAtPath, pushAtPath, removeAtPath, setAtPath } from '@/lib/dataPath';
+import { resolveRemovableRow } from '@/lib/removableLists';
 import { sampleSlides } from '@/lib/sample-slides';
 import { createSlide } from '@/lib/slide-templates';
 import { RENDERERS } from '@/components/slides';
@@ -120,8 +123,11 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
       let next = [...slidesRef.current];
       let targetId = activeIdRef.current;
 
-      function patchTarget(fn: (s: Slide) => Slide) {
-        next = next.map((s) => (s.id === targetId ? fn(s) : s));
+      function patchTarget(slideIndex: number | undefined, fn: (s: Slide) => Slide) {
+        const id = slideIndex != null ? next[slideIndex]?.id : undefined;
+        if (slideIndex != null && id == null) return; // stale/out-of-range index; ignore
+        const applyToId = id ?? targetId;
+        next = next.map((s) => (s.id === applyToId ? fn(s) : s));
       }
 
       for (const action of actions) {
@@ -138,13 +144,13 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
             next = reordered;
           }
         } else if (action.kind === 'setField') {
-          patchTarget((s) => ({ ...s, data: setAtPath(s.data as object, action.path, action.value) } as Slide));
+          patchTarget(action.slideIndex, (s) => ({ ...s, data: setAtPath(s.data as object, action.path, action.value) } as Slide));
         } else if (action.kind === 'addListItem') {
-          patchTarget((s) => ({ ...s, data: pushAtPath(s.data as object, action.listPath, action.item) } as Slide));
+          patchTarget(action.slideIndex, (s) => ({ ...s, data: pushAtPath(s.data as object, action.listPath, action.item) } as Slide));
         } else if (action.kind === 'removeListItem') {
-          patchTarget((s) => ({ ...s, data: removeAtPath(s.data as object, action.listPath, action.index) } as Slide));
+          patchTarget(action.slideIndex, (s) => ({ ...s, data: removeAtPath(s.data as object, action.listPath, action.index) } as Slide));
         } else if (action.kind === 'moveBlock') {
-          patchTarget((s) => {
+          patchTarget(action.slideIndex, (s) => {
             const current = { ...(s.layoutOverrides ?? {}) };
             const base = current[action.dragKey] ?? { dx: 0, dy: 0 };
             current[action.dragKey] = { dx: base.dx + action.dx, dy: base.dy + action.dy };
@@ -161,15 +167,127 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
 
   const clipboard = useSlideBlockClipboard();
 
+  function isInsideEditableField(target: EventTarget | null) {
+    return target instanceof HTMLElement && !!target.closest('[contenteditable="true"]');
+  }
+
+  /** Same as updateLayoutOffset, but applies a distinct offset to several keys at once —
+   *  used by group-drag so a multi-selection moves as a rigid body in one history step. */
+  const updateLayoutOffsetMany = useCallback(
+    (entries: { key: string; offset: LayoutOffset }[]) => {
+      if (!entries.length) return;
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeId) return s;
+          const current = { ...(s.layoutOverrides ?? {}) };
+          for (const { key, offset } of entries) current[key] = offset;
+          return { ...s, layoutOverrides: current };
+        })
+      );
+    },
+    [activeId, pushHistory]
+  );
+
+  /** Same as updateBlockAnimation, but applies the same animation to several keys at once. */
+  const updateBlockAnimationMany = useCallback(
+    (keys: string[], animation: BlockAnimationId) => {
+      if (!keys.length) return;
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeId) return s;
+          const current = { ...(s.blockAnimations ?? {}) };
+          for (const key of keys) current[key] = animation;
+          return { ...s, blockAnimations: current };
+        })
+      );
+    },
+    [activeId, pushHistory]
+  );
+
+  /** Delete/Backspace (or the "Deletar" context menu action) on a multi-selection: dragKeys that
+   *  resolve to a removable list row (via REMOVABLE_LISTS_BY_TEMPLATE) are removed from the
+   *  slide's `data` for real; dragKeys that don't resolve (fixed blocks like "title") fall back to
+   *  resetting their layout/animation/style overrides to template defaults — a dragKey doesn't
+   *  map to removable content in general (it can be a whole section like "title"), so there's no
+   *  safe generic way to delete those blocks' content without touching every slide template.
+   *  Single pushHistory() for the whole operation, so one Ctrl+Z undoes it all at once regardless
+   *  of the mix. */
+  const removeSelectedListItems = useCallback(
+    (keys: string[]) => {
+      if (!keys.length) return;
+      const activeSlide = slidesRef.current.find((s) => s.id === activeIdRef.current);
+      if (!activeSlide) return;
+
+      const byList = new Map<string, { index: number; minLength?: number }[]>();
+      const fixedKeys: string[] = [];
+      for (const key of keys) {
+        const resolved = resolveRemovableRow(activeSlide.template, key);
+        if (resolved) {
+          const list = byList.get(resolved.listPath) ?? [];
+          list.push({ index: resolved.index, minLength: resolved.minLength });
+          byList.set(resolved.listPath, list);
+        } else {
+          fixedKeys.push(key);
+        }
+      }
+      if (!byList.size && !fixedKeys.length) return;
+
+      pushHistory();
+      setSlides((prev) =>
+        prev.map((s) => {
+          if (s.id !== activeIdRef.current) return s;
+          let data: object = s.data as object;
+
+          // Remove highest-index-first per list so removing one row doesn't shift the index of
+          // another row still pending removal in the same operation.
+          for (const [listPath, entries] of byList) {
+            const minLength = entries.find((e) => e.minLength != null)?.minLength;
+            const sortedIndices = [...new Set(entries.map((e) => e.index))].sort((a, b) => b - a);
+            for (const index of sortedIndices) {
+              const current = getAtPath(data, listPath);
+              if (!Array.isArray(current)) continue;
+              if (minLength != null && current.length <= minLength) break;
+              data = removeAtPath(data, listPath, index);
+            }
+          }
+
+          const layoutOverrides = { ...(s.layoutOverrides ?? {}) };
+          const blockAnimations = { ...(s.blockAnimations ?? {}) };
+          const styleOverrides = { ...(s.styleOverrides ?? {}) };
+          // Fixed (non-removable) selected blocks fall back to reset-to-default — see this
+          // function's doc comment for why reset, not delete, is the safe default here.
+          for (const key of fixedKeys) {
+            delete layoutOverrides[key];
+            delete blockAnimations[key];
+            for (const path of Object.keys(styleOverrides)) {
+              if (path === key || path.startsWith(`${key}.`)) delete styleOverrides[path];
+            }
+          }
+          // Removed row dragKeys no longer refer to a valid row after removal — clear their
+          // layout/animation overrides too. Note: styleOverrides/answerFields of rows AFTER the
+          // removed one can end up pointing at the wrong index post-removal — this is a
+          // pre-existing issue (removeRow in each template already shifts indices the same way
+          // without adjusting overrides), not introduced by this function.
+          for (const key of keys) {
+            delete layoutOverrides[key];
+            delete blockAnimations[key];
+          }
+
+          return { ...s, data: data as Slide['data'], layoutOverrides, blockAnimations, styleOverrides };
+        })
+      );
+    },
+    [pushHistory]
+  );
+
   useEffect(() => {
-    function isInsideEditableField(target: EventTarget | null) {
-      return target instanceof HTMLElement && !!target.closest('[contenteditable="true"]');
-    }
     function onCopyPasteKey(e: KeyboardEvent) {
       if (!(e.ctrlKey || e.metaKey)) return;
       const key = e.key.toLowerCase();
       if (key === 'c') {
-        if (!clipboard.selected || isInsideEditableField(e.target) || !stageRef.current) return;
+        if (!clipboard.selection.length || isInsideEditableField(e.target) || !stageRef.current) return;
         e.preventDefault();
         clipboard.copySelected(stageRef.current);
       } else if (key === 'v') {
@@ -181,6 +299,21 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
     window.addEventListener('keydown', onCopyPasteKey);
     return () => window.removeEventListener('keydown', onCopyPasteKey);
   }, [clipboard, addPastedBlock]);
+
+  // Delete/Backspace on a multi-selection of blocks removes selected list rows for real and
+  // resets any other selected (fixed) blocks to template defaults — guarded the same way as
+  // copy/paste so it never fires while the teacher is actually editing/deleting text inside a
+  // contentEditable field.
+  useEffect(() => {
+    function onDeleteKey(e: KeyboardEvent) {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if (isInsideEditableField(e.target) || clipboard.selectedKeys.size === 0) return;
+      e.preventDefault();
+      clipboard.removeSelection();
+    }
+    window.addEventListener('keydown', onDeleteKey);
+    return () => window.removeEventListener('keydown', onDeleteKey);
+  }, [clipboard]);
 
   const [scale, setScale] = useState(0.6);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -196,12 +329,40 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
   const [addSlideMenu, setAddSlideMenu] = useState<{ x: number; y: number } | null>(null);
   const stageWrapRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const [stageOverlayEl, setStageOverlayEl] = useState<HTMLDivElement | null>(null);
   const pptxInputRef = useRef<HTMLInputElement>(null);
   const htmlInputRef = useRef<HTMLInputElement>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
 
   const active = slides.find((s) => s.id === activeId)!;
   const idx = slides.findIndex((s) => s.id === activeId);
+
+  // Feeds the Context the data/functions it needs to compute and commit a group drag or a
+  // mass animation change, without the Context itself owning slide state — same "registration
+  // via effect" pattern as StageOverlayProvider/useStageOverlayEl elsewhere in this file.
+  useEffect(() => {
+    clipboard.registerLayoutSource(active.layoutOverrides ?? {}, updateLayoutOffsetMany);
+  }, [clipboard, active.layoutOverrides, updateLayoutOffsetMany]);
+
+  useEffect(() => {
+    clipboard.registerAnimationApplier(updateBlockAnimationMany);
+  }, [clipboard, updateBlockAnimationMany]);
+
+  useEffect(() => {
+    clipboard.registerRemover(removeSelectedListItems);
+  }, [clipboard, removeSelectedListItems]);
+
+  useEffect(() => {
+    clipboard.registerStageEl(stageRef.current);
+  });
+
+  // Selection is stored above the stage (doesn't remount on slide change), so it needs to be
+  // cleared explicitly when switching slides — otherwise a block selected on the previous slide
+  // would appear "selected" on the new one despite no matching dragKey being rendered there.
+  useEffect(() => {
+    clipboard.clearSelection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
 
   const updateActiveData = useCallback(
     (patch: Record<string, unknown>) => {
@@ -517,10 +678,20 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
         </div>
         <div className="actions">
           {partApiUrl && (
-            <span className="save-status">{saving ? 'Salvando…' : dirty ? 'Alterações não salvas' : '✓ Salvo'}</span>
+            <span className="save-status">
+              {saving ? (
+                'Salvando…'
+              ) : dirty ? (
+                'Alterações não salvas'
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <Icon name="check" size={14} /> Salvo
+                </span>
+              )}
+            </span>
           )}
           <button className="btn primary" onClick={() => setPresenting(true)}>
-            ▶ Apresentar
+            <Icon name="play_arrow" size={16} /> Apresentar
           </button>
 
           <input
@@ -591,16 +762,6 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
           />
         </div>
       </div>
-
-      <button
-        type="button"
-        className="help-fab"
-        onClick={() => setShowHelp(true)}
-        aria-label="Como testar"
-        title="Como testar"
-      >
-        ?
-      </button>
 
       {breadcrumbHref && (
         <div style={{ background: 'var(--chrome-bg-subtle)', borderBottom: '1px solid var(--chrome-border)', padding: '8px 18px', fontSize: 12.5 }}>
@@ -710,22 +871,27 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
 
         <div className="stage-wrap" ref={stageWrapRef}>
           <div className="stage-scaler" style={{ transform: `scale(${scale})` }}>
-            <div className="stage" ref={stageRef} style={{ position: 'relative' }}>
-              <Renderer
-                data={active.data}
-                editMode
-                onEdit={updateActiveData}
-                answerFields={active.answerFields ?? []}
-                onToggleAnswerField={toggleAnswerField}
-                styleOverrides={active.styleOverrides ?? {}}
-                onStyleFieldChange={updateFieldStyle}
-                layoutOverrides={active.layoutOverrides ?? {}}
-                onLayoutOffsetChange={updateLayoutOffset}
-                blockAnimations={active.blockAnimations ?? {}}
-                onBlockAnimationChange={updateBlockAnimation}
-                stageScale={scale}
-                revealAnswers
-              />
+            <StageOverlayProvider value={stageOverlayEl}>
+              <div className="stage" ref={stageRef} style={{ position: 'relative' }}>
+                <Renderer
+                  data={active.data}
+                  editMode
+                  onEdit={updateActiveData}
+                  answerFields={active.answerFields ?? []}
+                  onToggleAnswerField={toggleAnswerField}
+                  styleOverrides={active.styleOverrides ?? {}}
+                  onStyleFieldChange={updateFieldStyle}
+                  layoutOverrides={active.layoutOverrides ?? {}}
+                  onLayoutOffsetChange={updateLayoutOffset}
+                  blockAnimations={active.blockAnimations ?? {}}
+                  onBlockAnimationChange={updateBlockAnimation}
+                  stageScale={scale}
+                  revealAnswers
+                />
+              </div>
+              <GroupSelectionHandle stageScale={scale} />
+            </StageOverlayProvider>
+            <div className="stage-overlay" ref={setStageOverlayEl}>
               <PastedBlocksLayer
                 blocks={active.pastedBlocks ?? []}
                 editMode
@@ -741,11 +907,21 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
           slideData={active.data}
           template={active.template}
           dragKeys={DRAG_KEYS_BY_TEMPLATE[active.template] ?? []}
-          deckOverview={slides.map((s) => ({ template: s.template }))}
+          deckOverview={slides.map((s) => ({ template: s.template, data: s.data }))}
           activeIndex={idx}
           onApplyActions={applyAiActions}
         />
       </div>
+
+      <button
+        type="button"
+        className="help-fab help-fab-floating"
+        onClick={() => setShowHelp(true)}
+        aria-label="Como testar"
+        title="Como testar"
+      >
+        ?
+      </button>
 
       {showHelp && (
         <div className="modal-overlay" onClick={() => setShowHelp(false)}>
@@ -764,7 +940,8 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
                 <span className="kbd">Ctrl+Z</span> desfaz as últimas alterações.
               </div>
               <div className="hint">
-                <b>Marcar resposta</b>: passe o mouse em qualquer texto editável e clique no ícone 👁 ao lado para
+                <b>Marcar resposta</b>: passe o mouse em qualquer texto editável e clique no ícone{' '}
+                <Icon name="visibility" size={13} style={{ verticalAlign: 'middle' }} /> ao lado para
                 marcar (ou desmarcar) aquele campo como resposta. Na apresentação, respostas marcadas ficam
                 escondidas até o professor avançar.
               </div>

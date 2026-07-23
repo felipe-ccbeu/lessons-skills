@@ -3,6 +3,7 @@
 import { motion } from 'motion/react';
 import type { MouseEvent } from 'react';
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, PollData, PollOptionDraft, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -63,6 +64,7 @@ export function PollSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'poll' as const,
   });
   const styleProps = (key: string) => ({
     styleOverride: styleOverrides[key],
@@ -127,7 +129,7 @@ export function PollSlide({
 
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 260, width: 700 }} {...dragProps('options')}>
           {options.map((opt, i) => (
-            <SlideStaggerItem key={opt.id} disabled={editMode} style={{ marginBottom: 16 }}>
+            <SlideStaggerItem key={opt.id} disabled={editMode} style={{ marginBottom: 16 }} {...dragProps(`options.${i}`)}>
               <PollOptionBar
                 option={opt}
                 editMode={editMode}
@@ -171,7 +173,7 @@ export function PollSlide({
           {!liveResults.qrDataUrl ? (
             onStartVoting && (
               <button type="button" className="btn primary" onClick={onStartVoting}>
-                ▶ Iniciar votação
+                <Icon name="play_arrow" size={15} /> Iniciar votação
               </button>
             )
           ) : (
@@ -299,7 +301,7 @@ function PollOptionBar({
       {editMode && onRemove && (
         <div className="row-controls">
           <button type="button" className="row-btn remove" title="Remover opção" onClick={onRemove}>
-            ✕
+            <Icon name="close" size={14} />
           </button>
         </div>
       )}

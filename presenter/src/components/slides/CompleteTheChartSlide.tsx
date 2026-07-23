@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, CompleteTheChartData, CompleteTheChartGroup, CompleteTheChartRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -45,6 +46,7 @@ export function CompleteTheChartSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'completeTheChart' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -114,48 +116,49 @@ export function CompleteTheChartSlide({
           />
         </div>
         {group.rows.map((row, i) => (
-          <div
-            key={i}
-            className="ex-row"
-            style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              height: ROW_H,
-              padding: '0 16px',
-              boxSizing: 'border-box',
-              background: i % 2 === 0 ? '#fff' : 'var(--surface-zebra, #f5f7fa)',
-              fontFamily: 'var(--font-body)',
-              fontSize: '11pt',
-              color: 'var(--ink)',
-            }}
-            onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(groupKey, i)) : undefined}
-          >
-            <Editable
-              value={row.sentence}
-              onChange={(v) => updateRow(groupKey, i, { sentence: v })}
-              editMode={editMode}
-              tag="span"
-              {...answerProps(`${groupKey}.rows.${i}.sentence`)}
-            />
-            <span>&nbsp;(=&nbsp;</span>
-            <Editable
-              value={row.answer}
-              onChange={(v) => updateRow(groupKey, i, { answer: v })}
-              editMode={editMode}
-              tag="span"
-              {...answerProps(`${groupKey}.rows.${i}.answer`)}
-              style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
-            />
-            <span>)</span>
-            {editMode && (
-              <div className="row-controls">
-                <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(groupKey, i)}>
-                  ✕
-                </button>
-              </div>
-            )}
-          </div>
+          <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`${groupKey}.rows.${i}`)}>
+            <div
+              className="ex-row"
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                height: ROW_H,
+                padding: '0 16px',
+                boxSizing: 'border-box',
+                background: i % 2 === 0 ? '#fff' : 'var(--surface-zebra, #f5f7fa)',
+                fontFamily: 'var(--font-body)',
+                fontSize: '11pt',
+                color: 'var(--ink)',
+              }}
+              onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(groupKey, i)) : undefined}
+            >
+              <Editable
+                value={row.sentence}
+                onChange={(v) => updateRow(groupKey, i, { sentence: v })}
+                editMode={editMode}
+                tag="span"
+                {...answerProps(`${groupKey}.rows.${i}.sentence`)}
+              />
+              <span>&nbsp;(=&nbsp;</span>
+              <Editable
+                value={row.answer}
+                onChange={(v) => updateRow(groupKey, i, { answer: v })}
+                editMode={editMode}
+                tag="span"
+                {...answerProps(`${groupKey}.rows.${i}.answer`)}
+                style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
+              />
+              <span>)</span>
+              {editMode && (
+                <div className="row-controls">
+                  <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(groupKey, i)}>
+                    <Icon name="close" size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </SlideStaggerItem>
         ))}
         {editMode && (
           <button type="button" className="add-row-btn" style={{ margin: 10 }} onClick={() => addRow(groupKey)}>

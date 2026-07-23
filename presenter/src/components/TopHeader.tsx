@@ -71,14 +71,24 @@ export function TopHeader({ user }: { user?: HeaderUser }) {
                 </div>
               )}
               {user?.role === 'ADMIN' && (
-                <Link
-                  href="/admin/users"
-                  onClick={() => setOpen(false)}
-                  role="menuitem"
-                  className="block px-3.5 py-2 text-[13px] text-[#1c2027] hover:bg-[#f7f8fa] transition-colors"
-                >
-                  Usuários
-                </Link>
+                <>
+                  <Link
+                    href="/admin/users"
+                    onClick={() => setOpen(false)}
+                    role="menuitem"
+                    className="block px-3.5 py-2 text-[13px] text-[#1c2027] hover:bg-[#f7f8fa] transition-colors"
+                  >
+                    Usuários
+                  </Link>
+                  <Link
+                    href="/admin/ai-usage"
+                    onClick={() => setOpen(false)}
+                    role="menuitem"
+                    className="block px-3.5 py-2 text-[13px] text-[#1c2027] hover:bg-[#f7f8fa] transition-colors"
+                  >
+                    Uso da IA
+                  </Link>
+                </>
               )}
               <div className="px-1.5 pt-1">
                 <SignOutButton className="w-full flex items-center justify-center rounded-lg px-3.5 py-2 text-[13px] text-[#c81e3a] hover:bg-[#fdecef] transition-colors" />

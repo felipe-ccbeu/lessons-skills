@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
@@ -44,6 +45,7 @@ export function PhotoGridBlankSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'photoGridBlank' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -117,7 +119,7 @@ export function PhotoGridBlankSlide({
           {...dragProps('items')}
         >
           {items.map((item, i) => (
-            <SlideStaggerItem key={i} disabled={editMode} style={{ width: 260 }}>
+            <SlideStaggerItem key={i} disabled={editMode} style={{ width: 260 }} {...dragProps(`items.${i}`)}>
               <div
                 style={{ position: 'relative', display: 'flex', flexDirection: 'column', width: 260 }}
                 onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeItem(i)) : undefined}
@@ -152,7 +154,7 @@ export function PhotoGridBlankSlide({
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover item" onClick={() => removeItem(i)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </div>
                 )}

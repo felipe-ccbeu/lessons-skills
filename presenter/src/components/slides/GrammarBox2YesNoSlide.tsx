@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
@@ -51,6 +52,7 @@ export function GrammarBox2YesNoSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'grammarBox2YesNo' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -155,60 +157,61 @@ export function GrammarBox2YesNoSlide({
             </div>
           </div>
           {rows.map((row, i) => (
-            <div
-              key={i}
-              className="ex-row"
-              style={{ position: 'relative', display: 'flex', alignItems: 'center', background: i % 2 === 0 ? '#fff' : 'var(--chrome-bg-subtle)' }}
-              onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
-            >
-              <Editable
-                value={row.subject}
-                onChange={(v) => updateRow(i, { subject: v })}
-                editMode={editMode}
-                {...answerProps(`rows.${i}.subject`)}
-                style={{ flex: '0 0 15%', padding: '7px 14px', fontSize: `${fontPt}pt`, color: 'var(--ink)' }}
-              />
-              <div style={{ flex: '1 1 auto', padding: '7px 14px', display: 'flex', gap: 4, flexWrap: 'wrap', fontSize: `${fontPt}pt`, color: 'var(--ink)' }}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`grammarBox.rows.${i}`)}>
+              <div
+                className="ex-row"
+                style={{ position: 'relative', display: 'flex', alignItems: 'center', background: i % 2 === 0 ? '#fff' : 'var(--chrome-bg-subtle)' }}
+                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
+              >
                 <Editable
-                  value={row.qHl}
-                  onChange={(v) => updateRow(i, { qHl: v })}
+                  value={row.subject}
+                  onChange={(v) => updateRow(i, { subject: v })}
                   editMode={editMode}
-                  tag="span"
-                  {...answerProps(`rows.${i}.qHl`)}
-                  style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
+                  {...answerProps(`rows.${i}.subject`)}
+                  style={{ flex: '0 0 15%', padding: '7px 14px', fontSize: `${fontPt}pt`, color: 'var(--ink)' }}
                 />
-                <Editable value={row.qPost} onChange={(v) => updateRow(i, { qPost: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.qPost`)} />
-              </div>
-              <div style={{ flex: '0 0 40%', padding: '7px 14px', display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'baseline', fontSize: `${fontPt}pt`, color: 'var(--ink)' }}>
-                <Editable value={row.aPre} onChange={(v) => updateRow(i, { aPre: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.aPre`)} />
-                <Editable
-                  value={row.aYes}
-                  onChange={(v) => updateRow(i, { aYes: v })}
-                  editMode={editMode}
-                  tag="span"
-                  {...answerProps(`rows.${i}.aYes`)}
-                  style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
-                />
-                <span>. /</span>
-                <Editable value={row.aMid} onChange={(v) => updateRow(i, { aMid: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.aMid`)} />
-                <Editable
-                  value={row.aNo}
-                  onChange={(v) => updateRow(i, { aNo: v })}
-                  editMode={editMode}
-                  tag="span"
-                  {...answerProps(`rows.${i}.aNo`)}
-                  style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
-                />
-                <span>.</span>
-              </div>
-              {editMode && (
-                <div className="row-controls">
-                  <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
-                    ✕
-                  </button>
+                <div style={{ flex: '1 1 auto', padding: '7px 14px', display: 'flex', gap: 4, flexWrap: 'wrap', fontSize: `${fontPt}pt`, color: 'var(--ink)' }}>
+                  <Editable
+                    value={row.qHl}
+                    onChange={(v) => updateRow(i, { qHl: v })}
+                    editMode={editMode}
+                    tag="span"
+                    {...answerProps(`rows.${i}.qHl`)}
+                    style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
+                  />
+                  <Editable value={row.qPost} onChange={(v) => updateRow(i, { qPost: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.qPost`)} />
                 </div>
-              )}
-            </div>
+                <div style={{ flex: '0 0 40%', padding: '7px 14px', display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'baseline', fontSize: `${fontPt}pt`, color: 'var(--ink)' }}>
+                  <Editable value={row.aPre} onChange={(v) => updateRow(i, { aPre: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.aPre`)} />
+                  <Editable
+                    value={row.aYes}
+                    onChange={(v) => updateRow(i, { aYes: v })}
+                    editMode={editMode}
+                    tag="span"
+                    {...answerProps(`rows.${i}.aYes`)}
+                    style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
+                  />
+                  <span>. /</span>
+                  <Editable value={row.aMid} onChange={(v) => updateRow(i, { aMid: v })} editMode={editMode} tag="span" {...answerProps(`rows.${i}.aMid`)} />
+                  <Editable
+                    value={row.aNo}
+                    onChange={(v) => updateRow(i, { aNo: v })}
+                    editMode={editMode}
+                    tag="span"
+                    {...answerProps(`rows.${i}.aNo`)}
+                    style={{ fontWeight: 700, color: 'var(--ccbeu-pink)' }}
+                  />
+                  <span>.</span>
+                </div>
+                {editMode && (
+                  <div className="row-controls">
+                    <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
+                      <Icon name="close" size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </SlideStaggerItem>
           ))}
         </SlideStaggerItem>
         {editMode && (

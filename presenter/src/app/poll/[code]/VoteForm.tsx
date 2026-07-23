@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Icon } from '@/components/ui/Icon';
 
 type Option = { id: string; label: string };
 type Props = { code: string; question: string; options: Option[] };
@@ -41,7 +42,9 @@ export function VoteForm({ code, question, options }: Props) {
   if (status === 'voted') {
     return (
       <main style={styles.main}>
-        <p style={styles.confirmation}>✓ Voto registrado.</p>
+        <p style={styles.confirmation}>
+          <Icon name="check" size={16} style={{ verticalAlign: 'middle' }} /> Voto registrado.
+        </p>
         <p style={styles.confirmationHint}>Olhe o telão para ver o resultado ao vivo.</p>
       </main>
     );

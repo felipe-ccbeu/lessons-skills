@@ -4,18 +4,24 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from '@/components/ui/Icon';
 
-const MENU_WIDTH = 180;
-const MENU_HEIGHT = 60;
+const MENU_WIDTH = 200;
+const MENU_HEIGHT = 100;
 
 type Props = {
   x: number;
   y: number;
-  label: string;
-  onRemove: () => void;
+  /** Omitted when nothing in the current selection resolves to a removable list row. */
+  deleteLabel?: string;
+  onDelete?: () => void;
+  onChangeAnimation: () => void;
   onClose: () => void;
 };
 
-export function RemoveItemMenu({ x, y, label, onRemove, onClose }: Props) {
+/** Right-click menu for a selected block (or multi-selection): offers "Deletar" (only when the
+ *  selection includes at least one removable list row) and "Mudar animação" (always, opens
+ *  AnimationPickerMenu — kept as a separate full-screen modal rather than folded in here, since
+ *  it's a gallery of previews, not a quick action). Same shell/behavior as RemoveItemMenu. */
+export function SlideBlockContextMenu({ x, y, deleteLabel, onDelete, onChangeAnimation, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const effectiveHeight = Math.min(MENU_HEIGHT, window.innerHeight - 16);
   const pos = {
@@ -40,16 +46,30 @@ export function RemoveItemMenu({ x, y, label, onRemove, onClose }: Props) {
 
   return createPortal(
     <div ref={ref} className="text-ctx-menu" style={{ ...pos, width: MENU_WIDTH, gap: 0, padding: 6 }} onContextMenu={(e) => e.preventDefault()}>
+      {onDelete && (
+        <button
+          type="button"
+          className="remove-item-menu-btn destructive"
+          onClick={() => {
+            onDelete();
+            onClose();
+          }}
+        >
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Icon name="close" size={14} /> {deleteLabel ?? 'Deletar'}
+          </span>
+        </button>
+      )}
       <button
         type="button"
-        className="remove-item-menu-btn destructive"
+        className="remove-item-menu-btn"
         onClick={() => {
-          onRemove();
+          onChangeAnimation();
           onClose();
         }}
       >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <Icon name="close" size={14} /> {label}
+          <Icon name="auto_awesome" size={14} /> Mudar animação
         </span>
       </button>
     </div>,

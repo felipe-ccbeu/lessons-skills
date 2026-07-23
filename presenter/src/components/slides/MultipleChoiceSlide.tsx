@@ -1,5 +1,6 @@
 import { MouseEvent } from 'react';
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, MultipleChoiceData, MultipleChoiceOptionDraft, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -49,6 +50,7 @@ export function MultipleChoiceSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'multipleChoice' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -119,7 +121,7 @@ export function MultipleChoiceSlide({
 
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 290, width: 1000 }} {...dragProps('options')}>
           {options.map((opt, i) => (
-            <SlideStaggerItem key={opt.id} disabled={editMode} style={{ marginBottom: 14 }}>
+            <SlideStaggerItem key={opt.id} disabled={editMode} style={{ marginBottom: 14 }} {...dragProps(`options.${i}`)}>
               <MultipleChoiceOption
                 letter={LETTERS[i] ?? '?'}
                 option={opt}
@@ -197,7 +199,7 @@ function MultipleChoiceOption({ letter, option, editMode, onChangeText, onRemove
       {editMode && onRemove && (
         <div className="row-controls" style={{ position: 'static', opacity: 1 }}>
           <button type="button" className="row-btn remove" title="Remover alternativa" onClick={onRemove}>
-            ✕
+            <Icon name="close" size={14} />
           </button>
         </div>
       )}

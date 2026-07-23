@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
@@ -51,6 +52,7 @@ export function MatchLettersSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'matchLetters' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -129,7 +131,7 @@ export function MatchLettersSlide({
 
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 700, top: 172, width: 500 }} {...dragProps('rows')}>
           {rows.map((row, i) => (
-            <SlideStaggerItem key={i} disabled={editMode}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`rows.${i}`)}>
               <div
                 className="ex-row"
                 style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: rowH }}
@@ -152,7 +154,7 @@ export function MatchLettersSlide({
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </div>
                 )}

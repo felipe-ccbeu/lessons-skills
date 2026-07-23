@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, ChangePlacesData, ChangePlacesRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -47,6 +48,7 @@ export function ChangePlacesSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'changePlaces' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -157,7 +159,7 @@ export function ChangePlacesSlide({
               {editMode && (
                 <div className="row-controls" style={{ right: -34 }}>
                   <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
-                    ✕
+                    <Icon name="close" size={14} />
                   </button>
                 </div>
               )}

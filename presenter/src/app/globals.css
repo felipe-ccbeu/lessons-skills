@@ -90,6 +90,9 @@ body {
   font-size: 12.5px;
   cursor: pointer;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .btn:hover {
   background: var(--chrome-bg-subtle);
@@ -135,9 +138,6 @@ body {
 }
 
 .help-fab {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
   width: 42px;
   height: 42px;
   border-radius: 999px;
@@ -148,13 +148,18 @@ body {
   font-weight: 700;
   box-shadow: 0 6px 18px rgba(20, 24, 33, 0.22);
   cursor: pointer;
-  z-index: 900;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .help-fab:hover {
   background: #0339b3;
+}
+.help-fab-floating {
+  position: fixed;
+  right: 344px;
+  bottom: 24px;
+  z-index: 40;
 }
 
 .body-row {
@@ -377,9 +382,30 @@ body {
   transform-origin: center;
 }
 .stage-scaler {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.stage-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.stage-overlay > * {
+  pointer-events: auto;
+}
+
+.selection-portal-anchor {
+  pointer-events: none;
+  outline: 2px solid var(--ccbeu-blue);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.selection-portal-anchor .drag-handle {
+  pointer-events: auto;
 }
 
 /* editable affordances */
@@ -507,7 +533,7 @@ body {
 .drag-handle {
   position: absolute;
   left: 50%;
-  bottom: -14px;
+  bottom: -38px;
   transform: translateX(-50%);
   width: 28px;
   height: 28px;

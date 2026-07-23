@@ -1,4 +1,5 @@
 import { Editable } from '@/components/ui/Editable';
+import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride, WarmupOralTransformData, WarmupOralTransformRow } from '@/lib/types';
@@ -43,6 +44,7 @@ export function WarmupOralTransformSlide({
     stageScale,
     blockAnimation: blockAnimations[key],
     onBlockAnimationChange,
+    template: 'warmupOralTransform' as const,
   });
   const answerProps = (key: string) => ({
     answer: answerFields.includes(key),
@@ -124,7 +126,7 @@ export function WarmupOralTransformSlide({
 
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 270, width: 500 }} {...dragProps('rows')}>
           {rows.map((row, i) => (
-            <SlideStaggerItem key={i} disabled={editMode}>
+            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`rows.${i}`)}>
               <div
                 style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 16 }}
                 onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
@@ -162,7 +164,7 @@ export function WarmupOralTransformSlide({
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </div>
                 )}
