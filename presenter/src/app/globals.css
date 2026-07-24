@@ -448,6 +448,13 @@ body {
   outline-offset: 4px;
   border-radius: 4px;
 }
+.guide-line {
+  position: absolute;
+  background: var(--ccbeu-pink);
+  pointer-events: none;
+  z-index: 9998;
+}
+
 .selection-portal-anchor .drag-handle {
   pointer-events: auto;
 }

@@ -7,6 +7,7 @@ import { SlideBlockClipboardProvider, useSlideBlockClipboard } from '@/component
 import { GroupSelectionHandle } from '@/components/ui/SlideStagger';
 import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
 import { StageOverlayProvider } from '@/components/ui/StageOverlay';
+import { AlignmentGuidesOverlay } from '@/components/ui/AlignmentGuidesOverlay';
 import { ChatSidebar } from '@/components/ui/ChatSidebar';
 import { useContextActionMenu } from '@/components/ui/useContextActionMenu';
 import { Icon } from '@/components/ui/Icon';
@@ -912,6 +913,7 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
                 onUpdate={updatePastedBlock}
                 onRemove={removePastedBlock}
               />
+              <AlignmentGuidesOverlay />
             </div>
           </div>
         </div>

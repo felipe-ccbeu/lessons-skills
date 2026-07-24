@@ -6,6 +6,7 @@ import { motion, Variants } from 'motion/react';
 import { LayoutOffset, SlideTemplate } from '@/lib/types';
 import { useSlideBlockClipboard } from '@/components/ui/SlideBlockClipboard';
 import { useStageOverlayEl } from '@/components/ui/StageOverlay';
+import { computeAlignmentGuides, measureOtherBlockRects } from '@/lib/alignmentGuides';
 import { Icon } from '@/components/ui/Icon';
 import { AnimationPickerMenu } from '@/components/ui/AnimationPickerMenu';
 import { SlideBlockContextMenu } from '@/components/ui/SlideBlockContextMenu';
@@ -133,20 +134,54 @@ export function SlideStaggerItem({
     e.preventDefault();
     e.stopPropagation();
     dragStateRef.current = { startX: e.clientX, startY: e.clientY };
+
+    // Measure the block's own stage-space rect and every other block's, once, at drag start —
+    // used to compute alignment guides (and the snap correction) on each move.
+    const stageEl = clipboard.stageEl;
+    const startRect = wrapperRef.current?.getBoundingClientRect() ?? null;
+    const stageRect = stageEl?.getBoundingClientRect() ?? null;
+    const scale = stageEl && stageRect ? stageRect.width / stageEl.offsetWidth || 1 : 1;
+    const ownStageRect =
+      startRect && stageRect
+        ? {
+            left: (startRect.left - stageRect.left) / scale,
+            top: (startRect.top - stageRect.top) / scale,
+            width: startRect.width / scale,
+            height: startRect.height / scale,
+          }
+        : null;
+    const roots = [stageEl, stageOverlayEl].filter((el): el is HTMLElement => !!el);
+    const others = stageEl && dragKey ? measureOtherBlockRects(stageEl, [dragKey], roots) : [];
+
     const onMove = (ev: PointerEvent) => {
       if (!dragStateRef.current) return;
       const dx = (ev.clientX - dragStateRef.current.startX) / stageScale;
       const dy = (ev.clientY - dragStateRef.current.startY) / stageScale;
-      setDragOffset({ dx: base.dx + dx, dy: base.dy + dy });
+
+      if (ownStageRect) {
+        const draggedRect = { left: ownStageRect.left + dx, top: ownStageRect.top + dy, width: ownStageRect.width, height: ownStageRect.height };
+        const { lines, snapDx, snapDy } = computeAlignmentGuides(draggedRect, others, { width: 1280, height: 720 });
+        clipboard.setActiveGuides(lines);
+        setDragOffset({ dx: base.dx + dx + snapDx, dy: base.dy + dy + snapDy });
+      } else {
+        setDragOffset({ dx: base.dx + dx, dy: base.dy + dy });
+      }
     };
     const onUp = (ev: PointerEvent) => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      clipboard.setActiveGuides([]);
       if (dragStateRef.current) {
         const dx = (ev.clientX - dragStateRef.current.startX) / stageScale;
         const dy = (ev.clientY - dragStateRef.current.startY) / stageScale;
         dragStateRef.current = null;
-        onLayoutOffsetChange!(dragKey!, { dx: base.dx + dx, dy: base.dy + dy });
+        let snapDx = 0;
+        let snapDy = 0;
+        if (ownStageRect) {
+          const draggedRect = { left: ownStageRect.left + dx, top: ownStageRect.top + dy, width: ownStageRect.width, height: ownStageRect.height };
+          ({ snapDx, snapDy } = computeAlignmentGuides(draggedRect, others, { width: 1280, height: 720 }));
+        }
+        onLayoutOffsetChange!(dragKey!, { dx: base.dx + dx + snapDx, dy: base.dy + dy + snapDy });
       }
       setDragOffset(null);
     };
@@ -159,6 +194,7 @@ export function SlideStaggerItem({
     return (
       <div
         ref={wrapperRef}
+        data-drag-key={dragKey}
         style={{
           ...style,
           ...offsetStyle,
@@ -331,20 +367,41 @@ export function GroupSelectionHandle({ stageScale = 1 }: { stageScale?: number }
     e.preventDefault();
     e.stopPropagation();
     dragStateRef.current = { startX: e.clientX, startY: e.clientY };
+
+    const stageEl = clipboard.stageEl;
+    const roots = [stageEl, stageOverlayEl].filter((el): el is HTMLElement => !!el);
+    const excludeKeys = clipboard.selection.map((s) => s.dragKey);
+    const others = stageEl ? measureOtherBlockRects(stageEl, excludeKeys, roots) : [];
+    const baseRect = rect;
+
     const onMove = (ev: PointerEvent) => {
       if (!dragStateRef.current) return;
       const dx = (ev.clientX - dragStateRef.current.startX) / stageScale;
       const dy = (ev.clientY - dragStateRef.current.startY) / stageScale;
-      clipboard.setGroupDragDelta({ dx, dy });
+      if (baseRect) {
+        const draggedRect = { left: baseRect.left + dx, top: baseRect.top + dy, width: baseRect.width, height: baseRect.height };
+        const { lines, snapDx, snapDy } = computeAlignmentGuides(draggedRect, others, { width: 1280, height: 720 });
+        clipboard.setActiveGuides(lines);
+        clipboard.setGroupDragDelta({ dx: dx + snapDx, dy: dy + snapDy });
+      } else {
+        clipboard.setGroupDragDelta({ dx, dy });
+      }
     };
     const onUp = (ev: PointerEvent) => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      clipboard.setActiveGuides([]);
       if (dragStateRef.current) {
         const dx = (ev.clientX - dragStateRef.current.startX) / stageScale;
         const dy = (ev.clientY - dragStateRef.current.startY) / stageScale;
         dragStateRef.current = null;
-        clipboard.commitGroupDrag({ dx, dy });
+        let snapDx = 0;
+        let snapDy = 0;
+        if (baseRect) {
+          const draggedRect = { left: baseRect.left + dx, top: baseRect.top + dy, width: baseRect.width, height: baseRect.height };
+          ({ snapDx, snapDy } = computeAlignmentGuides(draggedRect, others, { width: 1280, height: 720 }));
+        }
+        clipboard.commitGroupDrag({ dx: dx + snapDx, dy: dy + snapDy });
       }
     };
     window.addEventListener('pointermove', onMove);

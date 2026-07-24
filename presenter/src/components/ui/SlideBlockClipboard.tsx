@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PastedBlock, LayoutOffset } from '@/lib/types';
 import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
+import { GuideLine } from '@/lib/alignmentGuides';
 
 type SelectedEntry = { dragKey: string; el: HTMLElement };
 
@@ -33,6 +34,11 @@ type Ctx = {
    *  handle to convert selected blocks' screen rects into stage-space coordinates. */
   registerStageEl: (el: HTMLElement | null) => void;
   stageEl: HTMLElement | null;
+
+  /** Smart-guide lines to draw over the stage right now (empty while nothing is being dragged
+   *  near an alignment match) — set by whichever drag handler is currently active. */
+  activeGuides: GuideLine[];
+  setActiveGuides: (lines: GuideLine[]) => void;
 
   /** Registered by PresenterApp so the Context can compute/commit group-drag positions without owning slide state. */
   registerLayoutSource: (layoutOverrides: Record<string, LayoutOffset>, onChangeMany: (entries: LayoutOffsetEntry[]) => void) => void;
@@ -67,6 +73,7 @@ export function SlideBlockClipboardProvider({ children }: { children: React.Reac
   const [hasClipboard, setHasClipboard] = useState(false);
   const [stageEl, setStageEl] = useState<HTMLElement | null>(null);
   const registerStageEl = useCallback((el: HTMLElement | null) => setStageEl(el), []);
+  const [activeGuides, setActiveGuides] = useState<GuideLine[]>([]);
   const layoutSourceRef = useRef<{ layoutOverrides: Record<string, LayoutOffset>; onChangeMany: (entries: LayoutOffsetEntry[]) => void } | null>(null);
   const animationApplierRef = useRef<((keys: string[], animation: BlockAnimationId) => void) | null>(null);
   const removerRef = useRef<((keys: string[]) => void) | null>(null);
@@ -191,6 +198,8 @@ export function SlideBlockClipboardProvider({ children }: { children: React.Reac
       commitGroupDrag,
       registerStageEl,
       stageEl,
+      activeGuides,
+      setActiveGuides,
       registerLayoutSource,
       registerAnimationApplier,
       applyAnimationToSelection,
@@ -211,6 +220,7 @@ export function SlideBlockClipboardProvider({ children }: { children: React.Reac
       commitGroupDrag,
       registerStageEl,
       stageEl,
+      activeGuides,
       registerLayoutSource,
       registerAnimationApplier,
       applyAnimationToSelection,
