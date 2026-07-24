@@ -13,10 +13,20 @@ type Props = {
   deckOverview: { template: string; data: unknown }[];
   activeIndex: number;
   onApplyActions: (actions: AiSlideAction[]) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
-export function ChatSidebar({ slideData, template, dragKeys, deckOverview, activeIndex, onApplyActions }: Props) {
-  const [open, setOpen] = useState(true);
+export function ChatSidebar({
+  slideData,
+  template,
+  dragKeys,
+  deckOverview,
+  activeIndex,
+  onApplyActions,
+  open,
+  onOpenChange,
+}: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -49,54 +59,54 @@ export function ChatSidebar({ slideData, template, dragKeys, deckOverview, activ
     }
   };
 
-  if (!open) {
-    return (
-      <button type="button" className="chat-sidebar-toggle" onClick={() => setOpen(true)} title="Abrir chat da IA">
-        <Icon name="chat" size={20} style={{ color: '#fff' }} />
-      </button>
-    );
-  }
-
   return (
-    <div className="chat-sidebar">
-      <div className="chat-sidebar-header">
-        <span>Assistente do slide</span>
-        <button type="button" className="chat-sidebar-close" onClick={() => setOpen(false)} aria-label="Fechar">
-          <Icon name="close" size={16} />
-        </button>
-      </div>
-      <div className="chat-sidebar-messages" ref={listRef}>
-        {messages.length === 0 && (
-          <div className="chat-sidebar-empty">
-            Peça pra mudar textos, adicionar/remover itens de listas, gerar e inserir imagens, mover blocos deste
-            slide, criar um novo slide no fim do deck, ou reordenar os slides existentes.
-          </div>
-        )}
-        {messages.map((m, i) => (
-          <div key={i} className={`chat-msg chat-msg-${m.role}`}>
-            {m.content}
-          </div>
-        ))}
-        {sending && <div className="chat-msg chat-msg-assistant chat-msg-pending">Pensando…</div>}
-        {error && <div className="chat-msg chat-msg-error">{error}</div>}
-      </div>
-      <div className="chat-sidebar-input">
-        <textarea
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              send();
-            }
-          }}
-          placeholder="Ex: troque o título por..."
-          rows={2}
-          disabled={sending}
-        />
-        <button type="button" onClick={send} disabled={sending || !draft.trim()}>
-          Enviar
-        </button>
+    <div className={`chat-sidebar-wrap ${open ? '' : 'collapsed'}`}>
+      <button
+        type="button"
+        className="panel-collapse-handle panel-collapse-handle-chat"
+        onClick={() => onOpenChange(!open)}
+        title={open ? 'Ocultar chat da IA' : 'Mostrar chat da IA'}
+        aria-label={open ? 'Ocultar chat da IA' : 'Mostrar chat da IA'}
+      >
+        <Icon name={open ? 'chevron_right' : 'chevron_left'} size={16} />
+      </button>
+      <div className="chat-sidebar" aria-hidden={!open} inert={!open || undefined}>
+        <div className="chat-sidebar-header">
+          <span>Assistente do slide</span>
+        </div>
+        <div className="chat-sidebar-messages" ref={listRef}>
+          {messages.length === 0 && (
+            <div className="chat-sidebar-empty">
+              Peça pra mudar textos, adicionar/remover itens de listas, gerar e inserir imagens, mover blocos deste
+              slide, criar um novo slide no fim do deck, ou reordenar os slides existentes.
+            </div>
+          )}
+          {messages.map((m, i) => (
+            <div key={i} className={`chat-msg chat-msg-${m.role}`}>
+              {m.content}
+            </div>
+          ))}
+          {sending && <div className="chat-msg chat-msg-assistant chat-msg-pending">Pensando…</div>}
+          {error && <div className="chat-msg chat-msg-error">{error}</div>}
+        </div>
+        <div className="chat-sidebar-input">
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            placeholder="Ex: troque o título por..."
+            rows={2}
+            disabled={sending}
+          />
+          <button type="button" onClick={send} disabled={sending || !draft.trim()}>
+            Enviar
+          </button>
+        </div>
       </div>
     </div>
   );
