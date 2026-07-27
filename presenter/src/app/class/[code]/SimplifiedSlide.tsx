@@ -15,6 +15,21 @@ import {
 // Motion, no desktop two-column layouts, just the content that matters per
 // template. The 'poll' template isn't here: it's handled specially by
 // ClassSessionView, which swaps in the reused VoteForm instead.
+//
+// Answer reveal: every view that shows an answer takes a `revealed` prop
+// mirrored from the teacher's overlay (via the class session). Until the
+// teacher reveals — i.e. "passes to the right" — answers render as a blank
+// so the student sees the exercise but not the solution, exactly like the
+// projected slide. `revealed` defaults to true so any caller that doesn't
+// pass it (thumbnails, etc.) still shows the full content.
+
+// An inline answer span: the highlighted solution once revealed, a neutral
+// blank placeholder before that. Keeps the surrounding sentence layout stable
+// so nothing jumps when the teacher reveals.
+function AnswerText({ text, revealed }: { text: string; revealed: boolean }) {
+  if (revealed) return <strong style={{ color: '#fd3682' }}>{text}</strong>;
+  return <span style={styles.answerBlank} aria-label="resposta oculta" />;
+}
 
 export function SectionTransitionSimplified({ data }: { data: SectionTransitionData }) {
   return (
@@ -26,7 +41,7 @@ export function SectionTransitionSimplified({ data }: { data: SectionTransitionD
   );
 }
 
-export function Exercise1Simplified({ data }: { data: Exercise1Data }) {
+export function Exercise1Simplified({ data, revealed = true }: { data: Exercise1Data; revealed?: boolean }) {
   return (
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
@@ -38,7 +53,7 @@ export function Exercise1Simplified({ data }: { data: Exercise1Data }) {
           <div key={i} style={styles.row}>
             <span>{row.orig}</span>
             <span style={{ color: '#9aa1ac' }}> → </span>
-            <strong style={{ color: '#fd3682' }}>{row.hl}</strong> {row.post}
+            <AnswerText text={row.hl} revealed={revealed} /> {row.post}
           </div>
         ))}
       </div>
@@ -46,7 +61,7 @@ export function Exercise1Simplified({ data }: { data: Exercise1Data }) {
   );
 }
 
-export function PhotoCaptionSimplified({ data }: { data: PhotoCaptionData }) {
+export function PhotoCaptionSimplified({ data, revealed = true }: { data: PhotoCaptionData; revealed?: boolean }) {
   return (
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
@@ -57,7 +72,7 @@ export function PhotoCaptionSimplified({ data }: { data: PhotoCaptionData }) {
       <p style={{ fontWeight: 700, margin: 0 }}>{data.name}</p>
       <p style={{ color: '#6b7280', margin: '2px 0 12px' }}>{data.role}</p>
       <p style={styles.instruction}>
-        {data.sentencePre} <strong style={{ color: '#fd3682' }}>{data.answer}</strong> {data.sentencePost}
+        {data.sentencePre} <AnswerText text={data.answer} revealed={revealed} /> {data.sentencePost}
       </p>
     </div>
   );
@@ -95,21 +110,21 @@ export function CustomHtmlSimplified({ data }: { data: CustomHtmlData }) {
   );
 }
 
-export function GrammarBoxLookSimplified({ data }: { data: GrammarBoxLookData }) {
+export function GrammarBoxLookSimplified({ data, revealed = true }: { data: GrammarBoxLookData; revealed?: boolean }) {
   return (
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.topicName}</h1>
       <p style={styles.instruction}>
-        {data.ex1Pre} <strong style={{ color: '#fd3682' }}>{data.ex1Hl}</strong> {data.ex1Post}
+        {data.ex1Pre} <AnswerText text={data.ex1Hl} revealed={revealed} /> {data.ex1Post}
       </p>
       <p style={styles.instruction}>
-        {data.ex2Pre} <strong style={{ color: '#fd3682' }}>{data.ex2Hl}</strong> {data.ex2Post}
+        {data.ex2Pre} <AnswerText text={data.ex2Hl} revealed={revealed} /> {data.ex2Post}
       </p>
       {data.tableHeader && <p style={styles.sectionLabel}>{data.tableHeader}</p>}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {data.rows.map((row, i) => (
           <div key={i} style={styles.row}>
-            <strong>{row.subject}</strong> <span style={{ color: '#fd3682' }}>{row.hl}</span> {row.text}
+            <strong>{row.subject}</strong> <AnswerText text={row.hl} revealed={revealed} /> {row.text}
           </div>
         ))}
       </div>
@@ -162,7 +177,13 @@ export function PracticeQaBadgesSimplified({ data }: { data: PracticeQaBadgesDat
   );
 }
 
-export function PhotoExerciseWhoIsThisSimplified({ data }: { data: PhotoExerciseWhoIsThisData }) {
+export function PhotoExerciseWhoIsThisSimplified({
+  data,
+  revealed = true,
+}: {
+  data: PhotoExerciseWhoIsThisData;
+  revealed?: boolean;
+}) {
   return (
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
@@ -173,20 +194,20 @@ export function PhotoExerciseWhoIsThisSimplified({ data }: { data: PhotoExercise
       {data.personName && <p style={{ fontWeight: 700, margin: 0 }}>{data.personName}</p>}
       {data.personRole && <p style={{ color: '#6b7280', margin: '2px 0 12px' }}>{data.personRole}</p>}
       <p style={styles.instruction}>
-        {data.sentencePre} <strong style={{ color: '#fd3682' }}>{data.sentenceGap}</strong>
+        {data.sentencePre} <AnswerText text={data.sentenceGap} revealed={revealed} />
       </p>
     </div>
   );
 }
 
-export function GuessFourImagesSimplified({ data }: { data: GuessFourImagesData }) {
+export function GuessFourImagesSimplified({ data, revealed = true }: { data: GuessFourImagesData; revealed?: boolean }) {
   return (
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
       {data.instruction && <p style={styles.instruction}>{data.instruction}</p>}
       {(data.examplePre || data.exampleHl) && (
         <p style={styles.instruction}>
-          {data.examplePre} <strong style={{ color: '#fd3682' }}>{data.exampleHl}</strong>
+          {data.examplePre} <AnswerText text={data.exampleHl} revealed={revealed} />
         </p>
       )}
       <div style={styles.imageGrid}>
@@ -223,6 +244,15 @@ const styles = {
   title: { fontSize: 22, fontWeight: 700, margin: '0 0 12px', color: '#0448df' },
   subtitle: { fontSize: 16, color: '#6b7280', margin: 0, lineHeight: 1.4 },
   instruction: { fontSize: 15, color: '#1c2027', lineHeight: 1.5 },
+  // Placeholder shown in place of an answer before the teacher reveals it: a
+  // short pink underline, sized to read as "fill-in-the-blank" without hinting
+  // at the answer's length.
+  answerBlank: {
+    display: 'inline-block',
+    width: 44,
+    borderBottom: '2px solid #fd3682',
+    verticalAlign: 'middle',
+  },
   row: { fontSize: 14, lineHeight: 1.5, borderBottom: '1px solid #e4e6eb', paddingBottom: 8 },
   sectionLabel: {
     fontSize: 12,
