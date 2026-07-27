@@ -20,10 +20,20 @@ type Props = {
 };
 
 function slideHasAnswer(slide: Slide): boolean {
+  // Poll slides always have something to reveal (the live results), even
+  // though they carry no `answerFields` — advancing on a poll first reveals
+  // the tallies, exactly like revealing an exercise's answers.
+  if (slide.template === 'poll') return true;
   return (slide.answerFields?.length ?? 0) > 0;
 }
 
-type PollSessionState = { code: string; joinUrl: string; qrDataUrl: string | null };
+type PollSessionState = {
+  code: string;
+  // Options as created in the DB for THIS round, in slide order. Their ids
+  // differ from the slide's own option ids, and tallies come keyed by these —
+  // the slide matches them back to its options positionally (see PollSlide).
+  options: { id: string; label: string }[];
+};
 type ClassSessionInfo = { code: string; joinUrl: string; qrDataUrl: string | null };
 
 export function PresentationOverlay({ slides, startIndex, onExit, partId }: Props) {
@@ -36,6 +46,12 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
   const [controlsVisible, setControlsVisible] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Guards the poll auto-start against firing twice for the same slide entry —
+  // React StrictMode (dev) double-invokes effects, which otherwise creates two
+  // rounds a second apart: the second, empty round replaces the first and the
+  // just-shown results blink out. Holds the index whose round is already
+  // (being) created; reset when leaving that slide.
+  const startedPollForIndex = useRef<number | null>(null);
 
   const goNext = () => {
     if (slideHasAnswer(slides[index]) && !revealed) {
@@ -58,12 +74,26 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     setRevealed(false);
   }, [index]);
 
-  // Revisiting a poll slide always starts a fresh round rather than resuming
-  // an old one — a new "Iniciar votação" click is required, so votes don't
-  // silently start while the teacher is still introducing the question.
+  // Voting is always live while a poll slide is on screen: entering one opens
+  // a fresh round automatically (no "Iniciar votação" click), and leaving it
+  // clears the round. Revisiting a poll slide always starts a brand-new round
+  // rather than resuming an old one, so each visit's tallies stand alone. The
+  // `startedPollForIndex` guard makes this fire exactly once per entry even
+  // under StrictMode's double-effect — two rounds would otherwise be created.
   useEffect(() => {
+    if (slides[index].template !== 'poll' || !partId) {
+      setPollSession(null);
+      startedPollForIndex.current = null;
+      return;
+    }
+    if (startedPollForIndex.current === index) return;
+    startedPollForIndex.current = index;
     setPollSession(null);
-  }, [index]);
+    startVoting();
+    // startVoting is stable enough for this purpose; re-running only on slide
+    // change is exactly the intent (one fresh round per poll-slide entry).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, partId]);
 
   const startVoting = async () => {
     const currentSlide = slides[index];
@@ -80,9 +110,10 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     });
     if (!res.ok) return;
     const session = await res.json();
-    const joinUrl = `${window.location.origin}/poll/${session.code}`;
-    const qrDataUrl = await QRCode.toDataURL(joinUrl, { width: 260, margin: 1 }).catch(() => null);
-    setPollSession({ code: session.code, joinUrl, qrDataUrl });
+    // No standalone /poll QR any more: students vote through the class-follow
+    // link they already joined with (/class/[code]); the poll round just
+    // becomes the current-slide state they're already subscribed to.
+    setPollSession({ code: session.code, options: session.options });
 
     // Re-push the current slide to the class-session channel so anyone
     // already on /class/[code] picks up the newly-opened poll round
@@ -253,19 +284,22 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
               layoutOverrides={slide.layoutOverrides ?? {}}
               blockAnimations={slide.blockAnimations ?? {}}
               revealAnswers={revealed}
+              onReveal={slide.template === 'poll' && !revealed ? () => setRevealed(true) : undefined}
               liveResults={
                 slide.template === 'poll' && pollSession
                   ? ({ ...pollSession, tallies, total } satisfies PollLiveResults)
                   : undefined
               }
-              onStartVoting={slide.template === 'poll' && partId ? startVoting : undefined}
             />
             <PastedBlocksLayer blocks={slide.pastedBlocks ?? []} editMode={false} stageScale={1} />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Click zones: left third = previous, right two-thirds = next */}
+      {/* Click zones: left third = previous, right two-thirds = next.
+          zIndex below the slide content (1000) so interactive elements
+          rendered by the slide (e.g. the poll's "Iniciar votação" button)
+          stay clickable instead of being intercepted by these zones. */}
       <button
         aria-label="Slide anterior"
         onClick={goPrev}
@@ -276,6 +310,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
           top: 0,
           bottom: 0,
           width: '33%',
+          zIndex: -1,
           background: 'transparent',
           border: 'none',
           cursor: index === 0 ? 'default' : 'w-resize',
@@ -291,6 +326,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
           top: 0,
           bottom: 0,
           width: '67%',
+          zIndex: -1,
           background: 'transparent',
           border: 'none',
           cursor: index === slides.length - 1 ? 'default' : 'e-resize',

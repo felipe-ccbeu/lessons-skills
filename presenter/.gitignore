@@ -53,3 +53,6 @@ next-env.d.ts
 
 # local dev-only binaries (e.g. cloudflared.exe for the run-presenter skill's tunnel)
 /bin/
+
+# ad-hoc Playwright test scripts (not part of the test suite)
+/.scratch-playwright/
