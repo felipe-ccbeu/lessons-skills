@@ -7,6 +7,7 @@ import { SlideBlockClipboardProvider, useSlideBlockClipboard } from '@/component
 import { GroupSelectionHandle } from '@/components/ui/SlideStagger';
 import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
 import { StageOverlayProvider } from '@/components/ui/StageOverlay';
+import { AlignmentGuidesOverlay } from '@/components/ui/AlignmentGuidesOverlay';
 import { ChatSidebar } from '@/components/ui/ChatSidebar';
 import { useContextActionMenu } from '@/components/ui/useContextActionMenu';
 import { Icon } from '@/components/ui/Icon';
@@ -663,6 +664,8 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
   );
 
   const [animationPickerSlideId, setAnimationPickerSlideId] = useState<string | null>(null);
+  const [railOpen, setRailOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(true);
 
   const Renderer = RENDERERS[active.template];
   const { openMenu: openSlideMenu, menuElement: slideMenuElement } = useContextActionMenu();
@@ -789,7 +792,8 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
       )}
 
       <div className="body-row edit-mode">
-        <div className="rail">
+        <div className={`rail-wrap ${railOpen ? '' : 'collapsed'}`}>
+        <div className="rail" aria-hidden={!railOpen} inert={!railOpen || undefined}>
           {slides.map((s, i) => {
             const R = RENDERERS[s.template];
             return (
@@ -868,6 +872,16 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
             />
           )}
         </div>
+        <button
+          type="button"
+          className="panel-collapse-handle panel-collapse-handle-rail"
+          onClick={() => setRailOpen((v) => !v)}
+          title={railOpen ? 'Ocultar índice de slides' : 'Mostrar índice de slides'}
+          aria-label={railOpen ? 'Ocultar índice de slides' : 'Mostrar índice de slides'}
+        >
+          <Icon name={railOpen ? 'chevron_left' : 'chevron_right'} size={16} />
+        </button>
+        </div>
 
         <div className="stage-wrap" ref={stageWrapRef}>
           <div className="stage-scaler" style={{ transform: `scale(${scale})` }}>
@@ -899,6 +913,7 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
                 onUpdate={updatePastedBlock}
                 onRemove={removePastedBlock}
               />
+              <AlignmentGuidesOverlay />
             </div>
           </div>
         </div>
@@ -910,12 +925,14 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
           deckOverview={slides.map((s) => ({ template: s.template, data: s.data }))}
           activeIndex={idx}
           onApplyActions={applyAiActions}
+          open={chatOpen}
+          onOpenChange={setChatOpen}
         />
       </div>
 
       <button
         type="button"
-        className="help-fab help-fab-floating"
+        className={`help-fab help-fab-floating ${chatOpen ? 'chat-open' : ''}`}
         onClick={() => setShowHelp(true)}
         aria-label="Como testar"
         title="Como testar"

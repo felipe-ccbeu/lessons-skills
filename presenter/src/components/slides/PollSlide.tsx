@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'motion/react';
-import type { MouseEvent } from 'react';
+import { motion, animate, useMotionValue, useTransform, useMotionValueEvent } from 'motion/react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { Editable } from '@/components/ui/Editable';
 import { Icon } from '@/components/ui/Icon';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
@@ -11,8 +11,11 @@ import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
 export type PollLiveResults = {
   code: string;
-  joinUrl: string;
-  qrDataUrl: string | null;
+  // Options as stored for THIS live round, in slide order. Their ids are the
+  // ones `tallies` is keyed by — and they differ from the slide's own option
+  // ids, so we can't index `tallies[slideOption.id]`. Match positionally
+  // instead: the Nth slide option corresponds to `options[N]`.
+  options: { id: string; label: string }[];
   tallies: Record<string, number>;
   total: number;
 };
@@ -21,14 +24,16 @@ type Props = {
   data: PollData;
   onEdit: (patch: Partial<PollData>) => void;
   editMode: boolean;
-  // Answer-reveal props are accepted for RENDERERS-shape compatibility but
-  // meaningless here — a poll has no "correct answer" to hide/reveal.
   answerFields?: string[];
   onToggleAnswerField?: (key: string) => void;
+  // For a poll, "revealing answers" means showing the live tally bars — the
+  // vote distribution is the answer. Voting itself runs regardless.
   revealAnswers?: boolean;
+  // Reveals the tally bars on demand (button on the slide). Only provided
+  // while presenting a poll that hasn't been revealed yet.
+  onReveal?: () => void;
   // Only present when presenting live (never during editing/thumbnails).
   liveResults?: PollLiveResults;
-  onStartVoting?: () => void;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
   layoutOverrides?: LayoutOverrides;
@@ -46,7 +51,8 @@ export function PollSlide({
   onEdit,
   editMode,
   liveResults,
-  onStartVoting,
+  revealAnswers = false,
+  onReveal,
   styleOverrides = {},
   onStyleFieldChange,
   layoutOverrides = {},
@@ -133,9 +139,16 @@ export function PollSlide({
               <PollOptionBar
                 option={opt}
                 editMode={editMode}
-                count={liveResults?.tallies[opt.id] ?? 0}
+                count={
+                  liveResults
+                    ? liveResults.tallies[liveResults.options[i]?.id ?? ''] ?? 0
+                    : 0
+                }
                 total={liveResults?.total ?? 0}
-                showResults={!!liveResults}
+                // Voting runs the whole time the slide is up, but the tally
+                // bars stay hidden until the teacher reveals them (advance /
+                // reveal key) — same reveal gesture as exercise answers.
+                showResults={!!liveResults && revealAnswers}
                 onChangeLabel={(v) => updateOption(i, v)}
                 onRemove={options.length > MIN_OPTIONS ? () => removeOption(i) : undefined}
                 onContextMenu={editMode && options.length > MIN_OPTIONS ? (e) => openOnContextMenu(e, () => removeOption(i)) : undefined}
@@ -157,6 +170,11 @@ export function PollSlide({
         )}
       </SlideStagger>
 
+      {/* Live-vote indicator: no QR here — students vote through the
+          class-follow link they already joined with. Before results are
+          revealed we show only how many have answered (so the teacher sees
+          votes coming in) plus a button to reveal; the distribution appears
+          via the bars on reveal. */}
       {!editMode && liveResults && (
         <div
           style={{
@@ -166,34 +184,31 @@ export function PollSlide({
             width: 320,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            gap: 12,
+            alignItems: 'flex-end',
+            gap: 10,
           }}
         >
-          {!liveResults.qrDataUrl ? (
-            onStartVoting && (
-              <button type="button" className="btn primary" onClick={onStartVoting}>
-                <Icon name="play_arrow" size={15} /> Iniciar votação
-              </button>
-            )
-          ) : (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={liveResults.qrDataUrl}
-                alt="QR code para votar"
-                width={220}
-                height={220}
-                style={{ borderRadius: 12, border: '1px solid var(--border-hair)' }}
-              />
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: '11pt', color: 'var(--ink-muted)' }}>
-                Código: <strong style={{ color: 'var(--ccbeu-blue)' }}>{liveResults.code}</strong>
-              </div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: '10pt', color: 'var(--ink-footer)' }}>
-                {liveResults.total} {liveResults.total === 1 ? 'resposta' : 'respostas'}
-              </div>
-            </>
+          {onReveal && !revealAnswers && (
+            <button type="button" className="btn primary" onClick={onReveal}>
+              <Icon name="visibility" size={15} /> Revelar respostas
+            </button>
           )}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontFamily: 'var(--font-body)',
+              fontSize: '11pt',
+              color: 'var(--ccbeu-pink)',
+              fontWeight: 600,
+            }}
+          >
+            <Icon name="radio_button_checked" size={13} /> Votação ao vivo
+          </div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: '10pt', color: 'var(--ink-footer)' }}>
+            {liveResults.total} {liveResults.total === 1 ? 'resposta' : 'respostas'}
+          </div>
         </div>
       )}
 
@@ -241,6 +256,27 @@ function PollOptionBar({
 }: PollOptionBarProps) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
 
+  // A single motion value drives BOTH the fill width and the counter, so the
+  // gradient grows left→right and the percentage ticks up 0→pct in lockstep.
+  // It animates whenever `pct` changes (reveal, or a new vote arriving) and
+  // — crucially — the fill element is never conditionally unmounted while
+  // results are shown, so it can't flicker/vanish: it just holds its width.
+  const progress = useMotionValue(0);
+  const width = useTransform(progress, (v) => `${v}%`);
+  const [displayPct, setDisplayPct] = useState(0);
+  useMotionValueEvent(progress, 'change', (v) => setDisplayPct(Math.round(v)));
+
+  useEffect(() => {
+    if (!showResults) {
+      // Reset instantly (no animation) so the next reveal starts from 0.
+      progress.set(0);
+      setDisplayPct(0);
+      return;
+    }
+    const controls = animate(progress, pct, { duration: 0.8, ease: [0.22, 1, 0.36, 1] });
+    return () => controls.stop();
+  }, [showResults, pct, progress]);
+
   return (
     <div style={{ position: 'relative' }} onContextMenu={onContextMenu}>
       <div
@@ -257,13 +293,12 @@ function PollOptionBar({
       >
         {showResults && (
           <motion.div
-            initial={false}
-            animate={{ width: `${pct}%` }}
-            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
             style={{
               position: 'absolute',
-              inset: 0,
-              width: 0,
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width,
               background: 'linear-gradient(90deg, rgba(4,72,223,0.16), rgba(253,54,130,0.16))',
             }}
           />
@@ -286,6 +321,7 @@ function PollOptionBar({
         {showResults && (
           <div
             style={{
+              position: 'relative',
               marginLeft: 'auto',
               padding: '0 16px',
               fontFamily: 'var(--font-title)',
@@ -294,7 +330,7 @@ function PollOptionBar({
               color: 'var(--ccbeu-blue)',
             }}
           >
-            {pct}%
+            {displayPct}%
           </div>
         )}
       </div>

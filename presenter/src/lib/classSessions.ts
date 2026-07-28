@@ -47,7 +47,16 @@ export async function getClassSessionWithPart(code: string) {
 }
 
 export async function setCurrentSlide(partId: string, slideId: string) {
-  return prisma.classSession.update({ where: { partId }, data: { currentSlideId: slideId } });
+  // Changing the slide always re-hides answers: the teacher reveals them
+  // per-slide, so a new slide must start un-revealed on every joined phone.
+  return prisma.classSession.update({
+    where: { partId },
+    data: { currentSlideId: slideId, revealed: false },
+  });
+}
+
+export async function setRevealed(partId: string, revealed: boolean) {
+  return prisma.classSession.update({ where: { partId }, data: { revealed } });
 }
 
 /**
@@ -70,6 +79,7 @@ export async function computeClassSessionState(code: string): Promise<ClassSessi
     slideId: slide.id,
     template: slide.template,
     data: slide.data,
+    revealed: session.revealed,
   };
 
   if (slide.template === 'poll') {

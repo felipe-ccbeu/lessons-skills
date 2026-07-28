@@ -7,6 +7,7 @@ import { Slide } from '@/lib/types';
 import { getSlideAnimation } from '@/lib/slideAnimations';
 import { RENDERERS } from '@/components/slides';
 import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
+import { LobbyBubbles } from '@/components/LobbyBubbles';
 import { Icon } from '@/components/ui/Icon';
 import { usePollTallies } from '@/lib/usePollTallies';
 import { PollLiveResults } from '@/components/slides/PollSlide';
@@ -20,10 +21,23 @@ type Props = {
 };
 
 function slideHasAnswer(slide: Slide): boolean {
+  // Poll slides always have something to reveal (the live results), even
+  // though they carry no `answerFields` — advancing on a poll first reveals
+  // the tallies, exactly like revealing an exercise's answers.
+  if (slide.template === 'poll') return true;
   return (slide.answerFields?.length ?? 0) > 0;
 }
 
-type PollSessionState = { code: string; joinUrl: string; qrDataUrl: string | null };
+type PollSessionState = {
+  code: string;
+  // Options as created in the DB for THIS round, in slide order. Their ids
+  // differ from the slide's own option ids, and tallies come keyed by these —
+  // the slide matches them back to its options positionally (see PollSlide).
+  options: { id: string; label: string }[];
+};
+// One live Yes/No round per question row of a `practiceQaBadges` slide, keyed
+// by that row's index. Opened all at once when the teacher enters the slide.
+type QaSessionsState = Record<number, PollSessionState>;
 type ClassSessionInfo = { code: string; joinUrl: string; qrDataUrl: string | null };
 
 export function PresentationOverlay({ slides, startIndex, onExit, partId }: Props) {
@@ -32,10 +46,21 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
   const [revealed, setRevealed] = useState(false);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [pollSession, setPollSession] = useState<PollSessionState | null>(null);
+  const [qaSessions, setQaSessions] = useState<QaSessionsState>({});
   const [classSession, setClassSession] = useState<ClassSessionInfo | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Guards the poll auto-start against firing twice for the same slide entry —
+  // React StrictMode (dev) double-invokes effects, which otherwise creates two
+  // rounds a second apart: the second, empty round replaces the first and the
+  // just-shown results blink out. Holds the index whose round is already
+  // (being) created; reset when leaving that slide.
+  const startedPollForIndex = useRef<number | null>(null);
+  // Same guard for the practiceQaBadges multi-round open — holds the index
+  // whose per-row rounds are already (being) created, so StrictMode's
+  // double-effect doesn't open two sets of rounds.
+  const startedQaForIndex = useRef<number | null>(null);
 
   const goNext = () => {
     if (slideHasAnswer(slides[index]) && !revealed) {
@@ -58,12 +83,26 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     setRevealed(false);
   }, [index]);
 
-  // Revisiting a poll slide always starts a fresh round rather than resuming
-  // an old one — a new "Iniciar votação" click is required, so votes don't
-  // silently start while the teacher is still introducing the question.
+  // Voting is always live while a poll slide is on screen: entering one opens
+  // a fresh round automatically (no "Iniciar votação" click), and leaving it
+  // clears the round. Revisiting a poll slide always starts a brand-new round
+  // rather than resuming an old one, so each visit's tallies stand alone. The
+  // `startedPollForIndex` guard makes this fire exactly once per entry even
+  // under StrictMode's double-effect — two rounds would otherwise be created.
   useEffect(() => {
+    if (slides[index].template !== 'poll' || !partId) {
+      setPollSession(null);
+      startedPollForIndex.current = null;
+      return;
+    }
+    if (startedPollForIndex.current === index) return;
+    startedPollForIndex.current = index;
     setPollSession(null);
-  }, [index]);
+    startVoting();
+    // startVoting is stable enough for this purpose; re-running only on slide
+    // change is exactly the intent (one fresh round per poll-slide entry).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, partId]);
 
   const startVoting = async () => {
     const currentSlide = slides[index];
@@ -80,13 +119,74 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     });
     if (!res.ok) return;
     const session = await res.json();
-    const joinUrl = `${window.location.origin}/poll/${session.code}`;
-    const qrDataUrl = await QRCode.toDataURL(joinUrl, { width: 260, margin: 1 }).catch(() => null);
-    setPollSession({ code: session.code, joinUrl, qrDataUrl });
+    // No standalone /poll QR any more: students vote through the class-follow
+    // link they already joined with (/class/[code]); the poll round just
+    // becomes the current-slide state they're already subscribed to.
+    setPollSession({ code: session.code, options: session.options });
 
     // Re-push the current slide to the class-session channel so anyone
     // already on /class/[code] picks up the newly-opened poll round
     // automatically (computeClassSessionState re-queries for an open poll).
+    if (classSession) {
+      fetch(`/api/class/${classSession.code}/slide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slideId: currentSlide.id }),
+      }).catch(() => {});
+    }
+  };
+
+  // Multi-question live voting: entering a `practiceQaBadges` slide opens one
+  // Yes/No round per question row (the two options being the row's own "yes"
+  // and "no" answer texts), mirroring the single-round poll auto-start above.
+  // Leaving the slide clears them; revisiting opens a brand-new set.
+  useEffect(() => {
+    if (slides[index].template !== 'practiceQaBadges' || !partId) {
+      setQaSessions({});
+      startedQaForIndex.current = null;
+      return;
+    }
+    if (startedQaForIndex.current === index) return;
+    startedQaForIndex.current = index;
+    setQaSessions({});
+    startQaVoting();
+    // startQaVoting is stable enough here; re-running only on slide change is
+    // exactly the intent (one fresh set of rounds per slide entry).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, partId]);
+
+  const startQaVoting = async () => {
+    const currentSlide = slides[index];
+    if (!partId || currentSlide.template !== 'practiceQaBadges') return;
+    const rows = currentSlide.data.rows;
+
+    // Open all rounds in parallel, then commit them together so the slide sees
+    // a complete set (or none) rather than rounds trickling in one by one.
+    const created = await Promise.all(
+      rows.map(async (row, rowIndex) => {
+        const res = await fetch('/api/polls/sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            partId,
+            slideId: currentSlide.id,
+            rowIndex,
+            question: row.question,
+            options: [row.yes, row.no],
+          }),
+        });
+        if (!res.ok) return null;
+        const session = await res.json();
+        return [rowIndex, { code: session.code, options: session.options }] as const;
+      })
+    );
+
+    const next: QaSessionsState = {};
+    for (const entry of created) if (entry) next[entry[0]] = entry[1];
+    setQaSessions(next);
+
+    // Re-push the current slide so already-joined phones pick up the freshly
+    // opened rounds (computeClassSessionState re-queries for open rounds).
     if (classSession) {
       fetch(`/api/class/${classSession.code}/slide`, {
         method: 'POST',
@@ -124,6 +224,9 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
   }, [partId]);
 
   // Push "current slide changed" to joined students every time it changes.
+  // The server resets `revealed` to false on this write, matching the local
+  // reset in the `[index]` effect above — a new slide starts un-revealed on
+  // every phone, same as the projected view.
   useEffect(() => {
     if (!classSession) return;
     fetch(`/api/class/${classSession.code}/slide`, {
@@ -133,6 +236,20 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     }).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classSession, index]);
+
+  // Mirror the teacher's answer-reveal to joined phones. Only pushes when
+  // `revealed` is true: it flips false→true within a slide (the reveal
+  // gesture), and the false case is already handled by the slide-change write
+  // above — pushing false here too would race that write for the same effect.
+  useEffect(() => {
+    if (!classSession || !revealed) return;
+    fetch(`/api/class/${classSession.code}/slide`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ revealed: true }),
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classSession, revealed]);
 
   // Discreet join button/modal: fades in on mouse activity, fades out after
   // idle — same pattern as video-player controls. Stays visible while the
@@ -253,19 +370,27 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
               layoutOverrides={slide.layoutOverrides ?? {}}
               blockAnimations={slide.blockAnimations ?? {}}
               revealAnswers={revealed}
+              onReveal={slide.template === 'poll' && !revealed ? () => setRevealed(true) : undefined}
               liveResults={
                 slide.template === 'poll' && pollSession
                   ? ({ ...pollSession, tallies, total } satisfies PollLiveResults)
                   : undefined
               }
-              onStartVoting={slide.template === 'poll' && partId ? startVoting : undefined}
             />
             <PastedBlocksLayer blocks={slide.pastedBlocks ?? []} editMode={false} stageScale={1} />
           </motion.div>
         </AnimatePresence>
+
+        {/* Lobby roster: only on the first slide, once a class code exists.
+            Lives inside the 1280×720 stage so the bubbles scale with the
+            slide and sit floating down its right edge. */}
+        {index === 0 && classSession && <LobbyBubbles code={classSession.code} />}
       </div>
 
-      {/* Click zones: left third = previous, right two-thirds = next */}
+      {/* Click zones: left third = previous, right two-thirds = next.
+          zIndex below the slide content (1000) so interactive elements
+          rendered by the slide (e.g. the poll's "Iniciar votação" button)
+          stay clickable instead of being intercepted by these zones. */}
       <button
         aria-label="Slide anterior"
         onClick={goPrev}
@@ -276,6 +401,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
           top: 0,
           bottom: 0,
           width: '33%',
+          zIndex: -1,
           background: 'transparent',
           border: 'none',
           cursor: index === 0 ? 'default' : 'w-resize',
@@ -291,6 +417,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
           top: 0,
           bottom: 0,
           width: '67%',
+          zIndex: -1,
           background: 'transparent',
           border: 'none',
           cursor: index === slides.length - 1 ? 'default' : 'e-resize',

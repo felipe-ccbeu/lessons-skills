@@ -21,6 +21,10 @@ export type ClassSessionState = {
   slideId: string;
   template: SlideTemplate;
   data: unknown; // the slide's full `data` — small JSON, simplest to forward as-is
+  // Whether the teacher has revealed this slide's answers. Mirrors the
+  // presentation overlay's local `revealed`, so a phone hides answers until
+  // the teacher advances/reveals — exactly like the projected slide.
+  revealed: boolean;
   poll?: ClassSessionPollState;
 };
 

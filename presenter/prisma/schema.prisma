@@ -113,11 +113,33 @@ model ClassSession {
   code           String  @unique
   partId         String  @unique
   currentSlideId String? // Slide.id of whatever the teacher is currently showing; null = not presenting right now
+  revealed       Boolean @default(false) // whether the teacher has revealed the current slide's answers (mirrors the overlay's `revealed`); reset to false on every slide change
 
-  part Part @relation(fields: [partId], references: [id], onDelete: Cascade)
+  part     Part      @relation(fields: [partId], references: [id], onDelete: Cascade)
+  students Student[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// A student who joined a class through the "enter your name" screen at
+// /class/[code]. Identified by an opaque per-device key from the phone's
+// localStorage (same trick as PollVote.voterKey), so re-opening the link on
+// the same device re-attaches to the same Student instead of duplicating it.
+// This is the anchor future in-class interactions (votes, answers) will hang
+// off of, so we can attribute them to a named student.
+model Student {
+  id             String @id @default(cuid())
+  name           String
+  deviceKey      String // opaque per-device id, from the student's localStorage
+  classSessionId String
+
+  classSession ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([classSessionId, deviceKey]) // one student row per device per class
 }
 
 // One "round" of live voting for a poll slide — a fresh row is created each
@@ -128,6 +150,11 @@ model PollSession {
   code     String @unique
   partId   String
   slideId  String
+  // For a standalone `poll` slide this is null: the slide has a single
+  // question. For a multi-question slide like `practiceQaBadges` ("Ask and
+  // answer!") the teacher opens one round per question, and rowIndex ties this
+  // round to a specific question row (0-based) within that slide.
+  rowIndex Int? // null = whole-slide poll; 0,1,2… = per-row round on a multi-question slide
   question String // snapshot of the slide's question at round-start time
   status   String @default("open") // "open" | "closed"
 
