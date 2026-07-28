@@ -388,29 +388,20 @@ body {
   color: #b3261e;
   border: 1px solid #f3c6c6;
 }
-.chat-sidebar-input {
+/* Staged image previews — sit just above the input divider, as small fixed-ratio squares. */
+.chat-attachments {
   flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border-top: 1px solid var(--chrome-border);
-}
-.chat-sidebar-input-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
-.chat-attachments {
-  display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  padding: 8px 12px 2px;
 }
 .chat-attachment {
   position: relative;
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--chrome-border);
 }
@@ -420,12 +411,12 @@ body {
   object-fit: cover;
   display: block;
 }
-.chat-sidebar-input .chat-attachment-remove {
+.chat-attachment-remove {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 18px;
-  height: 18px;
+  top: 1px;
+  right: 1px;
+  width: 16px;
+  height: 16px;
   padding: 0;
   display: inline-flex;
   align-items: center;
@@ -436,21 +427,51 @@ body {
   border-radius: 50%;
   cursor: pointer;
 }
-.chat-sidebar-input .chat-attach-btn {
-  align-self: flex-end;
+.chat-sidebar-input {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--chrome-border);
+}
+.chat-sidebar-input textarea {
+  flex: 1 1 auto;
+  resize: none;
+  border: 1px solid var(--chrome-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 11.5pt;
+}
+/* Compact square icon buttons flanking the textarea (attach on the left, send on the right). */
+.chat-icon-btn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  color: var(--ccbeu-blue);
-  border: 1px solid var(--chrome-border);
+  border: none;
   border-radius: 8px;
-  padding: 8px;
   cursor: pointer;
 }
-.chat-sidebar-input .chat-attach-btn:disabled {
-  opacity: 0.5;
+.chat-icon-btn:disabled {
+  opacity: 0.4;
   cursor: default;
+}
+.chat-attach-btn {
+  background: transparent;
+  color: var(--chrome-text-muted);
+}
+.chat-attach-btn:not(:disabled):hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ink);
+}
+.chat-send-btn {
+  background: var(--ccbeu-blue);
+  color: #fff;
+  border-radius: 50%;
 }
 .chat-msg-images {
   display: flex;
@@ -463,30 +484,6 @@ body {
   max-height: 120px;
   border-radius: 8px;
   display: block;
-}
-.chat-sidebar-input textarea {
-  flex: 1 1 auto;
-  resize: none;
-  border: 1px solid var(--chrome-border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-family: var(--font-body);
-  font-size: 11.5pt;
-}
-.chat-sidebar-input button {
-  flex: 0 0 auto;
-  align-self: flex-end;
-  background: var(--ccbeu-blue);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 11pt;
-  cursor: pointer;
-}
-.chat-sidebar-input button:disabled {
-  opacity: 0.5;
-  cursor: default;
 }
 .stage {
   position: relative;

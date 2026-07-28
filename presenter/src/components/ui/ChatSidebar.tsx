@@ -133,55 +133,60 @@ export function ChatSidebar({
           {sending && <div className="chat-msg chat-msg-assistant chat-msg-pending">Pensando…</div>}
           {error && <div className="chat-msg chat-msg-error">{error}</div>}
         </div>
-        <div className="chat-sidebar-input">
-          {attachments.length > 0 && (
-            <div className="chat-attachments">
-              {attachments.map((src, i) => (
-                <div key={i} className="chat-attachment">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" />
-                  <button
-                    type="button"
-                    className="chat-attachment-remove"
-                    onClick={() => setAttachments((cur) => cur.filter((_, j) => j !== i))}
-                    aria-label="Remover imagem"
-                  >
-                    <Icon name="close" size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="chat-sidebar-input-row">
-            <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
-            <button
-              type="button"
-              className="chat-attach-btn"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={sending || attachments.length >= MAX_ATTACHMENTS}
-              title={attachments.length >= MAX_ATTACHMENTS ? 'Limite de imagens atingido' : 'Anexar imagem'}
-              aria-label="Anexar imagem"
-            >
-              <Icon name="add_photo_alternate" size={18} />
-            </button>
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onPaste={handlePaste}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  send();
-                }
-              }}
-              placeholder="Ex: troque o título por… ou anexe uma imagem"
-              rows={2}
-              disabled={sending}
-            />
-            <button type="button" onClick={send} disabled={sending || (!draft.trim() && attachments.length === 0)}>
-              Enviar
-            </button>
+        {attachments.length > 0 && (
+          <div className="chat-attachments">
+            {attachments.map((src, i) => (
+              <div key={i} className="chat-attachment">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" />
+                <button
+                  type="button"
+                  className="chat-attachment-remove"
+                  onClick={() => setAttachments((cur) => cur.filter((_, j) => j !== i))}
+                  aria-label="Remover imagem"
+                >
+                  <Icon name="close" size={12} />
+                </button>
+              </div>
+            ))}
           </div>
+        )}
+        <div className="chat-sidebar-input">
+          <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
+          <button
+            type="button"
+            className="chat-icon-btn chat-attach-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={sending || attachments.length >= MAX_ATTACHMENTS}
+            title={attachments.length >= MAX_ATTACHMENTS ? 'Limite de imagens atingido' : 'Anexar imagem'}
+            aria-label="Anexar imagem"
+          >
+            <Icon name="add_photo_alternate" size={20} />
+          </button>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onPaste={handlePaste}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            placeholder="Ex: troque o título por… ou anexe uma imagem"
+            rows={2}
+            disabled={sending}
+          />
+          <button
+            type="button"
+            className="chat-icon-btn chat-send-btn"
+            onClick={send}
+            disabled={sending || (!draft.trim() && attachments.length === 0)}
+            title="Enviar"
+            aria-label="Enviar"
+          >
+            <Icon name="send" size={18} />
+          </button>
         </div>
       </div>
     </div>
