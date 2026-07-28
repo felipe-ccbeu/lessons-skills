@@ -326,36 +326,69 @@ export type AiSlideAction =
   | { kind: 'removeListItem'; slideIndex?: number; listPath: string; index: number }
   | { kind: 'moveBlock'; slideIndex?: number; dragKey: string; dx: number; dy: number };
 
-export type Slide =
-  | { id: string; template: 'sectionTransition'; data: SectionTransitionData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'exercise1'; data: Exercise1Data; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'photoCaption'; data: PhotoCaptionData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'pptxImage'; data: PptxImageData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'customHtml'; data: CustomHtmlData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'poll'; data: PollData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'blank'; data: BlankData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'objectives'; data: ObjectivesData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'gettingStarted'; data: GettingStartedData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'comparative'; data: ComparativeData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'multipleChoice'; data: MultipleChoiceData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'guessFourImages'; data: GuessFourImagesData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'coverImage'; data: CoverImageData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'changePlaces'; data: ChangePlacesData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'completeTheChart'; data: CompleteTheChartData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'fluency1'; data: Fluency1Data; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'fluency2'; data: Fluency2Data; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'fluency3'; data: Fluency3Data; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'warmupOralTransform'; data: WarmupOralTransformData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'listenAndRepeat'; data: ListenAndRepeatData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'photoExerciseWhoIsThis'; data: PhotoExerciseWhoIsThisData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'photoGridBlank'; data: PhotoGridBlankData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'grammarBoxLook'; data: GrammarBoxLookData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'grammarBox2YesNo'; data: GrammarBox2YesNoData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'matchVocabImage'; data: MatchVocabImageData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'modelExampleList'; data: ModelExampleListData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'lessonComplete'; data: LessonCompleteData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'practiceQaBadges'; data: PracticeQaBadgesData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'matchingWithChart'; data: MatchingWithChartData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations }
-  | { id: string; template: 'matchLetters'; data: MatchLettersData; answerFields?: AnswerFields; styleOverrides?: StyleOverrides; layoutOverrides?: LayoutOverrides; pastedBlocks?: PastedBlock[]; animation?: SlideAnimationId; blockAnimations?: BlockAnimations };
+/**
+ * Fields shared by every slide, independent of its template: answer reveal,
+ * per-field style/layout/animation overrides and free-floating pasted blocks.
+ * Kept in one place so a new cross-cutting slide feature is added once here,
+ * not copied onto all ~30 union members (that copy-paste is exactly what this
+ * replaced — see `Slide` below).
+ */
+export type SlideOverrides = {
+  answerFields?: AnswerFields;
+  styleOverrides?: StyleOverrides;
+  layoutOverrides?: LayoutOverrides;
+  pastedBlocks?: PastedBlock[];
+  animation?: SlideAnimationId;
+  blockAnimations?: BlockAnimations;
+};
 
-export type SlideTemplate = Slide['template'];
+/**
+ * The single source of truth for "which templates exist and what shape is their
+ * `data`". Adding a new slide template is one line here (plus its renderer +
+ * registry entry). `Slide` and `SlideTemplate` are derived from this, so they
+ * stay in sync automatically.
+ */
+export interface TemplateDataMap {
+  sectionTransition: SectionTransitionData;
+  exercise1: Exercise1Data;
+  photoCaption: PhotoCaptionData;
+  pptxImage: PptxImageData;
+  customHtml: CustomHtmlData;
+  poll: PollData;
+  blank: BlankData;
+  objectives: ObjectivesData;
+  gettingStarted: GettingStartedData;
+  comparative: ComparativeData;
+  multipleChoice: MultipleChoiceData;
+  guessFourImages: GuessFourImagesData;
+  coverImage: CoverImageData;
+  changePlaces: ChangePlacesData;
+  completeTheChart: CompleteTheChartData;
+  fluency1: Fluency1Data;
+  fluency2: Fluency2Data;
+  fluency3: Fluency3Data;
+  warmupOralTransform: WarmupOralTransformData;
+  listenAndRepeat: ListenAndRepeatData;
+  photoExerciseWhoIsThis: PhotoExerciseWhoIsThisData;
+  photoGridBlank: PhotoGridBlankData;
+  grammarBoxLook: GrammarBoxLookData;
+  grammarBox2YesNo: GrammarBox2YesNoData;
+  matchVocabImage: MatchVocabImageData;
+  modelExampleList: ModelExampleListData;
+  lessonComplete: LessonCompleteData;
+  practiceQaBadges: PracticeQaBadgesData;
+  matchingWithChart: MatchingWithChartData;
+  matchLetters: MatchLettersData;
+}
+
+/** A single slide of a specific template `K` — its id/template/data plus the shared overrides. */
+export type SlideOf<K extends SlideTemplate> = { id: string; template: K; data: TemplateDataMap[K] } & SlideOverrides;
+
+/**
+ * Discriminated union of every slide, derived from `TemplateDataMap`. Structurally
+ * identical to the old hand-written union (narrowing on `.template` still narrows
+ * `.data`), but the repetition is gone.
+ */
+export type Slide = { [K in SlideTemplate]: SlideOf<K> }[SlideTemplate];
+
+export type SlideTemplate = keyof TemplateDataMap;
