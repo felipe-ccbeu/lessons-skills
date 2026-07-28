@@ -153,16 +153,6 @@ export function ChatSidebar({
         )}
         <div className="chat-sidebar-input">
           <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
-          <button
-            type="button"
-            className="chat-icon-btn chat-attach-btn"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={sending || attachments.length >= MAX_ATTACHMENTS}
-            title={attachments.length >= MAX_ATTACHMENTS ? 'Limite de imagens atingido' : 'Anexar imagem'}
-            aria-label="Anexar imagem"
-          >
-            <Icon name="add_photo_alternate" size={20} />
-          </button>
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -177,6 +167,16 @@ export function ChatSidebar({
             rows={2}
             disabled={sending}
           />
+          <button
+            type="button"
+            className="chat-icon-btn chat-attach-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={sending || attachments.length >= MAX_ATTACHMENTS}
+            title={attachments.length >= MAX_ATTACHMENTS ? 'Limite de imagens atingido' : 'Anexar imagem'}
+            aria-label="Anexar imagem"
+          >
+            <Icon name="add_photo_alternate" size={20} />
+          </button>
           <button
             type="button"
             className="chat-icon-btn chat-send-btn"
