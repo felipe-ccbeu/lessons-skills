@@ -430,7 +430,13 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
           bottom: 16,
           left: '50%',
           transform: 'translateX(-50%)',
-          color: 'rgba(255,255,255,0.6)',
+          // Dark translucent pill so the counter stays legible whether it
+          // sits over the black backdrop or over a full-bleed white slide
+          // (at 16:9 the scaled slide covers the backdrop exactly here).
+          background: 'rgba(0,0,0,0.45)',
+          padding: '3px 11px',
+          borderRadius: 999,
+          color: 'rgba(255,255,255,0.85)',
           fontSize: 12.5,
           fontFamily: 'var(--font-body)',
           zIndex: 1001,
@@ -454,9 +460,12 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
             gap: 6,
             padding: '8px 14px',
             borderRadius: 999,
-            border: '1px solid rgba(255,255,255,0.25)',
-            background: 'rgba(255,255,255,0.08)',
-            color: 'rgba(255,255,255,0.85)',
+            // Dark translucent backing (not the light glassy fill) so the
+            // white label + icon read over a full-bleed white slide, not just
+            // over the black backdrop.
+            border: '1px solid rgba(255,255,255,0.3)',
+            background: 'rgba(0,0,0,0.55)',
+            color: '#fff',
             fontSize: 12.5,
             fontFamily: 'var(--font-body)',
             cursor: 'pointer',
