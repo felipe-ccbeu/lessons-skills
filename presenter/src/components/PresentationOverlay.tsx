@@ -251,9 +251,9 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classSession, revealed]);
 
-  // Discreet join button/modal: fades in on mouse activity, fades out after
-  // idle — same pattern as video-player controls. Stays visible while the
-  // modal is open.
+  // Discreet bottom overlays (slide counter + join button): fade in on mouse
+  // activity, fade out after 2s of idle — same pattern as video-player
+  // controls. Stays visible while the join modal is open.
   useEffect(() => {
     let hideTimer: ReturnType<typeof setTimeout>;
     function onActivity() {
@@ -261,7 +261,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
       clearTimeout(hideTimer);
       hideTimer = setTimeout(() => {
         setControlsVisible((v) => (showJoinModal ? v : false));
-      }, 2500);
+      }, 2000);
     }
     onActivity();
     window.addEventListener('mousemove', onActivity);
@@ -441,6 +441,8 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
           fontFamily: 'var(--font-body)',
           zIndex: 1001,
           pointerEvents: 'none',
+          opacity: controlsVisible ? 1 : 0,
+          transition: 'opacity 300ms',
         }}
       >
         {index + 1} / {slides.length}
