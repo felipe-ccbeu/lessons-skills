@@ -29,13 +29,28 @@ const ROLE_COLORS: Record<string, string> = {
   NONE: '#9aa1ac',
 };
 
+// Shared column track so the header and every row line up into the same
+// vertical columns: identity (flex) · papel · desde · ações (all fixed width).
+const GRID_COLS = 'grid-cols-[minmax(0,1fr)_214px_92px_176px]';
+
 export function UsersPanel({ users, currentUserId }: { users: UserRow[]; currentUserId: string }) {
   return (
-    <ul className="divide-y divide-[#f0f1f3]">
-      {users.map((u) => (
-        <UserRowItem key={u.id} user={u} isSelf={u.id === currentUserId} />
-      ))}
-    </ul>
+    <div>
+      <div
+        className={`grid ${GRID_COLS} gap-x-4 items-center px-5 py-2.5 border-b border-[#e4e6eb]
+                    text-[11px] font-semibold uppercase tracking-wide text-[#9aa1ac] bg-[#fafbfc]`}
+      >
+        <span>Usuário</span>
+        <span>Papel</span>
+        <span className="text-right">Desde</span>
+        <span className="text-right">Ações</span>
+      </div>
+      <ul className="divide-y divide-[#f0f1f3]">
+        {users.map((u) => (
+          <UserRowItem key={u.id} user={u} isSelf={u.id === currentUserId} />
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -48,9 +63,9 @@ function UserRowItem({ user, isSelf }: { user: UserRow; isSelf: boolean }) {
   const initial = (user.name ?? user.email).charAt(0).toUpperCase();
 
   return (
-    <li className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#fafbfc] transition-colors">
-      {/* Identity: avatar + name + email, collapses gracefully on narrow widths */}
-      <div className="flex items-center gap-3 min-w-0 flex-1">
+    <li className={`grid ${GRID_COLS} gap-x-4 items-center px-5 py-3 hover:bg-[#fafbfc] transition-colors`}>
+      {/* Column 1 — Identity: avatar + name + email */}
+      <div className="flex items-center gap-3 min-w-0">
         <span
           className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-semibold flex-none"
           style={{ background: `${accent}1a`, color: accent }}
@@ -70,15 +85,19 @@ function UserRowItem({ user, isSelf }: { user: UserRow; isSelf: boolean }) {
         </div>
       </div>
 
-      {/* Role editor: dot + select, with Salvar surfacing only when changed */}
-      <form action={updateUserRoleAction} className="flex items-center gap-2 flex-none">
+      {/* Column 2 — Role: dot + select + a fixed slot for Salvar so the select
+          width (and everything after it) never shifts when Salvar appears */}
+      <form
+        action={updateUserRoleAction}
+        className="grid grid-cols-[10px_minmax(0,1fr)_64px] items-center gap-2"
+      >
         <input type="hidden" name="id" value={user.id} />
-        <span className="w-2 h-2 rounded-full flex-none" style={{ background: accent }} aria-hidden />
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} aria-hidden />
         <select
           name="role"
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="border border-[#e4e6eb] rounded-md pl-2 pr-6 py-1.5 text-[12.5px] text-[#1c2027] bg-white
+          className="min-w-0 border border-[#e4e6eb] rounded-md pl-2 pr-6 py-1.5 text-[12.5px] text-[#1c2027] bg-white
                      hover:border-[#c7cbd4] focus:border-[#0448df] focus:outline-none focus:ring-2 focus:ring-[#0448df]/15
                      transition-colors cursor-pointer"
         >
@@ -89,35 +108,37 @@ function UserRowItem({ user, isSelf }: { user: UserRow; isSelf: boolean }) {
           ))}
         </select>
         {dirty && (
-          <button type="submit" className="btn primary text-[12.5px] py-1.5 px-3">
+          <button type="submit" className="btn primary text-[12.5px] py-1.5 px-2.5 justify-self-start">
             Salvar
           </button>
         )}
       </form>
 
-      {/* Joined date — hidden on smaller screens to keep the row from wrapping */}
-      <span className="hidden lg:block text-[12px] text-[#9aa1ac] tabular-nums flex-none w-[84px] text-right">
+      {/* Column 3 — Joined date */}
+      <span className="text-[12px] text-[#9aa1ac] tabular-nums text-right">
         {new Date(user.createdAt).toLocaleDateString('pt-BR')}
       </span>
 
-      {/* Actions */}
-      <div className="flex items-center justify-end gap-1.5 flex-none">
+      {/* Column 4 — Actions */}
+      <div className="flex items-center justify-end gap-1.5">
         {isSelf ? (
-          <span className="text-[12px] text-[#c7cbd4] px-2">—</span>
+          <span className="inline-flex items-center gap-1 text-[11.5px] text-[#c7cbd4]" title="Sua conta">
+            <span className="material-symbols-outlined text-[15px]">lock</span>
+            conta atual
+          </span>
         ) : confirming ? (
           <>
-            <span className="text-[12px] text-[#6b7280] mr-1">Remover?</span>
             <form action={deleteUserAction}>
               <input type="hidden" name="id" value={user.id} />
               <button
                 type="submit"
-                className="btn text-[12.5px] py-1.5 px-3"
+                className="btn text-[12.5px] py-1.5 px-2.5"
                 style={{ color: '#c0392b', borderColor: '#e5a3a3' }}
               >
                 Confirmar
               </button>
             </form>
-            <button type="button" className="btn text-[12.5px] py-1.5 px-3" onClick={() => setConfirming(false)}>
+            <button type="button" className="btn text-[12.5px] py-1.5 px-2.5" onClick={() => setConfirming(false)}>
               Cancelar
             </button>
           </>

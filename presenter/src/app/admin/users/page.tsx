@@ -9,7 +9,7 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="min-h-full bg-[#f3f4f7] text-[#1c2027] px-8 py-10">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <Breadcrumb items={[{ label: 'Aulas', href: '/lessons' }, { label: 'Usuários' }]} />
 
         <div className="flex items-end justify-between mt-2 mb-6">
