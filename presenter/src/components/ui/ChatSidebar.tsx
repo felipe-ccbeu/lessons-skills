@@ -1,10 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, ChangeEvent, ClipboardEvent } from 'react';
 import { AiSlideAction } from '@/lib/types';
 import { Icon } from '@/components/ui/Icon';
 
-type ChatMessage = { role: 'user' | 'assistant'; content: string };
+type ChatMessage = { role: 'user' | 'assistant'; content: string; images?: string[] };
 
 type Props = {
   slideData: unknown;
@@ -16,6 +16,9 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
+
+/** Cap on staged image attachments per message, to keep request payloads (and vision cost) sane. */
+const MAX_ATTACHMENTS = 6;
 
 export function ChatSidebar({
   slideData,
@@ -29,16 +32,48 @@ export function ChatSidebar({
 }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
+  const [attachments, setAttachments] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /** Reads image files into base64 data URLs and stages them (capped at MAX_ATTACHMENTS). */
+  const addFiles = (files: FileList | File[]) => {
+    const imgs = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    for (const file of imgs) {
+      const reader = new FileReader();
+      reader.onload = () =>
+        setAttachments((cur) => (cur.length >= MAX_ATTACHMENTS ? cur : [...cur, reader.result as string]));
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    const files = Array.from(e.clipboardData?.items || [])
+      .filter((it) => it.type.startsWith('image/'))
+      .map((it) => it.getAsFile())
+      .filter((f): f is File => !!f);
+    if (files.length) {
+      e.preventDefault();
+      addFiles(files);
+    }
+  };
+
+  const onPickFiles = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) addFiles(e.target.files);
+    e.target.value = '';
+  };
 
   const send = async () => {
     const text = draft.trim();
-    if (!text || sending) return;
+    const images = attachments;
+    if ((!text && images.length === 0) || sending) return;
     setDraft('');
+    setAttachments([]);
     setError(null);
-    const nextMessages: ChatMessage[] = [...messages, { role: 'user', content: text }];
+    const userMsg: ChatMessage = { role: 'user', content: text, ...(images.length ? { images } : {}) };
+    const nextMessages: ChatMessage[] = [...messages, userMsg];
     setMessages(nextMessages);
     setSending(true);
     try {
@@ -78,11 +113,20 @@ export function ChatSidebar({
           {messages.length === 0 && (
             <div className="chat-sidebar-empty">
               Peça pra mudar textos, adicionar/remover itens de listas, gerar e inserir imagens, mover blocos deste
-              slide, criar um novo slide no fim do deck, ou reordenar os slides existentes.
+              slide, criar um novo slide no fim do deck, ou reordenar os slides existentes. Você também pode anexar
+              imagens (botão ou Ctrl+V) para a IA extrair o conteúdo delas ou colocá-las no slide.
             </div>
           )}
           {messages.map((m, i) => (
             <div key={i} className={`chat-msg chat-msg-${m.role}`}>
+              {m.images && m.images.length > 0 && (
+                <div className="chat-msg-images">
+                  {m.images.map((src, j) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={j} src={src} alt="" />
+                  ))}
+                </div>
+              )}
               {m.content}
             </div>
           ))}
@@ -90,22 +134,54 @@ export function ChatSidebar({
           {error && <div className="chat-msg chat-msg-error">{error}</div>}
         </div>
         <div className="chat-sidebar-input">
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-            placeholder="Ex: troque o título por..."
-            rows={2}
-            disabled={sending}
-          />
-          <button type="button" onClick={send} disabled={sending || !draft.trim()}>
-            Enviar
-          </button>
+          {attachments.length > 0 && (
+            <div className="chat-attachments">
+              {attachments.map((src, i) => (
+                <div key={i} className="chat-attachment">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" />
+                  <button
+                    type="button"
+                    className="chat-attachment-remove"
+                    onClick={() => setAttachments((cur) => cur.filter((_, j) => j !== i))}
+                    aria-label="Remover imagem"
+                  >
+                    <Icon name="close" size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="chat-sidebar-input-row">
+            <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
+            <button
+              type="button"
+              className="chat-attach-btn"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={sending || attachments.length >= MAX_ATTACHMENTS}
+              title={attachments.length >= MAX_ATTACHMENTS ? 'Limite de imagens atingido' : 'Anexar imagem'}
+              aria-label="Anexar imagem"
+            >
+              <Icon name="add_photo_alternate" size={18} />
+            </button>
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onPaste={handlePaste}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              placeholder="Ex: troque o título por… ou anexe uma imagem"
+              rows={2}
+              disabled={sending}
+            />
+            <button type="button" onClick={send} disabled={sending || (!draft.trim() && attachments.length === 0)}>
+              Enviar
+            </button>
+          </div>
         </div>
       </div>
     </div>

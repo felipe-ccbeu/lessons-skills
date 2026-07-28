@@ -8,10 +8,19 @@ import { ADDABLE_TEMPLATES } from '@/lib/slide-templates';
 import { DRAG_KEYS_BY_TEMPLATE } from '@/lib/dragKeys';
 import { prisma } from '@/lib/prisma';
 import { isUserOverAiSpendCap } from '@/lib/aiUsage';
+import { rateLimit } from '@/lib/rateLimit';
 
 const TEACHER_OR_ABOVE = ['ADMIN', 'COORDINATOR', 'TEACHER'] as const;
 
-type ChatMessage = { role: 'user' | 'assistant'; content: string };
+// Per-user request cap, keyed on the authenticated id. The spend cap already
+// bounds cost; this bounds request frequency (OpenAI TPM/RPM limits, runaway
+// client loops) for a normal editing pace of a handful of turns per minute.
+const AI_LIMIT_PER_MIN = 20;
+
+type ChatMessage = { role: 'user' | 'assistant'; content: string; images?: string[] };
+
+/** Cap on total attached images fed to the model per request, to bound payload/vision cost. */
+const MAX_TOTAL_ATTACHMENTS = 12;
 
 const ADDABLE_TEMPLATE_NAMES = ADDABLE_TEMPLATES.map((t) => t.template);
 
@@ -150,6 +159,24 @@ const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
   {
     type: 'function',
     function: {
+      name: 'place_attached_image',
+      description:
+        'Places an image the teacher ATTACHED to the chat (not a generated one) onto an imageUrl-like field of a slide. Use this when the teacher wants their own uploaded photo/screenshot to appear on the slide (as reference material, a real photo, etc.), instead of generating a new one. The attachment is identified by its 0-based index in the "imagens anexadas" list from the context. Do NOT use this to transcribe/extract text from an image — for that, just read the attached image and use set_field/add_slide/etc.',
+      parameters: {
+        type: 'object',
+        properties: {
+          slideIndex: { type: 'number', description: 'Omit to target the active slide. Otherwise, the 0-based index of a slide previously fetched via get_slide_data in this turn.' },
+          attachmentIndex: { type: 'number', description: '0-based index of the attached image, per the "imagens anexadas" list in the context.' },
+          path: { type: 'string', description: 'Dot-path to the imageUrl-like field to fill, e.g. "imageUrl", "imageUrl1", "imageUrls.0", "items.2.imageUrl".' },
+        },
+        required: ['attachmentIndex', 'path'],
+        additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'move_block',
       description:
         'Nudge a visual block on the slide by a pixel offset, relative to its current position, in the 1280x720 slide coordinate space. Use the dragKey values listed in the slide layout context.',
@@ -176,11 +203,16 @@ Você enxerga o deck inteiro como uma lista (índice + template de cada slide), 
 Catálogo de templates disponíveis para add_slide:
 ${TEMPLATE_CATALOG}
 
-Use as ferramentas disponíveis (get_slide_data, add_slide, reorder_slide, set_field, add_list_item, remove_list_item, move_block, generate_image) para aplicar mudanças reais; não basta descrever em texto o que mudaria, você deve chamar a ferramenta.
+Use as ferramentas disponíveis (get_slide_data, add_slide, reorder_slide, set_field, add_list_item, remove_list_item, move_block, generate_image, place_attached_image) para aplicar mudanças reais; não basta descrever em texto o que mudaria, você deve chamar a ferramenta.
 
 Fluxo típico ao criar um slide: chame add_slide primeiro; nas chamadas seguintes DENTRO DO MESMO TURNO, set_field/add_list_item já se aplicam ao slide recém-criado (que passou a ser o ativo) — use isso para já preencher título, textos e itens de lista com conteúdo relevante ao pedido, em vez de deixar os placeholders genéricos do template.
 
 Imagens: campos de imagem no JSON do slide seguem o padrão de nome imageUrl, imageUrl1/imageUrl2, imageUrls (array), avatar1Url/avatar2Url, etc. Quando o professor pedir para adicionar/gerar/criar uma imagem (foto, ilustração, ícone...), chame generate_image com um prompt visual detalhado em inglês; a ferramenta retorna a URL da imagem gerada, que você deve então aplicar com set_field (ou, se o campo for um item de uma lista de fotos, add_list_item) no campo apropriado. Nunca invente uma URL de imagem nem deixe o campo vazio quando o pedido for para gerar uma imagem — sempre chame generate_image primeiro. Não chame generate_image para um campo que já tem uma imagem, a menos que o professor peça para trocar/regenerar.
+
+Imagens ANEXADAS pelo professor: o professor pode anexar imagens à conversa (o contexto informa quantas há e seus índices; você enxerga o conteúdo delas). Há dois usos possíveis, decida pelo que ele pediu:
+- EXTRAIR conteúdo: se ele quer transcrever/aproveitar o que está NA imagem (texto de uma página de livro, um exercício fotografado, uma lista, uma tabela...), leia a imagem e use as ferramentas normais (set_field, add_slide, add_list_item, etc.) para transformar esse conteúdo em slide(s). Nesse caso NÃO use place_attached_image — a imagem é só a fonte, não vai para o slide.
+- COLOCAR a imagem no slide: se ele quer que a própria foto/screenshot anexada apareça no slide (como referência, foto real, etc.), chame place_attached_image com o attachmentIndex e o path do campo de imagem. Não use set_field para isso — os dados binários da imagem são grandes; place_attached_image cuida de salvar a imagem e preencher o campo com a URL certa.
+- A imagem anexada também pode servir de REFERÊNCIA VISUAL para um generate_image (ex.: "gere algo no estilo dessa foto"): descreva no prompt em inglês o que você vê nela.
 
 Regras:
 - Preserve o idioma e o tom do conteúdo existente (a maior parte do texto do slide costuma estar em inglês, sendo uma aula de inglês; breadcrumbs/labels de UI podem estar em português).
@@ -237,6 +269,35 @@ async function logImageUsage(userId: string | undefined, size: string) {
   });
 }
 
+const EXT_BY_MIME: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
+
+/** Writes raw image bytes under public/uploads/<subdir>/ and returns the public URL. */
+async function saveImageBuffer(buffer: Buffer, subdir: string, ext: string): Promise<string> {
+  const dirRel = path.join('uploads', subdir);
+  const dirAbs = path.join(process.cwd(), 'public', dirRel);
+  await mkdir(dirAbs, { recursive: true });
+
+  const fileName = `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  await writeFile(path.join(dirAbs, fileName), buffer);
+
+  return `/${dirRel.replace(/\\/g, '/')}/${fileName}`;
+}
+
+/** Parses a `data:<mime>;base64,<bytes>` URL into a Buffer + file extension. Returns null if not a data URL. */
+function parseDataUrl(dataUrl: string): { buffer: Buffer; ext: string } | null {
+  const match = /^data:([^;,]+)?(;base64)?,([\s\S]*)$/.exec(dataUrl);
+  if (!match || !match[2]) return null; // only base64 data URLs are supported
+  const mime = (match[1] || 'image/png').toLowerCase();
+  if (!mime.startsWith('image/')) return null;
+  return { buffer: Buffer.from(match[3], 'base64'), ext: EXT_BY_MIME[mime] ?? 'png' };
+}
+
 /** Generates an image via gpt-image-1 and saves it under public/uploads/ai-generated, returning its public URL. */
 async function generateSlideImage(client: OpenAI, prompt: string, orientation: string, userId: string | undefined): Promise<string> {
   const size = IMAGE_SIZE_BY_ORIENTATION[orientation] ?? IMAGE_SIZE_BY_ORIENTATION.landscape;
@@ -253,19 +314,20 @@ async function generateSlideImage(client: OpenAI, prompt: string, orientation: s
 
   await logImageUsage(userId, size);
 
-  const dirRel = path.join('uploads', 'ai-generated');
-  const dirAbs = path.join(process.cwd(), 'public', dirRel);
-  await mkdir(dirAbs, { recursive: true });
-
-  const fileName = `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`;
-  await writeFile(path.join(dirAbs, fileName), Buffer.from(b64, 'base64'));
-
-  return `/${dirRel.replace(/\\/g, '/')}/${fileName}`;
+  return saveImageBuffer(Buffer.from(b64, 'base64'), 'ai-generated', 'png');
 }
 
 export async function POST(req: NextRequest) {
   const guard = await requireRoleApi([...TEACHER_OR_ABOVE]);
   if ('error' in guard) return NextResponse.json({ error: guard.error }, { status: guard.status });
+
+  const rl = rateLimit(`ai:${guard.user.id}`, AI_LIMIT_PER_MIN, 60_000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: 'Muitas requisições em pouco tempo. Aguarde um momento e tente de novo.' },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } }
+    );
+  }
 
   if (guard.user.role !== 'ADMIN' && (await isUserOverAiSpendCap(guard.user.id))) {
     return NextResponse.json(
@@ -297,6 +359,32 @@ export async function POST(req: NextRequest) {
     .map((s, i) => `${i}: ${s.template}${i === activeIndex ? ' (slide ativo)' : ''}`)
     .join('\n');
 
+  // Flatten every attached image across the conversation into a stable, indexed list, and build the
+  // OpenAI message params — user messages with images become multimodal content so the vision-capable
+  // model can actually see them. Each image is tagged with its index so place_attached_image lines up.
+  const attachments: string[] = [];
+  const conversation: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = messages.map((m) => {
+    const imgs = Array.isArray(m.images)
+      ? m.images.filter((s): s is string => typeof s === 'string' && s.startsWith('data:image/'))
+      : [];
+    if (m.role !== 'user' || imgs.length === 0) {
+      return { role: m.role, content: m.content } as OpenAI.Chat.Completions.ChatCompletionMessageParam;
+    }
+    const parts: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [];
+    if (m.content) parts.push({ type: 'text', text: m.content });
+    for (const img of imgs) {
+      if (attachments.length >= MAX_TOTAL_ATTACHMENTS) break;
+      parts.push({ type: 'text', text: `[imagem anexada #${attachments.length}]` });
+      parts.push({ type: 'image_url', image_url: { url: img } });
+      attachments.push(img);
+    }
+    return { role: 'user', content: parts };
+  });
+
+  const attachmentsNote = attachments.length
+    ? `\nImagens anexadas nesta conversa: ${attachments.length} (índices 0 a ${attachments.length - 1}, na ordem em que aparecem, cada uma marcada acima com "[imagem anexada #N]"). Para COLOCAR uma delas num campo de imagem do slide, chame place_attached_image com o attachmentIndex correspondente. Para EXTRAIR o conteúdo delas, apenas leia a imagem e use as ferramentas normais.`
+    : '';
+
   const contextMessage = [
     `Deck completo (índice: template) — use estes índices em reorder_slide:`,
     deckList || '(deck vazio)',
@@ -305,12 +393,13 @@ export async function POST(req: NextRequest) {
     `Blocos móveis (dragKey) disponíveis para move_block: ${dragKeys.length ? dragKeys.join(', ') : '(nenhum)'}.`,
     'JSON de dados atual do slide ativo:',
     JSON.stringify(slideData, null, 2),
+    attachmentsNote,
   ].join('\n');
 
   const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     { role: 'system', content: SYSTEM_PROMPT },
     { role: 'system', content: contextMessage },
-    ...messages.map((m) => ({ role: m.role, content: m.content }) as OpenAI.Chat.Completions.ChatCompletionMessageParam),
+    ...conversation,
   ];
 
   let reply = '';
@@ -444,6 +533,42 @@ export async function POST(req: NextRequest) {
               resultSummary = 'error: missing prompt/orientation';
             }
             break;
+          case 'place_attached_image': {
+            const attachmentIndex = args.attachmentIndex;
+            const targetPath = args.path;
+            if (
+              typeof attachmentIndex !== 'number' ||
+              !Number.isInteger(attachmentIndex) ||
+              attachmentIndex < 0 ||
+              attachmentIndex >= attachments.length
+            ) {
+              resultSummary = 'error: attachmentIndex out of range';
+              break;
+            }
+            if (typeof targetPath !== 'string' || !targetPath) {
+              resultSummary = 'error: missing path';
+              break;
+            }
+            const parsed = parseDataUrl(attachments[attachmentIndex]);
+            if (!parsed) {
+              resultSummary = 'error: attachment is not a valid image';
+              break;
+            }
+            try {
+              const url = await saveImageBuffer(parsed.buffer, 'chat-attachments', parsed.ext);
+              actions.push({
+                kind: 'setField',
+                slideIndex: typeof args.slideIndex === 'number' ? args.slideIndex : undefined,
+                path: targetPath,
+                value: url,
+              });
+              resultSummary = `ok: attached image ${attachmentIndex} placed at ${targetPath} (url ${url})`;
+            } catch (err) {
+              const message = err instanceof Error ? err.message : 'unknown error';
+              resultSummary = `error: failed to place attached image — ${message}`;
+            }
+            break;
+          }
           default:
             resultSummary = `error: unknown tool ${call.function.name}`;
         }
