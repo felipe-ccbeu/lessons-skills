@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 
 const poppins = Poppins({
   variable: "--font-title",
@@ -33,7 +34,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <ImpersonationBanner />
+      </body>
     </html>
   );
 }

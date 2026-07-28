@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateUserRoleAction, deleteUserAction } from '@/lib/admin-actions';
+import { updateUserRoleAction, deleteUserAction, impersonateUserAction } from '@/lib/admin-actions';
 
 type UserRow = {
   id: string;
@@ -77,9 +77,17 @@ function UserRowItem({ user, isSelf }: { user: UserRow; isSelf: boolean }) {
             </button>
           </span>
         ) : (
-          <button type="button" className="btn" onClick={() => setConfirming(true)}>
-            Remover
-          </button>
+          <span className="flex items-center gap-1 justify-end">
+            <form action={impersonateUserAction} title="Ver o app com as permissões deste usuário">
+              <input type="hidden" name="id" value={user.id} />
+              <button type="submit" className="btn">
+                Ver como
+              </button>
+            </form>
+            <button type="button" className="btn" onClick={() => setConfirming(true)}>
+              Remover
+            </button>
+          </span>
         )}
       </td>
     </tr>

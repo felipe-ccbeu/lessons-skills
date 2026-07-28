@@ -1,7 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { requireRole } from '@/lib/dal';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { requireRole, getRealUser, IMPERSONATE_COOKIE } from '@/lib/dal';
 import { signOut } from '@/auth';
 import {
   createLevel,
@@ -13,7 +15,7 @@ import {
   createPart,
   deletePart,
 } from '@/lib/lessons';
-import { updateUserRole, deleteUser } from '@/lib/users';
+import { updateUserRole, deleteUser, getUserById } from '@/lib/users';
 import { setUserAiSpendCap, resetUserAiSpend } from '@/lib/aiUsage';
 import type { Role } from '@/generated/prisma/client';
 
@@ -117,6 +119,32 @@ export async function resetUserAiSpendAction(formData: FormData) {
   const id = String(formData.get('id'));
   await resetUserAiSpend(id);
   revalidatePath('/admin/ai-usage');
+}
+
+// Start impersonating a user ("Ver como"). Gated on the REAL account being an
+// admin — not getCurrentUser, which could itself be impersonated — so an
+// impersonation session can't be used to hop into yet another user.
+export async function impersonateUserAction(formData: FormData) {
+  const real = await getRealUser();
+  if (real?.role !== 'ADMIN') return;
+  const id = String(formData.get('id'));
+  if (!id || id === real.id) return; // no self-impersonation
+  const target = await getUserById(id);
+  if (!target) return;
+  (await cookies()).set(IMPERSONATE_COOKIE, id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+  });
+  redirect('/lessons');
+}
+
+// Exit impersonation and return to the admin's own account. Only clears the
+// cookie, so it stays safe to call regardless of the effective role.
+export async function stopImpersonatingAction() {
+  (await cookies()).delete(IMPERSONATE_COOKIE);
+  redirect('/admin/users');
 }
 
 export async function signOutAction() {

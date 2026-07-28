@@ -5,6 +5,10 @@ export async function getUsers() {
   return prisma.user.findMany({ orderBy: { email: 'asc' } });
 }
 
+export async function getUserById(id: string) {
+  return prisma.user.findUnique({ where: { id } });
+}
+
 export async function updateUserRole(id: string, role: Role) {
   return prisma.user.update({ where: { id }, data: { role } });
 }
