@@ -22,6 +22,21 @@ type ChatMessage = { role: 'user' | 'assistant'; content: string; images?: strin
 /** Cap on total attached images fed to the model per request, to bound payload/vision cost. */
 const MAX_TOTAL_ATTACHMENTS = 12;
 
+// Cost-bounding limits for a SINGLE request. The per-user spend cap and rate
+// limit bound aggregate usage over time; these bound how expensive one call can
+// get, so no individual request can run away with tokens or images.
+const MAX_COMPLETION_TOKENS = 2000; // ceiling on tokens the model may generate per round
+const MAX_HISTORY_MESSAGES = 24; // keep only the most recent turns of chat history
+const MAX_MESSAGE_CHARS = 6000; // truncate any single message fed to the model
+const MAX_SLIDE_JSON_CHARS = 20000; // truncate slide JSON dumped into context / tool results
+const MAX_BODY_BYTES = 25 * 1024 * 1024; // reject absurd payloads outright (generous: fits ~12 image attachments)
+const MAX_IMAGES_PER_REQUEST = 3; // cap on generate_image calls (the priciest op) per request
+
+/** Truncates text to at most `max` chars, marking the cut so the model knows content was omitted. */
+function truncate(text: string, max: number): string {
+  return text.length <= max ? text : `${text.slice(0, max)}\n…(truncado: ${text.length - max} caracteres omitidos)`;
+}
+
 const ADDABLE_TEMPLATE_NAMES = ADDABLE_TEMPLATES.map((t) => t.template);
 
 const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
@@ -341,6 +356,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'OPENAI_API_KEY não configurada no servidor.' }, { status: 500 });
   }
 
+  const contentLength = Number(req.headers.get('content-length') ?? 0);
+  if (contentLength > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Requisição muito grande.' }, { status: 413 });
+  }
+
   const body = await req.json();
   const messages = body.messages as ChatMessage[];
   const slideData = body.slideData as unknown;
@@ -353,6 +373,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Body deve incluir messages[], slideData e template.' }, { status: 400 });
   }
 
+  // Bound input cost: keep only the most recent turns and cap each message's length.
+  const trimmedMessages = messages
+    .slice(-MAX_HISTORY_MESSAGES)
+    .map((m) => ({ ...m, content: typeof m.content === 'string' ? truncate(m.content, MAX_MESSAGE_CHARS) : m.content }));
+
   const client = new OpenAI({ apiKey });
 
   const deckList = deckOverview
@@ -363,7 +388,7 @@ export async function POST(req: NextRequest) {
   // OpenAI message params — user messages with images become multimodal content so the vision-capable
   // model can actually see them. Each image is tagged with its index so place_attached_image lines up.
   const attachments: string[] = [];
-  const conversation: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = messages.map((m) => {
+  const conversation: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = trimmedMessages.map((m) => {
     const imgs = Array.isArray(m.images)
       ? m.images.filter((s): s is string => typeof s === 'string' && s.startsWith('data:image/'))
       : [];
@@ -392,7 +417,7 @@ export async function POST(req: NextRequest) {
     `Template do slide ativo: "${template}" (índice ${activeIndex}).`,
     `Blocos móveis (dragKey) disponíveis para move_block: ${dragKeys.length ? dragKeys.join(', ') : '(nenhum)'}.`,
     'JSON de dados atual do slide ativo:',
-    JSON.stringify(slideData, null, 2),
+    truncate(JSON.stringify(slideData, null, 2), MAX_SLIDE_JSON_CHARS),
     attachmentsNote,
   ].join('\n');
 
@@ -403,6 +428,7 @@ export async function POST(req: NextRequest) {
   ];
 
   let reply = '';
+  let imagesGenerated = 0;
   const actions: AiSlideAction[] = [];
 
   try {
@@ -411,6 +437,7 @@ export async function POST(req: NextRequest) {
         model: 'gpt-4.1-mini',
         messages: chatMessages,
         tools,
+        max_completion_tokens: MAX_COMPLETION_TOKENS,
       });
 
       await logTextUsage(guard.user.id, completion.usage);
@@ -449,7 +476,7 @@ export async function POST(req: NextRequest) {
               `ok: slide ${slideIndex} template "${target.template}"`,
               `dragKeys for move_block: ${slideDragKeys.length ? slideDragKeys.join(', ') : '(none)'}`,
               'data:',
-              JSON.stringify(target.data, null, 2),
+              truncate(JSON.stringify(target.data, null, 2), MAX_SLIDE_JSON_CHARS),
             ].join('\n');
             break;
           }
@@ -518,11 +545,14 @@ export async function POST(req: NextRequest) {
             break;
           case 'generate_image':
             if (typeof args.prompt === 'string' && typeof args.orientation === 'string') {
-              if (guard.user.role !== 'ADMIN' && (await isUserOverAiSpendCap(guard.user.id))) {
+              if (imagesGenerated >= MAX_IMAGES_PER_REQUEST) {
+                resultSummary = `error: image limit reached (${MAX_IMAGES_PER_REQUEST} per request) — stop generating; tell the teacher to ask again in a new message if more images are needed`;
+              } else if (guard.user.role !== 'ADMIN' && (await isUserOverAiSpendCap(guard.user.id))) {
                 resultSummary = 'error: user reached their AI spend cap — stop and tell the teacher to contact an admin';
               } else {
                 try {
                   const url = await generateSlideImage(client, args.prompt, args.orientation, guard.user.id);
+                  imagesGenerated++;
                   resultSummary = `ok: image generated at url ${url} — use set_field/add_list_item to place it on the appropriate imageUrl field`;
                 } catch (err) {
                   const message = err instanceof Error ? err.message : 'unknown error';
