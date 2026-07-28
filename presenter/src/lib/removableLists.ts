@@ -1,59 +1,17 @@
-// Maps a selected row's own dragKey (e.g. "matchColumn.prompts.3") to the (listPath, index) that
-// removeAtPath/getAtPath (dataPath.ts) need to remove it for real from `data` — used by
-// PresenterApp's removeSelectedListItems. Only templates with removable list rows are listed
-// here; a template/dragKey combo with no match falls back to reset-to-default behavior.
+// Which list rows each template lets you remove by selection, and how to resolve
+// a selected row's dragKey back to the (listPath, index) that removeAtPath needs.
+// The per-template config is derived from TEMPLATE_META (slideMeta.ts) — the
+// single source of truth; only the resolution logic lives here.
 import { SlideTemplate } from './types';
+import { TEMPLATE_META, type RemovableList } from './slideMeta';
 
-type RemovableList = {
-  /** Prefix used by each row's own dragKey (row i => `${rowDragKeyPrefix}.${i}`). */
-  rowDragKeyPrefix: string;
-  /** Dot-path into `data` that getAtPath/removeAtPath operate on. */
-  listPath: string;
-  /** Mirrors a MIN_* constant already local to the template component (e.g. MIN_OPTIONS in
-   *  PollSlide.tsx) — duplicated here deliberately so removal-by-selection respects the same
-   *  floor the template's own UI already enforces. Keep in sync manually if that constant changes. */
-  minLength?: number;
-};
+export type { RemovableList };
 
-export const REMOVABLE_LISTS_BY_TEMPLATE: Partial<Record<SlideTemplate, RemovableList[]>> = {
-  exercise1: [{ rowDragKeyPrefix: 'rows', listPath: 'rows' }],
-  practiceQaBadges: [{ rowDragKeyPrefix: 'rows', listPath: 'rows' }],
-  matchLetters: [{ rowDragKeyPrefix: 'rows', listPath: 'rows' }],
-  warmupOralTransform: [{ rowDragKeyPrefix: 'rows', listPath: 'rows' }],
-  photoGridBlank: [{ rowDragKeyPrefix: 'items', listPath: 'items' }],
-  grammarBoxLook: [
-    { rowDragKeyPrefix: 'rows', listPath: 'rows' },
-    { rowDragKeyPrefix: 'tips', listPath: 'tips' },
-  ],
-  changePlaces: [{ rowDragKeyPrefix: 'row', listPath: 'rows' }],
-  modelExampleList: [{ rowDragKeyPrefix: 'list', listPath: 'items' }],
-  matchVocabImage: [
-    { rowDragKeyPrefix: 'keywords', listPath: 'keywords' },
-    { rowDragKeyPrefix: 'answers', listPath: 'answers' },
-  ],
-  completeTheChart: [
-    { rowDragKeyPrefix: 'group1.rows', listPath: 'group1.rows' },
-    { rowDragKeyPrefix: 'group2.rows', listPath: 'group2.rows' },
-  ],
-  grammarBox2YesNo: [{ rowDragKeyPrefix: 'grammarBox.rows', listPath: 'rows' }],
-  matchingWithChart: [
-    { rowDragKeyPrefix: 'matchColumn.prompts', listPath: 'matchPrompts' },
-    { rowDragKeyPrefix: 'matchColumn.options', listPath: 'matchOptions' },
-    { rowDragKeyPrefix: 'chartColumn.rows', listPath: 'chartRows' },
-  ],
-  // LessonCompleteSlide's column count is data-driven (`data.columns`), not fixed — this static
-  // list covers up to 4 columns, more than the template's layout math realistically fits. A 5th
-  // column would silently fall back to "not removable" (reset-only) rather than crash.
-  lessonComplete: [0, 1, 2, 3].map((ci) => ({
-    rowDragKeyPrefix: `column${ci}.terms`,
-    listPath: `columns.${ci}.terms`,
-  })),
-  fluency1: [{ rowDragKeyPrefix: 'questions', listPath: 'questions' }],
-  poll: [{ rowDragKeyPrefix: 'options', listPath: 'options', minLength: 2 /* mirrors MIN_OPTIONS in PollSlide.tsx */ }],
-  multipleChoice: [
-    { rowDragKeyPrefix: 'options', listPath: 'options', minLength: 2 /* mirrors MIN_OPTIONS in MultipleChoiceSlide.tsx */ },
-  ],
-};
+export const REMOVABLE_LISTS_BY_TEMPLATE: Partial<Record<SlideTemplate, RemovableList[]>> = Object.fromEntries(
+  (Object.keys(TEMPLATE_META) as SlideTemplate[])
+    .map((t) => [t, TEMPLATE_META[t].removableLists] as const)
+    .filter((entry): entry is readonly [SlideTemplate, RemovableList[]] => entry[1] != null)
+);
 
 /** Resolves a selected row dragKey (e.g. "matchColumn.prompts.3") to its list + index, picking
  *  the longest matching prefix so a more specific entry (e.g. "matchColumn.prompts") isn't
