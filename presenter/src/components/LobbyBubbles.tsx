@@ -25,6 +25,27 @@ function colorFor(name: string): string {
   return BUBBLE_COLORS[Math.abs(sum) % BUBBLE_COLORS.length];
 }
 
+const AVATAR_MOUTH_VARIANTS = [
+  'cute',
+  'drip',
+  'kissHeart',
+  'lilSmile',
+  'plain',
+  'shout',
+  'shy',
+  'smileLol',
+  'smileTeeth',
+  'tongueOut',
+  'wideSmile',
+].join(',');
+
+// Deterministic per-student avatar: seeding on the student's (stable) id means
+// the same person keeps the same little character across polls/re-renders,
+// same as colorFor does for the fallback bubble color.
+function avatarUrlFor(id: string): string {
+  return `https://api.dicebear.com/10.x/fun-emoji/svg?seed=${encodeURIComponent(id)}&mouthVariant=${AVATAR_MOUTH_VARIANTS}`;
+}
+
 /**
  * Floating roster of student bubbles down the right edge of the first slide —
  * the projected "who's in the room" lobby board. Polls the students route
@@ -80,7 +101,16 @@ export function LobbyBubbles({ code }: { code: string }) {
                 animationDelay: `${(i % 6) * 0.25}s`,
               }}
             >
-              {initials(s.name)}
+              <img
+                src={avatarUrlFor(s.id)}
+                alt=""
+                style={styles.avatar}
+                onError={(e) => {
+                  // DiceBear unreachable: fall back to initials instead of a broken image icon.
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <span style={styles.initialsFallback}>{initials(s.name)}</span>
             </div>
             <p style={styles.name} title={s.name}>
               {s.name}
@@ -125,6 +155,7 @@ const styles = {
     textAlign: 'center' as const,
   },
   bubble: {
+    position: 'relative' as const,
     width: 72,
     height: 72,
     borderRadius: '50%',
@@ -132,11 +163,27 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
     border: '3px solid #12141A',
     color: '#fff',
     fontSize: 24,
     fontWeight: 800,
     animation: 'lobbyBob 3.6s ease-in-out infinite',
+  },
+  avatar: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover' as const,
+    position: 'relative' as const,
+    zIndex: 1,
+  },
+  // Sits underneath the <img>; only visible if the avatar fails to load.
+  initialsFallback: {
+    position: 'absolute' as const,
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   name: {
     marginTop: 8,
