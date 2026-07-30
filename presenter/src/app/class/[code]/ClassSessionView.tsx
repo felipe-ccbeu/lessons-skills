@@ -15,6 +15,25 @@ import {
   GrammarBoxLookSimplified,
   PhotoExerciseWhoIsThisSimplified,
   GuessFourImagesSimplified,
+  ObjectivesSimplified,
+  GettingStartedSimplified,
+  ComparativeSimplified,
+  CoverImageSimplified,
+  ChangePlacesSimplified,
+  CompleteTheChartSimplified,
+  Fluency1Simplified,
+  Fluency2Simplified,
+  Fluency3Simplified,
+  WarmupOralTransformSimplified,
+  ListenAndRepeatSimplified,
+  PhotoGridBlankSimplified,
+  GrammarBox2YesNoSimplified,
+  MatchVocabImageSimplified,
+  ModelExampleListSimplified,
+  LessonCompleteSimplified,
+  MatchingWithChartSimplified,
+  MatchLettersSimplified,
+  BlankSimplified,
 } from './SimplifiedSlide';
 import {
   SectionTransitionData,
@@ -28,6 +47,25 @@ import {
   PracticeQaBadgesData,
   PhotoExerciseWhoIsThisData,
   GuessFourImagesData,
+  ObjectivesData,
+  GettingStartedData,
+  ComparativeData,
+  CoverImageData,
+  ChangePlacesData,
+  CompleteTheChartData,
+  Fluency1Data,
+  Fluency2Data,
+  Fluency3Data,
+  WarmupOralTransformData,
+  ListenAndRepeatData,
+  PhotoGridBlankData,
+  GrammarBox2YesNoData,
+  MatchVocabImageData,
+  ModelExampleListData,
+  LessonCompleteData,
+  MatchingWithChartData,
+  MatchLettersData,
+  BlankData,
 } from '@/lib/types';
 
 type Props = { code: string; initialIndex: number; totalSlides: number };
@@ -150,6 +188,44 @@ function renderSimplified(template: string, data: unknown, revealed: boolean) {
       return <PhotoExerciseWhoIsThisSimplified data={data as PhotoExerciseWhoIsThisData} revealed={revealed} />;
     case 'guessFourImages':
       return <GuessFourImagesSimplified data={data as GuessFourImagesData} revealed={revealed} />;
+    case 'objectives':
+      return <ObjectivesSimplified data={data as ObjectivesData} />;
+    case 'gettingStarted':
+      return <GettingStartedSimplified data={data as GettingStartedData} />;
+    case 'comparative':
+      return <ComparativeSimplified data={data as ComparativeData} />;
+    case 'coverImage':
+      return <CoverImageSimplified data={data as CoverImageData} />;
+    case 'changePlaces':
+      return <ChangePlacesSimplified data={data as ChangePlacesData} revealed={revealed} />;
+    case 'completeTheChart':
+      return <CompleteTheChartSimplified data={data as CompleteTheChartData} revealed={revealed} />;
+    case 'fluency1':
+      return <Fluency1Simplified data={data as Fluency1Data} />;
+    case 'fluency2':
+      return <Fluency2Simplified data={data as Fluency2Data} />;
+    case 'fluency3':
+      return <Fluency3Simplified data={data as Fluency3Data} />;
+    case 'warmupOralTransform':
+      return <WarmupOralTransformSimplified data={data as WarmupOralTransformData} revealed={revealed} />;
+    case 'listenAndRepeat':
+      return <ListenAndRepeatSimplified data={data as ListenAndRepeatData} />;
+    case 'photoGridBlank':
+      return <PhotoGridBlankSimplified data={data as PhotoGridBlankData} revealed={revealed} />;
+    case 'grammarBox2YesNo':
+      return <GrammarBox2YesNoSimplified data={data as GrammarBox2YesNoData} />;
+    case 'matchVocabImage':
+      return <MatchVocabImageSimplified data={data as MatchVocabImageData} />;
+    case 'modelExampleList':
+      return <ModelExampleListSimplified data={data as ModelExampleListData} />;
+    case 'lessonComplete':
+      return <LessonCompleteSimplified data={data as LessonCompleteData} />;
+    case 'matchingWithChart':
+      return <MatchingWithChartSimplified data={data as MatchingWithChartData} revealed={revealed} />;
+    case 'matchLetters':
+      return <MatchLettersSimplified data={data as MatchLettersData} revealed={revealed} />;
+    case 'blank':
+      return <BlankSimplified data={data as BlankData} />;
     default:
       return <GenericSlideFallback data={data} />;
   }
