@@ -111,7 +111,7 @@ export function ObjectivesSlide({
         <div style={{ position: 'absolute', left: 80, top: 534, display: 'flex', gap: 40 }}>
           {SKILLS.map((s) => (
             <div key={s.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <Icon name={s.icon} size={28} />
+              <Icon name={s.icon} size={28} style={{ color: '#fff' }} />
               <span
                 style={{
                   fontFamily: 'var(--font-title)',
