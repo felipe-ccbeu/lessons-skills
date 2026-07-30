@@ -10,7 +10,9 @@ import { PastedBlocksLayer } from '@/components/ui/PastedBlocksLayer';
 import { LobbyBubbles } from '@/components/LobbyBubbles';
 import { Icon } from '@/components/ui/Icon';
 import { usePollTallies } from '@/lib/usePollTallies';
+import { useClassSession } from '@/lib/useClassSession';
 import { PollLiveResults } from '@/components/slides/PollSlide';
+import { QaLiveResults } from '@/components/slides/PracticeQaBadgesSlide';
 
 type Props = {
   slides: Slide[];
@@ -28,6 +30,26 @@ function slideHasAnswer(slide: Slide): boolean {
   return (slide.answerFields?.length ?? 0) > 0;
 }
 
+// Slide templates that run a live vote round the whole time they're on
+// screen: `poll` (single question, teacher-defined options) and
+// `multipleChoice` (each option is a possible answer, one of them marked
+// correct in the editor). Both open one PollSession per slide-entry, keyed by
+// `rowIndex: null` — see `startVoting`. A type guard (rather than a plain
+// Set.has check) so callers get `slide.data` narrowed to the two variants
+// that actually have `.question`/`.options`.
+type VotableSlide = Extract<Slide, { template: 'poll' | 'multipleChoice' }>;
+function isVotableSlide(slide: Slide): slide is VotableSlide {
+  return slide.template === 'poll' || slide.template === 'multipleChoice';
+}
+
+// Pulls "the label for option i" out of a votable slide's data regardless of
+// which of the two shapes it is (`PollOptionDraft.label` vs
+// `MultipleChoiceOptionDraft.text`).
+function votableOptionLabels(slide: VotableSlide): string[] {
+  if (slide.template === 'poll') return slide.data.options.map((o) => o.label);
+  return slide.data.options.map((o) => o.text);
+}
+
 type PollSessionState = {
   code: string;
   // Options as created in the DB for THIS round, in slide order. Their ids
@@ -35,9 +57,6 @@ type PollSessionState = {
   // the slide matches them back to its options positionally (see PollSlide).
   options: { id: string; label: string }[];
 };
-// One live Yes/No round per question row of a `practiceQaBadges` slide, keyed
-// by that row's index. Opened all at once when the teacher enters the slide.
-type QaSessionsState = Record<number, PollSessionState>;
 type ClassSessionInfo = { code: string; joinUrl: string; qrDataUrl: string | null };
 
 export function PresentationOverlay({ slides, startIndex, onExit, partId }: Props) {
@@ -46,7 +65,6 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
   const [revealed, setRevealed] = useState(false);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [pollSession, setPollSession] = useState<PollSessionState | null>(null);
-  const [qaSessions, setQaSessions] = useState<QaSessionsState>({});
   const [classSession, setClassSession] = useState<ClassSessionInfo | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(false);
@@ -83,14 +101,15 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     setRevealed(false);
   }, [index]);
 
-  // Voting is always live while a poll slide is on screen: entering one opens
-  // a fresh round automatically (no "Iniciar votação" click), and leaving it
-  // clears the round. Revisiting a poll slide always starts a brand-new round
-  // rather than resuming an old one, so each visit's tallies stand alone. The
-  // `startedPollForIndex` guard makes this fire exactly once per entry even
-  // under StrictMode's double-effect — two rounds would otherwise be created.
+  // Voting is always live while a poll or multiple-choice slide is on screen:
+  // entering one opens a fresh round automatically (no "Iniciar votação"
+  // click), and leaving it clears the round. Revisiting always starts a
+  // brand-new round rather than resuming an old one, so each visit's tallies
+  // stand alone. The `startedPollForIndex` guard makes this fire exactly once
+  // per entry even under StrictMode's double-effect — two rounds would
+  // otherwise be created.
   useEffect(() => {
-    if (slides[index].template !== 'poll' || !partId) {
+    if (!isVotableSlide(slides[index]) || !partId) {
       setPollSession(null);
       startedPollForIndex.current = null;
       return;
@@ -106,7 +125,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
 
   const startVoting = async () => {
     const currentSlide = slides[index];
-    if (!partId || currentSlide.template !== 'poll') return;
+    if (!partId || !isVotableSlide(currentSlide)) return;
     const res = await fetch('/api/polls/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -114,7 +133,7 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
         partId,
         slideId: currentSlide.id,
         question: currentSlide.data.question,
-        options: currentSlide.data.options.map((o) => o.label),
+        options: votableOptionLabels(currentSlide),
       }),
     });
     if (!res.ok) return;
@@ -142,13 +161,11 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
   // Leaving the slide clears them; revisiting opens a brand-new set.
   useEffect(() => {
     if (slides[index].template !== 'practiceQaBadges' || !partId) {
-      setQaSessions({});
       startedQaForIndex.current = null;
       return;
     }
     if (startedQaForIndex.current === index) return;
     startedQaForIndex.current = index;
-    setQaSessions({});
     startQaVoting();
     // startQaVoting is stable enough here; re-running only on slide change is
     // exactly the intent (one fresh set of rounds per slide entry).
@@ -160,11 +177,13 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
     if (!partId || currentSlide.template !== 'practiceQaBadges') return;
     const rows = currentSlide.data.rows;
 
-    // Open all rounds in parallel, then commit them together so the slide sees
-    // a complete set (or none) rather than rounds trickling in one by one.
-    const created = await Promise.all(
-      rows.map(async (row, rowIndex) => {
-        const res = await fetch('/api/polls/sessions', {
+    // Open all rounds in parallel and wait for the full set before re-pushing
+    // the slide below — their tallies are read back via qaPolls on our own
+    // class-session subscription (see classSessionState above), not tracked
+    // in local state here.
+    await Promise.all(
+      rows.map((row, rowIndex) =>
+        fetch('/api/polls/sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -174,16 +193,9 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
             question: row.question,
             options: [row.yes, row.no],
           }),
-        });
-        if (!res.ok) return null;
-        const session = await res.json();
-        return [rowIndex, { code: session.code, options: session.options }] as const;
-      })
+        })
+      )
     );
-
-    const next: QaSessionsState = {};
-    for (const entry of created) if (entry) next[entry[0]] = entry[1];
-    setQaSessions(next);
 
     // Re-push the current slide so already-joined phones pick up the freshly
     // opened rounds (computeClassSessionState re-queries for open rounds).
@@ -197,6 +209,11 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
   };
 
   const { tallies, total } = usePollTallies(pollSession?.code ?? null);
+  // practiceQaBadges' per-row rounds already carry their own tallies inside
+  // computeClassSessionState's `qaPolls` — cheaper to read them back off our
+  // own class-session stream than to open a second live-tallies subscription
+  // per row.
+  const classSessionState = useClassSession(classSession?.code ?? null);
 
   // Get-or-create the persistent class-session code once per mount — NOT
   // re-run on slide change, unlike `startVoting` which intentionally
@@ -374,6 +391,11 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
               liveResults={
                 slide.template === 'poll' && pollSession
                   ? ({ ...pollSession, tallies, total } satisfies PollLiveResults)
+                  : undefined
+              }
+              qaResults={
+                slide.template === 'practiceQaBadges'
+                  ? (classSessionState?.qaPolls as QaLiveResults | undefined)
                   : undefined
               }
             />

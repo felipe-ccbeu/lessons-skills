@@ -90,6 +90,10 @@ export type MultipleChoiceData = {
   tag: string;
   question: string;
   options: MultipleChoiceOptionDraft[]; // any length, lettered A/B/C/... automatically
+  // MultipleChoiceOptionDraft.id of the correct option, set by the teacher in
+  // the editor. Undefined/absent means "no correct answer marked yet" — the
+  // live-vote flow simply skips right/wrong feedback in that case.
+  correctOptionId?: string;
 };
 
 export type GuessFourImagesData = {

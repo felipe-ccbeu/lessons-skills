@@ -2,6 +2,8 @@
 
 import { useClassSession } from '@/lib/useClassSession';
 import { VoteForm } from '@/app/poll/[code]/VoteForm';
+import { MultipleChoiceVoteForm } from './MultipleChoiceVoteForm';
+import { PracticeQaBadgesVoteForm, QaRow } from './PracticeQaBadgesVoteForm';
 import { StudentGate } from './StudentGate';
 import { StudentBar } from './StudentBar';
 import {
@@ -11,8 +13,6 @@ import {
   PptxImageSimplified,
   CustomHtmlSimplified,
   GrammarBoxLookSimplified,
-  MultipleChoiceSimplified,
-  PracticeQaBadgesSimplified,
   PhotoExerciseWhoIsThisSimplified,
   GuessFourImagesSimplified,
 } from './SimplifiedSlide';
@@ -73,6 +73,49 @@ function ClassSlideView({ code, initialIndex, totalSlides }: Props) {
     );
   }
 
+  if (state.template === 'multipleChoice') {
+    const mcData = state.data as MultipleChoiceData;
+    if (state.poll?.pollOpen) {
+      // `state.poll.options` are this round's own PollOption ids (server-side,
+      // distinct from the slide's own option ids) but in the same order as
+      // `mcData.options` — so the correct answer's position in the slide's
+      // list is also its position in the live round.
+      const correctSlideIndex = mcData.options.findIndex((o) => o.id === mcData.correctOptionId);
+      const correctIndex = correctSlideIndex === -1 ? undefined : correctSlideIndex;
+      return (
+        <MultipleChoiceVoteForm
+          code={state.poll.pollCode}
+          question={state.poll.question}
+          options={state.poll.options}
+          correctIndex={correctIndex}
+        />
+      );
+    }
+    return (
+      <main style={waitingStyle}>
+        <h1 style={{ fontSize: 20, color: '#1c2027', marginBottom: 24 }}>{mcData.question}</h1>
+        <p style={{ fontSize: 15, color: '#6b7280' }}>Aguardando o professor abrir a pergunta…</p>
+      </main>
+    );
+  }
+
+  if (state.template === 'practiceQaBadges') {
+    const qaData = state.data as PracticeQaBadgesData;
+    const qaPolls = state.qaPolls ?? {};
+    const rows: QaRow[] = qaData.rows.map((row, i) => {
+      const roundPoll = qaPolls[i];
+      // `roundPoll.options` are this round's own PollOption ids (server-side,
+      // distinct from the slide's own ids) but created in [yes, no] order —
+      // see startQaVoting in PresentationOverlay.tsx — so position tells them
+      // apart rather than matching by label/id.
+      const poll = roundPoll?.pollOpen
+        ? { pollCode: roundPoll.pollCode, yesOptionId: roundPoll.options[0]?.id ?? '', noOptionId: roundPoll.options[1]?.id ?? '' }
+        : undefined;
+      return { question: row.question, yesLabel: row.yes, noLabel: row.no, poll };
+    });
+    return <PracticeQaBadgesVoteForm rows={rows} />;
+  }
+
   return (
     <>
       {renderSimplified(state.template, state.data, state.revealed)}
@@ -103,10 +146,6 @@ function renderSimplified(template: string, data: unknown, revealed: boolean) {
       return <CustomHtmlSimplified data={data as CustomHtmlData} />;
     case 'grammarBoxLook':
       return <GrammarBoxLookSimplified data={data as GrammarBoxLookData} revealed={revealed} />;
-    case 'multipleChoice':
-      return <MultipleChoiceSimplified data={data as MultipleChoiceData} />;
-    case 'practiceQaBadges':
-      return <PracticeQaBadgesSimplified data={data as PracticeQaBadgesData} />;
     case 'photoExerciseWhoIsThis':
       return <PhotoExerciseWhoIsThisSimplified data={data as PhotoExerciseWhoIsThisData} revealed={revealed} />;
     case 'guessFourImages':

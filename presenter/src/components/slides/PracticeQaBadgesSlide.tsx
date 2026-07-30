@@ -5,6 +5,16 @@ import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, PracticeQaBadgesData, PracticeQaBadgesRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
 import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
+// One live Yes/No round per question row, keyed by rowIndex — only rows the
+// teacher has opened a round for appear here (see startQaVoting in
+// PresentationOverlay.tsx). `options` are in [yes, no] order (that's the
+// order startQaVoting creates them in), and `tallies` is keyed by those same
+// option ids, which differ from anything on the slide itself.
+export type QaLiveResults = Record<
+  number,
+  { pollCode: string; pollOpen: boolean; options: { id: string; label: string }[]; tallies: Record<string, number>; total: number }
+>;
+
 type Props = {
   data: PracticeQaBadgesData;
   onEdit: (patch: Partial<PracticeQaBadgesData>) => void;
@@ -12,6 +22,10 @@ type Props = {
   answerFields?: string[];
   onToggleAnswerField?: (key: string) => void;
   revealAnswers?: boolean;
+  // Live Yes/No tallies per row, only present while presenting (never during
+  // editing/thumbnails). Shown as soon as votes come in — no reveal gesture,
+  // since there's no right/wrong answer to hide, just the class's own count.
+  qaResults?: QaLiveResults;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
   layoutOverrides?: LayoutOverrides;
@@ -35,6 +49,7 @@ export function PracticeQaBadgesSlide({
   answerFields = [],
   onToggleAnswerField,
   revealAnswers = true,
+  qaResults,
   styleOverrides = {},
   onStyleFieldChange,
   layoutOverrides = {},
@@ -110,72 +125,84 @@ export function PracticeQaBadgesSlide({
         </SlideStaggerItem>
 
         <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 280, width: 1120 }} {...dragProps('rows')}>
-          {rows.map((row, i) => (
-            <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`rows.${i}`)}>
-              <div
-                className="ex-row"
-                style={{
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  height: rowH,
-                  borderBottom: '1px solid var(--border-hair)',
-                }}
-                onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
-              >
-                <div style={{ flex: '0 0 34px', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '10pt', color: 'var(--ccbeu-blue)' }}>
-                  {i + 1}
-                </div>
-                <Editable
-                  value={row.question}
-                  onChange={(v) => updateRow(i, { question: v })}
-                  editMode={editMode}
-                  {...answerProps(`rows.${i}.question`)}
-                  style={{ flex: '0 0 400px', fontFamily: 'var(--font-title)', fontWeight: 600, fontSize: `${fontPt}pt`, color: 'var(--ink)' }}
-                />
-                <Editable
-                  value={row.yes}
-                  onChange={(v) => updateRow(i, { yes: v })}
-                  editMode={editMode}
-                  {...answerProps(`rows.${i}.yes`)}
+          {rows.map((row, i) => {
+            const round = qaResults?.[i];
+            // `round.options` are in [yes, no] order — see startQaVoting in
+            // PresentationOverlay.tsx — so position tells them apart rather
+            // than matching by label/id.
+            const yesCount = round ? round.tallies[round.options[0]?.id ?? ''] ?? 0 : undefined;
+            const noCount = round ? round.tallies[round.options[1]?.id ?? ''] ?? 0 : undefined;
+            return (
+              <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`rows.${i}`)}>
+                <div
+                  className="ex-row"
                   style={{
-                    flex: '0 0 300px',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: `${fontPt}pt`,
-                    color: '#2e7d32',
-                    background: '#e8f5e9',
-                    border: '1px solid #2e7d32',
-                    borderRadius: 6,
-                    padding: '6px 12px',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    height: rowH,
+                    borderBottom: '1px solid var(--border-hair)',
                   }}
-                />
-                <Editable
-                  value={row.no}
-                  onChange={(v) => updateRow(i, { no: v })}
-                  editMode={editMode}
-                  {...answerProps(`rows.${i}.no`)}
-                  style={{
-                    flex: '1 1 auto',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: `${fontPt}pt`,
-                    color: '#c62828',
-                    background: '#fdecea',
-                    border: '1px solid #c62828',
-                    borderRadius: 6,
-                    padding: '6px 12px',
-                  }}
-                />
-                {editMode && (
-                  <div className="row-controls">
-                    <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
-                      <Icon name="close" size={14} />
-                    </button>
+                  onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeRow(i)) : undefined}
+                >
+                  <div style={{ flex: '0 0 34px', fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '10pt', color: 'var(--ccbeu-blue)' }}>
+                    {i + 1}
                   </div>
-                )}
-              </div>
-            </SlideStaggerItem>
-          ))}
+                  <Editable
+                    value={row.question}
+                    onChange={(v) => updateRow(i, { question: v })}
+                    editMode={editMode}
+                    {...answerProps(`rows.${i}.question`)}
+                    style={{ flex: '0 0 400px', fontFamily: 'var(--font-title)', fontWeight: 600, fontSize: `${fontPt}pt`, color: 'var(--ink)' }}
+                  />
+                  <div style={{ flex: '0 0 300px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Editable
+                      value={row.yes}
+                      onChange={(v) => updateRow(i, { yes: v })}
+                      editMode={editMode}
+                      {...answerProps(`rows.${i}.yes`)}
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: `${fontPt}pt`,
+                        color: '#2e7d32',
+                        background: '#e8f5e9',
+                        border: '1px solid #2e7d32',
+                        borderRadius: 6,
+                        padding: '6px 12px',
+                      }}
+                    />
+                    {yesCount !== undefined && <VoteCount count={yesCount} color="#2e7d32" />}
+                  </div>
+                  <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Editable
+                      value={row.no}
+                      onChange={(v) => updateRow(i, { no: v })}
+                      editMode={editMode}
+                      {...answerProps(`rows.${i}.no`)}
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: `${fontPt}pt`,
+                        color: '#c62828',
+                        background: '#fdecea',
+                        border: '1px solid #c62828',
+                        borderRadius: 6,
+                        padding: '6px 12px',
+                      }}
+                    />
+                    {noCount !== undefined && <VoteCount count={noCount} color="#c62828" />}
+                  </div>
+                  {editMode && (
+                    <div className="row-controls">
+                      <button type="button" className="row-btn remove" title="Remover linha" onClick={() => removeRow(i)}>
+                        <Icon name="close" size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </SlideStaggerItem>
+            );
+          })}
         </SlideStaggerItem>
       </SlideStagger>
       {editMode && (
@@ -188,5 +215,31 @@ export function PracticeQaBadgesSlide({
       </div>
       {menuElement}
     </div>
+  );
+}
+
+// Small live vote count next to a Yes/No badge — deliberately just a number
+// (not a full progress bar) so it fits this template's already-compact
+// per-row layout without pushing the badges around.
+function VoteCount({ count, color }: { count: number; color: string }) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 22,
+        height: 22,
+        padding: '0 6px',
+        borderRadius: 999,
+        background: color,
+        color: '#fff',
+        fontFamily: 'var(--font-title)',
+        fontWeight: 700,
+        fontSize: '10pt',
+      }}
+    >
+      {count}
+    </span>
   );
 }

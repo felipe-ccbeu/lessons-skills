@@ -70,7 +70,14 @@ export function MultipleChoiceSlide({
   };
   const removeOption = (i: number) => {
     if (options.length <= MIN_OPTIONS) return;
-    onEdit({ options: options.filter((_, idx) => idx !== i) });
+    const next = options.filter((_, idx) => idx !== i);
+    // Dropping the option marked correct clears the mark too, so it never
+    // points at a removed option.
+    const correctOptionId = options[i]?.id === data.correctOptionId ? undefined : data.correctOptionId;
+    onEdit({ options: next, correctOptionId });
+  };
+  const setCorrectOption = (id: string) => {
+    onEdit({ correctOptionId: data.correctOptionId === id ? undefined : id });
   };
   const { openOnContextMenu, menuElement } = useRemoveItemMenu();
 
@@ -126,6 +133,8 @@ export function MultipleChoiceSlide({
                 letter={LETTERS[i] ?? '?'}
                 option={opt}
                 editMode={editMode}
+                isCorrect={data.correctOptionId === opt.id}
+                onSetCorrect={() => setCorrectOption(opt.id)}
                 onChangeText={(v) => updateOption(i, v)}
                 onRemove={options.length > MIN_OPTIONS ? () => removeOption(i) : undefined}
                 onContextMenu={editMode && options.length > MIN_OPTIONS ? (e) => openOnContextMenu(e, () => removeOption(i)) : undefined}
@@ -159,6 +168,8 @@ type OptionProps = {
   letter: string;
   option: MultipleChoiceOptionDraft;
   editMode: boolean;
+  isCorrect: boolean;
+  onSetCorrect: () => void;
   onChangeText: (v: string) => void;
   onRemove?: () => void;
   onContextMenu?: (e: MouseEvent) => void;
@@ -169,15 +180,15 @@ type OptionProps = {
   onStyleChange?: (patch: TextStyleOverride | null) => void;
 };
 
-function MultipleChoiceOption({ letter, option, editMode, onChangeText, onRemove, onContextMenu, ...editableProps }: OptionProps) {
+function MultipleChoiceOption({ letter, option, editMode, isCorrect, onSetCorrect, onChangeText, onRemove, onContextMenu, ...editableProps }: OptionProps) {
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }} onContextMenu={onContextMenu}>
+    <div className="ex-row" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }} onContextMenu={onContextMenu}>
       <div
         style={{
           flex: '0 0 34px',
           height: 34,
           borderRadius: 8,
-          border: '1px solid var(--border-hair)',
+          border: `1px solid ${isCorrect ? 'var(--ccbeu-blue)' : 'var(--border-hair)'}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -196,11 +207,22 @@ function MultipleChoiceOption({ letter, option, editMode, onChangeText, onRemove
         {...editableProps}
         style={{ fontFamily: 'var(--font-body)', fontSize: '15pt', color: 'var(--ink)' }}
       />
-      {editMode && onRemove && (
-        <div className="row-controls" style={{ position: 'static', opacity: 1 }}>
-          <button type="button" className="row-btn remove" title="Remover alternativa" onClick={onRemove}>
-            <Icon name="close" size={14} />
+      {editMode && (
+        <div className="row-controls">
+          <button
+            type="button"
+            className="row-btn"
+            title={isCorrect ? 'Alternativa correta' : 'Marcar como correta'}
+            onClick={onSetCorrect}
+            style={{ color: isCorrect ? '#1a9e5c' : undefined, borderColor: isCorrect ? '#1a9e5c' : undefined }}
+          >
+            <Icon name="check_circle" size={14} />
           </button>
+          {onRemove && (
+            <button type="button" className="row-btn remove" title="Remover alternativa" onClick={onRemove}>
+              <Icon name="close" size={14} />
+            </button>
+          )}
         </div>
       )}
     </div>

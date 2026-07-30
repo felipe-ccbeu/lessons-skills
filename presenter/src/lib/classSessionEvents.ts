@@ -26,6 +26,11 @@ export type ClassSessionState = {
   // the teacher advances/reveals — exactly like the projected slide.
   revealed: boolean;
   poll?: ClassSessionPollState;
+  // `practiceQaBadges` runs one live Yes/No round per question row instead of
+  // a single slide-wide round — keyed by rowIndex, only rows the teacher has
+  // actually opened a round for appear here (see startQaVoting in
+  // PresentationOverlay.tsx and getOpenPollSessionsByRow in polls.ts).
+  qaPolls?: Record<number, ClassSessionPollState>;
 };
 
 export function emitClassSessionUpdate(code: string, data: ClassSessionState) {

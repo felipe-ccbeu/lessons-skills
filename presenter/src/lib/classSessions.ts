@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { Slide } from '@/lib/types';
-import { emitClassSessionUpdate, ClassSessionState } from '@/lib/classSessionEvents';
-import { getOpenPollSessionForSlide, getTallies } from '@/lib/polls';
+import { emitClassSessionUpdate, ClassSessionState, ClassSessionPollState } from '@/lib/classSessionEvents';
+import { getOpenPollSessionForSlide, getOpenPollSessionsByRow, getTallies } from '@/lib/polls';
 
 function randomCode(): string {
   // Short, human-typeable, avoids visually ambiguous chars (0/O, 1/I/l).
@@ -82,7 +82,16 @@ export async function computeClassSessionState(code: string): Promise<ClassSessi
     revealed: session.revealed,
   };
 
-  if (slide.template === 'poll') {
+  // `poll` and `multipleChoice` both run a live vote round the whole time
+  // they're on screen (see VOTABLE_TEMPLATES in PresentationOverlay.tsx) — a
+  // fresh round per slide-entry, keyed by rowIndex: null. Same shape either
+  // way; `multipleChoice` additionally carries `correctOptionId` for the
+  // student's phone to grade its own vote against.
+  if (slide.template === 'poll' || slide.template === 'multipleChoice') {
+    const slideOptions = slide.data.options.map((o) => ({
+      id: o.id,
+      label: 'label' in o ? o.label : o.text,
+    }));
     const openPoll = await getOpenPollSessionForSlide(session.partId, slide.id);
     if (openPoll) {
       const { tallies, total } = await getTallies(openPoll.id);
@@ -99,11 +108,28 @@ export async function computeClassSessionState(code: string): Promise<ClassSessi
         pollCode: '',
         pollOpen: false,
         question: slide.data.question,
-        options: slide.data.options.map((o) => ({ id: o.id, label: o.label })),
+        options: slideOptions,
         tallies: {},
         total: 0,
       };
     }
+  }
+
+  if (slide.template === 'practiceQaBadges') {
+    const openByRow = await getOpenPollSessionsByRow(session.partId, slide.id);
+    const qaPolls: Record<number, ClassSessionPollState> = {};
+    for (const [rowIndex, pollSession] of openByRow) {
+      const { tallies, total } = await getTallies(pollSession.id);
+      qaPolls[rowIndex] = {
+        pollCode: pollSession.code,
+        pollOpen: true,
+        question: pollSession.question,
+        options: pollSession.options.map((o) => ({ id: o.id, label: o.label })),
+        tallies,
+        total,
+      };
+    }
+    state.qaPolls = qaPolls;
   }
 
   return state;

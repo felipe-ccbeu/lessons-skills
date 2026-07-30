@@ -5,16 +5,15 @@ import {
   PptxImageData,
   CustomHtmlData,
   GrammarBoxLookData,
-  MultipleChoiceData,
-  PracticeQaBadgesData,
   PhotoExerciseWhoIsThisData,
   GuessFourImagesData,
 } from '@/lib/types';
 
 // Deliberately plain, lightweight views for the student's phone — no Framer
 // Motion, no desktop two-column layouts, just the content that matters per
-// template. The 'poll' template isn't here: it's handled specially by
-// ClassSessionView, which swaps in the reused VoteForm instead.
+// template. 'poll', 'multipleChoice' and 'practiceQaBadges' aren't here: all
+// three are handled specially by ClassSessionView, which swaps in a live
+// VoteForm instead.
 //
 // Answer reveal: every view that shows an answer takes a `revealed` prop
 // mirrored from the teacher's overlay (via the class session). Until the
@@ -139,44 +138,6 @@ export function GrammarBoxLookSimplified({ data, revealed = true }: { data: Gram
   );
 }
 
-export function MultipleChoiceSimplified({ data }: { data: MultipleChoiceData }) {
-  return (
-    <div style={styles.wrap}>
-      {data.tag && <div style={styles.tag}>{data.tag}</div>}
-      <h1 style={styles.title}>{data.question}</h1>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
-        {data.options.map((opt, i) => (
-          <div key={opt.id} style={styles.choice}>
-            <span style={styles.choiceLetter}>{String.fromCharCode(65 + i)}</span>
-            <span>{opt.text}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function PracticeQaBadgesSimplified({ data }: { data: PracticeQaBadgesData }) {
-  return (
-    <div style={styles.wrap}>
-      <h1 style={styles.title}>{data.title}</h1>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
-        {data.rows.map((row, i) => (
-          <div key={i} style={styles.qaCard}>
-            <p style={{ fontWeight: 700, margin: '0 0 6px' }}>{row.question}</p>
-            <p style={{ margin: 0, fontSize: 14 }}>
-              <span style={styles.badgeYes}>Yes</span> {row.yes}
-            </p>
-            <p style={{ margin: '4px 0 0', fontSize: 14 }}>
-              <span style={styles.badgeNo}>No</span> {row.no}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function PhotoExerciseWhoIsThisSimplified({
   data,
   revealed = true,
@@ -263,38 +224,6 @@ const styles = {
     margin: '16px 0 8px',
   },
   tips: { margin: '12px 0 0', paddingLeft: 18, fontSize: 14, color: '#6b7280', lineHeight: 1.5 },
-  choice: {
-    display: 'flex',
-    gap: 10,
-    alignItems: 'flex-start',
-    fontSize: 15,
-    lineHeight: 1.4,
-    padding: '12px 14px',
-    borderRadius: 10,
-    border: '1px solid #e4e6eb',
-  },
-  choiceLetter: { fontWeight: 800, color: '#0448df', flexShrink: 0 },
-  qaCard: { padding: '12px 14px', borderRadius: 10, border: '1px solid #e4e6eb' },
-  badgeYes: {
-    display: 'inline-block',
-    fontSize: 11,
-    fontWeight: 700,
-    color: '#0448df',
-    background: '#e7edff',
-    borderRadius: 999,
-    padding: '1px 8px',
-    marginRight: 6,
-  },
-  badgeNo: {
-    display: 'inline-block',
-    fontSize: 11,
-    fontWeight: 700,
-    color: '#b3261e',
-    background: '#fde8e6',
-    borderRadius: 999,
-    padding: '1px 8px',
-    marginRight: 6,
-  },
   imageGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',

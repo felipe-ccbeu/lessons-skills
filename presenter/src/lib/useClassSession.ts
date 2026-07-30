@@ -3,10 +3,10 @@
 import { useLiveResource } from '@/lib/useLiveResource';
 import { ClassSessionState } from '@/lib/classSessionEvents';
 
-export function useClassSession(code: string): ClassSessionState | null {
+export function useClassSession(code: string | null): ClassSessionState | null {
   return useLiveResource<ClassSessionState | null>(
-    `/api/class/${code}/stream`,
-    `/api/class/${code}/state`,
+    code ? `/api/class/${code}/stream` : null,
+    code ? `/api/class/${code}/state` : null,
     null
   );
 }
