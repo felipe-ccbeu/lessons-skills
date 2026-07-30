@@ -1,24 +1,35 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { avatarUrlFor, randomAvatarSeed } from '@/lib/avatar';
 
 type Props = {
   /** Prefilled name when editing an existing name, empty on first join. */
   initialName?: string;
+  /** Avatar seed to preview on mount — same seed the lobby overlay will render. */
+  initialAvatarSeed: string;
   /** Title shown on the card — differs for first join vs. editing. */
   heading: string;
   submitLabel: string;
-  /** Called with the trimmed name once it's saved on the server. */
-  onSubmit: (name: string) => Promise<void>;
+  /** Called with the trimmed name and chosen avatar seed once saved on the server. */
+  onSubmit: (name: string, avatarSeed: string) => Promise<void>;
   /** Shown only when editing, lets the student back out without changing anything. */
   onCancel?: () => void;
 };
 
 // The student's "enter your name" screen — brand-blue full-bleed background,
-// a single name field, nothing else. Also reused (with a heading/label swap)
-// as the "edit my name" screen from inside the class.
-export function StudentLogin({ initialName = '', heading, submitLabel, onSubmit, onCancel }: Props) {
+// a name field plus an avatar preview/shuffle, nothing else. Also reused
+// (with a heading/label swap) as the "edit my name" screen from inside the class.
+export function StudentLogin({
+  initialName = '',
+  initialAvatarSeed,
+  heading,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: Props) {
   const [name, setName] = useState(initialName);
+  const [avatarSeed, setAvatarSeed] = useState(initialAvatarSeed);
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
 
   async function handleSubmit(e: FormEvent) {
@@ -27,7 +38,7 @@ export function StudentLogin({ initialName = '', heading, submitLabel, onSubmit,
     if (!trimmed) return;
     setStatus('saving');
     try {
-      await onSubmit(trimmed);
+      await onSubmit(trimmed, avatarSeed);
     } catch {
       setStatus('error');
     }
@@ -42,6 +53,17 @@ export function StudentLogin({ initialName = '', heading, submitLabel, onSubmit,
         </div>
         <h1 style={styles.heading}>{heading}</h1>
         <p style={styles.subtitle}>Digite seu nome para participar da aula.</p>
+
+        <div style={styles.avatarRow}>
+          <img src={avatarUrlFor(avatarSeed)} alt="" style={styles.avatarPreview} />
+          <button
+            type="button"
+            style={styles.shuffleButton}
+            onClick={() => setAvatarSeed(randomAvatarSeed())}
+          >
+            Sortear novo personagem
+          </button>
+        </div>
 
         <input
           autoFocus
@@ -111,6 +133,30 @@ const styles = {
   brandName: { fontWeight: 700, color: '#1c2027', fontSize: 15 },
   heading: { fontSize: 21, fontWeight: 700, color: '#1c2027', margin: '0 0 6px', textAlign: 'center' as const },
   subtitle: { fontSize: 14, color: '#6b7280', margin: '0 0 22px', textAlign: 'center' as const },
+  avatarRow: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 22,
+  },
+  avatarPreview: {
+    width: 88,
+    height: 88,
+    borderRadius: '50%',
+    border: '3px solid #12141A',
+    objectFit: 'cover' as const,
+  },
+  shuffleButton: {
+    padding: '8px 14px',
+    fontSize: 13,
+    fontWeight: 600,
+    borderRadius: 10,
+    border: '1px solid #dde0e6',
+    background: '#f7f8fa',
+    color: '#1c2027',
+    cursor: 'pointer',
+  },
   input: {
     width: '100%',
     padding: '14px 16px',

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { avatarUrlFor } from '@/lib/avatar';
 
-type Student = { id: string; name: string };
+type Student = { id: string; name: string; avatarSeed: string | null };
 
 // Brand-adjacent palette for the bubbles — a bubble's color is derived
 // deterministically from the student's name so the same person keeps the same
@@ -23,27 +24,6 @@ function initials(name: string): string {
 function colorFor(name: string): string {
   const sum = [...name].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return BUBBLE_COLORS[Math.abs(sum) % BUBBLE_COLORS.length];
-}
-
-const AVATAR_MOUTH_VARIANTS = [
-  'cute',
-  'drip',
-  'kissHeart',
-  'lilSmile',
-  'plain',
-  'shout',
-  'shy',
-  'smileLol',
-  'smileTeeth',
-  'tongueOut',
-  'wideSmile',
-].join(',');
-
-// Deterministic per-student avatar: seeding on the student's (stable) id means
-// the same person keeps the same little character across polls/re-renders,
-// same as colorFor does for the fallback bubble color.
-function avatarUrlFor(id: string): string {
-  return `https://api.dicebear.com/10.x/fun-emoji/svg?seed=${encodeURIComponent(id)}&mouthVariant=${AVATAR_MOUTH_VARIANTS}`;
 }
 
 /**
@@ -102,7 +82,7 @@ export function LobbyBubbles({ code }: { code: string }) {
               }}
             >
               <img
-                src={avatarUrlFor(s.id)}
+                src={avatarUrlFor(s.avatarSeed ?? s.id)}
                 alt=""
                 style={styles.avatar}
                 onError={(e) => {

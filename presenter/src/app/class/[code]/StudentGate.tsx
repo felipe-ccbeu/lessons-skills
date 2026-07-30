@@ -2,6 +2,7 @@
 
 import { useEffect, useState, ReactNode } from 'react';
 import { StudentLogin } from './StudentLogin';
+import { randomAvatarSeed } from '@/lib/avatar';
 
 type Props = { code: string; children: (student: { name: string; onEditName: () => void }) => ReactNode };
 
@@ -12,6 +13,17 @@ function getDeviceKey(): string {
   if (stored) return stored;
   const fresh = crypto.randomUUID();
   localStorage.setItem('studentDeviceKey', fresh);
+  return fresh;
+}
+
+// The avatar seed is cached locally the same way the name is, purely so the
+// login/edit screen has something to preview instantly; the server's copy
+// (Student.avatarSeed) is still the source of truth the lobby overlay reads.
+function getCachedAvatarSeed(): string {
+  const stored = localStorage.getItem('studentAvatarSeed');
+  if (stored) return stored;
+  const fresh = randomAvatarSeed();
+  localStorage.setItem('studentAvatarSeed', fresh);
   return fresh;
 }
 
@@ -40,10 +52,11 @@ export function StudentGate({ code, children }: Props) {
       try {
         const res = await fetch(`/api/class/${code}/join?deviceKey=${encodeURIComponent(deviceKey)}`);
         if (!res.ok) throw new Error('lookup failed');
-        const data = (await res.json()) as { student: { name: string } | null };
+        const data = (await res.json()) as { student: { name: string; avatarSeed: string | null } | null };
         if (cancelled) return;
         if (data.student) {
           localStorage.setItem('studentName', data.student.name);
+          if (data.student.avatarSeed) localStorage.setItem('studentAvatarSeed', data.student.avatarSeed);
           setName(data.student.name);
         } else if (!cached) {
           setName(null);
@@ -61,16 +74,17 @@ export function StudentGate({ code, children }: Props) {
     };
   }, [code]);
 
-  async function save(newName: string) {
+  async function save(newName: string, avatarSeed: string) {
     const deviceKey = getDeviceKey();
     const res = await fetch(`/api/class/${code}/join`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceKey, name: newName }),
+      body: JSON.stringify({ deviceKey, name: newName, avatarSeed }),
     });
     if (!res.ok) throw new Error('join failed');
-    const data = (await res.json()) as { student: { name: string } };
+    const data = (await res.json()) as { student: { name: string; avatarSeed: string | null } };
     localStorage.setItem('studentName', data.student.name);
+    if (data.student.avatarSeed) localStorage.setItem('studentAvatarSeed', data.student.avatarSeed);
     setName(data.student.name);
     setEditing(false);
   }
@@ -84,7 +98,14 @@ export function StudentGate({ code, children }: Props) {
   }
 
   if (name === null) {
-    return <StudentLogin heading="Bem-vindo à aula" submitLabel="Entrar" onSubmit={save} />;
+    return (
+      <StudentLogin
+        heading="Bem-vindo à aula"
+        submitLabel="Entrar"
+        initialAvatarSeed={getCachedAvatarSeed()}
+        onSubmit={save}
+      />
+    );
   }
 
   if (editing) {
@@ -93,6 +114,7 @@ export function StudentGate({ code, children }: Props) {
         heading="Editar seu nome"
         submitLabel="Salvar"
         initialName={name}
+        initialAvatarSeed={getCachedAvatarSeed()}
         onSubmit={save}
         onCancel={() => setEditing(false)}
       />

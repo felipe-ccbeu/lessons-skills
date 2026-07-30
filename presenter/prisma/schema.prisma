@@ -129,8 +129,9 @@ model ClassSession {
 // This is the anchor future in-class interactions (votes, answers) will hang
 // off of, so we can attribute them to a named student.
 model Student {
-  id             String @id @default(cuid())
+  id             String  @id @default(cuid())
   name           String
+  avatarSeed     String? // DiceBear seed the student picked; falls back to id when unset
   deviceKey      String // opaque per-device id, from the student's localStorage
   classSessionId String
 

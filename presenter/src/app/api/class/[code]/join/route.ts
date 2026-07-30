@@ -17,11 +17,13 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
   if (!deviceKey) return NextResponse.json({ student: null });
 
   const student = await getStudentByDevice(code, deviceKey);
-  return NextResponse.json({ student: student ? { id: student.id, name: student.name } : null });
+  return NextResponse.json({
+    student: student ? { id: student.id, name: student.name, avatarSeed: student.avatarSeed } : null,
+  });
 }
 
-// POST { deviceKey, name } — join the class with a name, or update the name of
-// an already-joined device (same call, the upsert handles both).
+// POST { deviceKey, name, avatarSeed? } — join the class with a name, or update
+// the name/avatar of an already-joined device (same call, the upsert handles both).
 export async function POST(req: NextRequest, { params }: RouteParams) {
   const rl = rateLimit(`join:${getClientIp(req)}`, JOIN_LIMIT_PER_MIN, 60_000);
   if (!rl.ok) {
@@ -33,13 +35,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
   const { code } = await params;
   const body = await req.json();
-  const { deviceKey, name } = body as { deviceKey?: string; name?: string };
+  const { deviceKey, name, avatarSeed } = body as { deviceKey?: string; name?: string; avatarSeed?: string };
 
   if (!deviceKey || typeof name !== 'string') {
     return NextResponse.json({ error: 'deviceKey and name are required' }, { status: 400 });
   }
 
-  const result = await joinClass(code, deviceKey, name);
+  const result = await joinClass(code, deviceKey, name, avatarSeed);
   if (!result.ok) {
     const status = result.reason === 'not_found' ? 404 : 400;
     return NextResponse.json({ error: result.reason }, { status });
