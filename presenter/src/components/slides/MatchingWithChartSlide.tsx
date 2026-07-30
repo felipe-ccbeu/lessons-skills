@@ -5,6 +5,11 @@ import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, MatchingWithChartData, MatchingWithChartRow, StyleOverrides, TextStyleOverride } from '@/lib/types';
 import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
+// voterKey -> { promptIndex -> optionIndex }, one entry per student who has
+// placed at least one term — see matchEvents.ts. Purely in-memory scratch
+// state, not persisted like poll votes.
+export type MatchingWithChartLiveResults = Record<string, Record<number, number>>;
+
 type Props = {
   data: MatchingWithChartData;
   onEdit: (patch: Partial<MatchingWithChartData>) => void;
@@ -19,6 +24,7 @@ type Props = {
   stageScale?: number;
   blockAnimations?: BlockAnimations;
   onBlockAnimationChange?: (key: string, animation: BlockAnimationId) => void;
+  matchResults?: MatchingWithChartLiveResults;
 };
 
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
@@ -37,6 +43,7 @@ export function MatchingWithChartSlide({
   stageScale = 1,
   blockAnimations = {},
   onBlockAnimationChange,
+  matchResults,
 }: Props) {
   const dragProps = (key: string) => ({
     dragKey: key,
@@ -59,6 +66,17 @@ export function MatchingWithChartSlide({
   const prompts = data.matchPrompts;
   const options = data.matchOptions;
   const chartRows = data.chartRows;
+
+  // Live count of student choices per option, aggregated across every voter's
+  // per-prompt picks — see MatchingWithChartVoteForm for the phone side.
+  const optionCounts: Record<number, number> = {};
+  if (!editMode && matchResults) {
+    for (const choices of Object.values(matchResults)) {
+      for (const optionIndex of Object.values(choices)) {
+        optionCounts[optionIndex] = (optionCounts[optionIndex] ?? 0) + 1;
+      }
+    }
+  }
 
   const updatePrompt = (i: number, v: string) => onEdit({ matchPrompts: prompts.map((p, idx) => (idx === i ? v : p)) });
   const addPrompt = () => onEdit({ matchPrompts: [...prompts, 'New prompt'] });
@@ -182,6 +200,27 @@ export function MatchingWithChartSlide({
                   {...answerProps(`matchOptions.${i}`)}
                   style={{ fontFamily: 'var(--font-body)', fontSize: '13pt', color: 'var(--ink)' }}
                 />
+                {!editMode && optionCounts[i] > 0 && (
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: 22,
+                      height: 22,
+                      padding: '0 6px',
+                      borderRadius: 999,
+                      background: 'var(--ccbeu-blue)',
+                      color: '#fff',
+                      fontFamily: 'var(--font-title)',
+                      fontWeight: 700,
+                      fontSize: '9pt',
+                    }}
+                    title={`${optionCounts[i]} aluno(s) escolheram esta opção`}
+                  >
+                    {optionCounts[i]}
+                  </span>
+                )}
                 {editMode && (
                   <div className="row-controls">
                     <button type="button" className="row-btn remove" title="Remover" onClick={() => removeOption(i)}>

@@ -6,6 +6,12 @@ import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, LayoutOffset, LayoutOverrides, MatchVocabImageData, StyleOverrides, TextStyleOverride } from '@/lib/types';
 import { BlockAnimationId } from '@/lib/blockEntranceAnimations';
 
+// One student's live guesses for this slide: keywordIndex -> position (0..1
+// relative to the image box). Mirrors dragEvents.ts's VoterDragState without
+// importing that server module directly (same pattern as PollLiveResults /
+// QaLiveResults in the sibling slide components).
+export type MatchVocabImageLiveResults = Record<string, Record<number, { x: number; y: number }>>;
+
 type Props = {
   data: MatchVocabImageData;
   onEdit: (patch: Partial<MatchVocabImageData>) => void;
@@ -13,6 +19,9 @@ type Props = {
   answerFields?: string[];
   onToggleAnswerField?: (key: string) => void;
   revealAnswers?: boolean;
+  // Every joined student's current keyword placements, only present while
+  // presenting live (never during editing/thumbnails) — see PresentationOverlay.
+  dragResults?: MatchVocabImageLiveResults;
   styleOverrides?: StyleOverrides;
   onStyleFieldChange?: (key: string, patch: TextStyleOverride | null) => void;
   layoutOverrides?: LayoutOverrides;
@@ -29,6 +38,7 @@ export function MatchVocabImageSlide({
   answerFields = [],
   onToggleAnswerField,
   revealAnswers = true,
+  dragResults,
   styleOverrides = {},
   onStyleFieldChange,
   layoutOverrides = {},
@@ -56,15 +66,10 @@ export function MatchVocabImageSlide({
   });
 
   const keywords = data.keywords;
-  const answers = data.answers;
 
   const updateKeyword = (i: number, v: string) => onEdit({ keywords: keywords.map((k, idx) => (idx === i ? v : k)) });
   const addKeyword = () => onEdit({ keywords: [...keywords, 'word'] });
   const removeKeyword = (i: number) => onEdit({ keywords: keywords.filter((_, idx) => idx !== i) });
-
-  const updateAnswer = (i: number, v: string) => onEdit({ answers: answers.map((a, idx) => (idx === i ? v : a)) });
-  const addAnswer = () => onEdit({ answers: [...answers, 'answer'] });
-  const removeAnswer = (i: number) => onEdit({ answers: answers.filter((_, idx) => idx !== i) });
   const { openOnContextMenu, menuElement } = useRemoveItemMenu();
 
   return (
@@ -149,63 +154,52 @@ export function MatchVocabImageSlide({
           )}
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 76, top: 290, width: 847, height: 318 }} {...dragProps('image')}>
-          <ImageSlot
-            url={data.imageUrl}
-            onChange={(v) => onEdit({ imageUrl: v })}
-            editMode={editMode}
-            style={{ width: 847, height: 318, borderRadius: 6 }}
-          />
-        </SlideStaggerItem>
-
-        {answers.length > 0 && (
-          <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 960, top: 320, width: 240, display: 'flex', flexDirection: 'column', gap: 14 }} {...dragProps('answers')}>
-            {answers.map((ans, i) => (
-              <SlideStaggerItem key={i} disabled={editMode} {...dragProps(`answers.${i}`)}>
-                <div
-                  className="ex-row"
-                  style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}
-                  onContextMenu={editMode ? (e) => openOnContextMenu(e, () => removeAnswer(i)) : undefined}
-                >
-                  <span style={{ fontFamily: 'var(--font-title)', fontWeight: 700, color: 'var(--ccbeu-blue)' }}>{i + 1}</span>
-                  <Editable
-                    value={ans}
-                    onChange={(v) => updateAnswer(i, v)}
-                    editMode={editMode}
-                    tag="span"
-                    {...answerProps(`answers.${i}`)}
-                    style={{
-                      background: '#F2F5FF',
-                      borderRadius: 999,
-                      padding: '7px 18px',
-                      fontFamily: 'var(--font-title)',
-                      fontWeight: 700,
-                      fontSize: '11pt',
-                      color: 'var(--ccbeu-pink)',
-                    }}
-                  />
-                  {editMode && (
-                    <div className="row-controls">
-                      <button type="button" className="row-btn remove" title="Remover resposta" onClick={() => removeAnswer(i)}>
-                        <Icon name="close" size={14} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </SlideStaggerItem>
-            ))}
-            {editMode && (
-              <button type="button" className="add-row-btn" onClick={addAnswer}>
-                + Adicionar resposta
-              </button>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 76, top: 290, width: 1120, height: 318 }} {...dragProps('image')}>
+          <div style={{ position: 'relative', width: 1120, height: 318 }}>
+            <ImageSlot
+              url={data.imageUrl}
+              onChange={(v) => onEdit({ imageUrl: v })}
+              editMode={editMode}
+              style={{ width: 1120, height: 318, borderRadius: 6 }}
+            />
+            {/* Live student guesses: every joined phone's current keyword
+                placements, drawn low-opacity over the image so the teacher can
+                see the class's spread of answers without it reading as "the"
+                answer — see MatchVocabImageVoteForm for the phone side. */}
+            {!editMode && dragResults && (
+              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', borderRadius: 6 }}>
+                {Object.entries(dragResults).flatMap(([voterKey, placements]) =>
+                  Object.entries(placements).map(([keywordIndexStr, pos]) => {
+                    const keywordIndex = Number(keywordIndexStr);
+                    const label = keywords[keywordIndex];
+                    if (!label) return null;
+                    return (
+                      <span
+                        key={`${voterKey}-${keywordIndex}`}
+                        style={{
+                          position: 'absolute',
+                          left: `${pos.x * 100}%`,
+                          top: `${pos.y * 100}%`,
+                          transform: 'translate(-50%, -50%)',
+                          padding: '5px 12px',
+                          borderRadius: 999,
+                          background: 'rgba(4, 72, 223, 0.55)',
+                          color: '#fff',
+                          fontFamily: 'var(--font-title)',
+                          fontWeight: 700,
+                          fontSize: '10pt',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {label}
+                      </span>
+                    );
+                  })
+                )}
+              </div>
             )}
-          </SlideStaggerItem>
-        )}
-        {editMode && answers.length === 0 && (
-          <button type="button" className="add-row-btn" style={{ position: 'absolute', left: 960, top: 320 }} onClick={addAnswer}>
-            + Adicionar resposta
-          </button>
-        )}
+          </div>
+        </SlideStaggerItem>
       </SlideStagger>
       <div style={{ position: 'absolute', left: 80, top: 636, fontFamily: 'var(--font-body)', fontSize: '9pt', color: 'var(--ink-footer)' }}>
         CCBEU English Center

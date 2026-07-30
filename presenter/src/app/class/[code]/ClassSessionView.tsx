@@ -1,9 +1,16 @@
 'use client';
 
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useClassSession } from '@/lib/useClassSession';
+import { getSlideAnimation } from '@/lib/slideAnimations';
+import { TEMPLATE_META } from '@/lib/slideMeta';
+import { SlideTemplate } from '@/lib/types';
 import { VoteForm } from '@/app/poll/[code]/VoteForm';
 import { MultipleChoiceVoteForm } from './MultipleChoiceVoteForm';
 import { PracticeQaBadgesVoteForm, QaRow } from './PracticeQaBadgesVoteForm';
+import { MatchVocabImageVoteForm } from './MatchVocabImageVoteForm';
+import { MatchingWithChartVoteForm } from './MatchingWithChartVoteForm';
 import { StudentGate } from './StudentGate';
 import { StudentBar } from './StudentBar';
 import {
@@ -28,7 +35,6 @@ import {
   ListenAndRepeatSimplified,
   PhotoGridBlankSimplified,
   GrammarBox2YesNoSimplified,
-  MatchVocabImageSimplified,
   ModelExampleListSimplified,
   LessonCompleteSimplified,
   MatchingWithChartSimplified,
@@ -90,10 +96,21 @@ function ClassSlideView({ code, initialIndex, totalSlides }: Props) {
   const slideIndex = state?.slideIndex ?? initialIndex;
   const total = state?.totalSlides ?? totalSlides;
 
+  // Direction mirrors the teacher's own next/prev navigation on the projected
+  // slide (see PresentationOverlay.tsx), but the phone has no explicit
+  // "advance"/"back" event — only the new slideIndex — so it's inferred by
+  // comparing against the previous render's index. Storing that previous
+  // index in state (updated inline during render, React's documented
+  // pattern for this) rather than a ref: ref mutation during render is
+  // disallowed by the React Compiler / eslint-plugin-react-hooks.
+  const [prevIndex, setPrevIndex] = useState(slideIndex);
+  const direction: 1 | -1 = slideIndex >= prevIndex ? 1 : -1;
+  if (slideIndex !== prevIndex) setPrevIndex(slideIndex);
+
   if (slideIndex < 0 || !state) {
     return (
       <main style={waitingStyle}>
-        <p style={{ fontSize: 18, color: '#6b7280' }}>Aguardando o professor começar a apresentação…</p>
+        <p style={{ fontSize: 18, color: 'var(--ink-muted)' }}>Aguardando o professor começar a apresentação…</p>
       </main>
     );
   }
@@ -105,8 +122,8 @@ function ClassSlideView({ code, initialIndex, totalSlides }: Props) {
     }
     return (
       <main style={waitingStyle}>
-        <h1 style={{ fontSize: 20, color: '#1c2027', marginBottom: 24 }}>{pollData.question}</h1>
-        <p style={{ fontSize: 15, color: '#6b7280' }}>Aguardando o professor iniciar a votação…</p>
+        <h1 style={{ fontSize: 20, color: 'var(--ink)', marginBottom: 24 }}>{pollData.question}</h1>
+        <p style={{ fontSize: 15, color: 'var(--ink-muted)' }}>Aguardando o professor iniciar a votação…</p>
       </main>
     );
   }
@@ -131,8 +148,8 @@ function ClassSlideView({ code, initialIndex, totalSlides }: Props) {
     }
     return (
       <main style={waitingStyle}>
-        <h1 style={{ fontSize: 20, color: '#1c2027', marginBottom: 24 }}>{mcData.question}</h1>
-        <p style={{ fontSize: 15, color: '#6b7280' }}>Aguardando o professor abrir a pergunta…</p>
+        <h1 style={{ fontSize: 20, color: 'var(--ink)', marginBottom: 24 }}>{mcData.question}</h1>
+        <p style={{ fontSize: 15, color: 'var(--ink-muted)' }}>Aguardando o professor abrir a pergunta…</p>
       </main>
     );
   }
@@ -154,13 +171,49 @@ function ClassSlideView({ code, initialIndex, totalSlides }: Props) {
     return <PracticeQaBadgesVoteForm rows={rows} />;
   }
 
+  if (state.template === 'matchVocabImage') {
+    const mviData = state.data as MatchVocabImageData;
+    return <MatchVocabImageVoteForm code={code} data={mviData} />;
+  }
+
+  if (state.template === 'matchingWithChart') {
+    const mwcData = state.data as MatchingWithChartData;
+    return <MatchingWithChartVoteForm code={code} data={mwcData} />;
+  }
+
+  const { variants, transition } = getSlideAnimation(state.animation);
+  const templateLabel = TEMPLATE_META[state.template as SlideTemplate]?.label;
+  const progress = total > 0 ? (slideIndex + 1) / total : 0;
+
   return (
-    <>
-      {renderSimplified(state.template, state.data, state.revealed)}
-      <p style={progressStyle}>
-        {slideIndex + 1} / {total}
-      </p>
-    </>
+    <main style={sessionStyle}>
+      <AnimatePresence mode="popLayout" custom={direction} initial={false}>
+        <motion.div
+          key={state.slideId}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={transition}
+          style={{ flex: 1 }}
+        >
+          <div style={crumbStyle}>
+            <span style={crumbDotStyle} />
+            {templateLabel ?? 'Slide'}
+          </div>
+          <div style={cardStyle}>{renderSimplified(state.template, state.data, state.revealed)}</div>
+        </motion.div>
+      </AnimatePresence>
+      <div style={progressWrapStyle}>
+        <div style={progressTrackStyle}>
+          <div style={{ ...progressFillStyle, width: `${Math.round(progress * 100)}%` }} />
+        </div>
+        <p style={progressTextStyle}>
+          {slideIndex + 1} / {total}
+        </p>
+      </div>
+    </main>
   );
 }
 
@@ -214,8 +267,6 @@ function renderSimplified(template: string, data: unknown, revealed: boolean) {
       return <PhotoGridBlankSimplified data={data as PhotoGridBlankData} revealed={revealed} />;
     case 'grammarBox2YesNo':
       return <GrammarBox2YesNoSimplified data={data as GrammarBox2YesNoData} />;
-    case 'matchVocabImage':
-      return <MatchVocabImageSimplified data={data as MatchVocabImageData} />;
     case 'modelExampleList':
       return <ModelExampleListSimplified data={data as ModelExampleListData} />;
     case 'lessonComplete':
@@ -243,14 +294,16 @@ function GenericSlideFallback({ data }: { data: unknown }) {
     '';
   const instruction = typeof d.instruction === 'string' ? d.instruction : '';
   return (
-    <main style={fallbackStyle}>
+    <div style={fallbackStyle}>
       {heading ? (
-        <h1 style={{ fontSize: 20, color: '#1c2027', margin: 0 }}>{heading}</h1>
+        <h1 style={{ fontFamily: 'var(--font-title)', fontSize: 20, fontWeight: 700, color: 'var(--ccbeu-blue)', margin: 0 }}>{heading}</h1>
       ) : (
-        <p style={{ fontSize: 16, color: '#6b7280', margin: 0 }}>Acompanhe pelo telão.</p>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--ink-muted)', margin: 0 }}>Acompanhe pelo telão.</p>
       )}
-      {instruction && <p style={{ fontSize: 15, color: '#6b7280', marginTop: 10 }}>{instruction}</p>}
-    </main>
+      {instruction && (
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink-muted)', marginTop: 10 }}>{instruction}</p>
+      )}
+    </div>
   );
 }
 
@@ -260,26 +313,80 @@ const waitingStyle = {
   flexDirection: 'column' as const,
   alignItems: 'center',
   justifyContent: 'center',
-  fontFamily: 'system-ui, sans-serif',
+  fontFamily: 'var(--font-body)',
   padding: 24,
   textAlign: 'center' as const,
 };
 
+// Sits inside the same card as every other simplified view (see cardStyle
+// below) — no minHeight/centering of its own, that would only apply to this
+// one template's card instead of the screen.
 const fallbackStyle = {
+  padding: '20px 18px 22px',
+  textAlign: 'center' as const,
+};
+
+// Phone shell: tinted background (var(--app-bg), same token the desktop
+// editor chrome uses) so the white card reads as a raised surface, exactly
+// like a slide sitting on the projector's dark stage.
+const sessionStyle = {
   minHeight: '100dvh',
   display: 'flex',
   flexDirection: 'column' as const,
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontFamily: 'system-ui, sans-serif',
-  padding: 24,
-  textAlign: 'center' as const,
+  background: 'var(--app-bg)',
+  padding: '16px 14px 20px',
 };
 
-const progressStyle = {
+const crumbStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  fontFamily: 'var(--font-title)',
+  fontWeight: 600,
+  fontSize: 11,
+  letterSpacing: '0.07em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--ccbeu-blue)',
+  margin: '2px 0 10px',
+};
+
+const crumbDotStyle = {
+  width: 7,
+  height: 7,
+  borderRadius: 999,
+  background: 'var(--ccbeu-pink)',
+  flex: '0 0 auto',
+};
+
+const cardStyle = {
+  background: '#fff',
+  borderRadius: 18,
+  border: '1px solid var(--chrome-border)',
+  boxShadow: '0 8px 24px -16px rgba(4, 72, 223, 0.18)',
+};
+
+const progressWrapStyle = {
+  padding: '16px 4px 0',
+};
+
+const progressTrackStyle = {
+  height: 4,
+  borderRadius: 999,
+  background: 'var(--chrome-border)',
+  overflow: 'hidden' as const,
+};
+
+const progressFillStyle = {
+  height: '100%',
+  borderRadius: 999,
+  background: 'linear-gradient(90deg, var(--ccbeu-blue), var(--ccbeu-pink))',
+  transition: 'width 0.25s ease',
+};
+
+const progressTextStyle = {
   textAlign: 'center' as const,
-  fontSize: 12,
-  color: '#9aa1ac',
-  fontFamily: 'system-ui, sans-serif',
-  padding: '0 24px 24px',
+  fontSize: 11,
+  color: 'var(--ink-footer)',
+  fontFamily: 'var(--font-body)',
+  margin: '6px 0 0',
 };

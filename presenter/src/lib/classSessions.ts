@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { Slide } from '@/lib/types';
 import { emitClassSessionUpdate, ClassSessionState, ClassSessionPollState } from '@/lib/classSessionEvents';
 import { getOpenPollSessionForSlide, getOpenPollSessionsByRow, getTallies } from '@/lib/polls';
+import { getDragState } from '@/lib/dragEvents';
+import { getMatchState } from '@/lib/matchEvents';
 
 function randomCode(): string {
   // Short, human-typeable, avoids visually ambiguous chars (0/O, 1/I/l).
@@ -78,6 +80,7 @@ export async function computeClassSessionState(code: string): Promise<ClassSessi
     totalSlides: slides.length,
     slideId: slide.id,
     template: slide.template,
+    animation: slide.animation,
     data: slide.data,
     revealed: session.revealed,
   };
@@ -130,6 +133,14 @@ export async function computeClassSessionState(code: string): Promise<ClassSessi
       };
     }
     state.qaPolls = qaPolls;
+  }
+
+  if (slide.template === 'matchVocabImage') {
+    state.dragPositions = getDragState(session.partId, slide.id);
+  }
+
+  if (slide.template === 'matchingWithChart') {
+    state.matchChoices = getMatchState(session.partId, slide.id);
   }
 
   return state;

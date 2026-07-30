@@ -1,3 +1,4 @@
+import { Icon } from '@/components/ui/Icon';
 import {
   SectionTransitionData,
   Exercise1Data,
@@ -20,7 +21,6 @@ import {
   ListenAndRepeatData,
   PhotoGridBlankData,
   GrammarBox2YesNoData,
-  MatchVocabImageData,
   ModelExampleListData,
   LessonCompleteData,
   MatchingWithChartData,
@@ -30,9 +30,9 @@ import {
 
 // Deliberately plain, lightweight views for the student's phone — no Framer
 // Motion, no desktop two-column layouts, just the content that matters per
-// template. 'poll', 'multipleChoice' and 'practiceQaBadges' aren't here: all
-// three are handled specially by ClassSessionView, which swaps in a live
-// VoteForm instead.
+// template. 'poll', 'multipleChoice', 'practiceQaBadges' and 'matchVocabImage'
+// aren't here: all four are handled specially by ClassSessionView, which
+// swaps in a live VoteForm instead.
 //
 // Answer reveal: every view that shows an answer takes a `revealed` prop
 // mirrored from the teacher's overlay (via the class session). Until the
@@ -45,8 +45,27 @@ import {
 // blank placeholder before that. Keeps the surrounding sentence layout stable
 // so nothing jumps when the teacher reveals.
 function AnswerText({ text, revealed }: { text: string; revealed: boolean }) {
-  if (revealed) return <strong style={{ color: '#fd3682' }}>{text}</strong>;
+  if (revealed) return <strong style={styles.answer}>{text}</strong>;
   return <span style={styles.answerBlank} aria-label="resposta oculta" />;
+}
+
+// Read-only counterpart to the editor's ImageSlot (components/ui/ImageSlot.tsx):
+// same rounded frame, cover fit, and "sem imagem" placeholder, so a slide with
+// no image yet reads the same way here as it does mid-edit on the desktop.
+function SimplifiedImage({ url, alt = '', style }: { url: string; alt?: string; style?: React.CSSProperties }) {
+  return (
+    <div style={{ ...styles.imageFrame, ...style }}>
+      {url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt={alt} style={styles.imageFrameImg} />
+      ) : (
+        <div style={styles.imagePlaceholderInner}>
+          <Icon name="photo_camera" size={22} />
+          sem imagem
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function SectionTransitionSimplified({ data }: { data: SectionTransitionData }) {
@@ -70,7 +89,7 @@ export function Exercise1Simplified({ data, revealed = true }: { data: Exercise1
         {data.rows.map((row, i) => (
           <div key={i} style={styles.row}>
             <span>{row.orig}</span>
-            <span style={{ color: '#9aa1ac' }}> → </span>
+            <span style={{ color: 'var(--ink-footer)' }}> → </span>
             <AnswerText text={row.hl} revealed={revealed} /> {row.post}
           </div>
         ))}
@@ -83,12 +102,9 @@ export function PhotoCaptionSimplified({ data, revealed = true }: { data: PhotoC
   return (
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
-      {data.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={data.imageUrl} alt="" style={{ width: '100%', borderRadius: 12, margin: '12px 0' }} />
-      )}
-      <p style={{ fontWeight: 700, margin: 0 }}>{data.name}</p>
-      <p style={{ color: '#6b7280', margin: '2px 0 12px' }}>{data.role}</p>
+      <SimplifiedImage url={data.imageUrl} style={{ margin: '4px 0 14px' }} />
+      <p style={styles.name}>{data.name}</p>
+      <p style={styles.role}>{data.role}</p>
       <p style={styles.instruction}>
         {data.sentencePre} <AnswerText text={data.answer} revealed={revealed} /> {data.sentencePost}
       </p>
@@ -167,12 +183,9 @@ export function PhotoExerciseWhoIsThisSimplified({
   return (
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
-      {data.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={data.imageUrl} alt="" style={{ width: '100%', borderRadius: 12, margin: '12px 0' }} />
-      )}
-      {data.personName && <p style={{ fontWeight: 700, margin: 0 }}>{data.personName}</p>}
-      {data.personRole && <p style={{ color: '#6b7280', margin: '2px 0 12px' }}>{data.personRole}</p>}
+      <SimplifiedImage url={data.imageUrl} style={{ margin: '4px 0 14px' }} />
+      {data.personName && <p style={styles.name}>{data.personName}</p>}
+      {data.personRole && <p style={styles.role}>{data.personRole}</p>}
       <p style={styles.instruction}>
         {data.sentencePre} <AnswerText text={data.sentenceGap} revealed={revealed} />
       </p>
@@ -191,14 +204,9 @@ export function GuessFourImagesSimplified({ data, revealed = true }: { data: Gue
         </p>
       )}
       <div style={styles.imageGrid}>
-        {data.imageUrls.map((url, i) =>
-          url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={i} src={url} alt="" style={{ width: '100%', borderRadius: 10, display: 'block' }} />
-          ) : (
-            <div key={i} style={styles.imagePlaceholder} />
-          )
-        )}
+        {data.imageUrls.map((url, i) => (
+          <SimplifiedImage key={i} url={url} />
+        ))}
       </div>
     </div>
   );
@@ -216,7 +224,7 @@ export function ObjectivesSimplified({ data }: { data: ObjectivesData }) {
       <ul style={{ ...styles.tips, listStyle: 'none', padding: 0 }}>
         {items.map((item, i) => (
           <li key={i} style={{ marginBottom: 10 }}>
-            <strong style={{ color: '#0448df' }}>{item.verb}</strong> {item.node}
+            <strong style={{ color: 'var(--ccbeu-blue)' }}>{item.verb}</strong> {item.node}
           </li>
         ))}
       </ul>
@@ -229,10 +237,7 @@ export function GettingStartedSimplified({ data }: { data: GettingStartedData })
     <div style={styles.wrap}>
       <h1 style={styles.bigTitle}>{data.title}</h1>
       <p style={styles.subtitle}>{data.subtitle}</p>
-      {data.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={data.imageUrl} alt="" style={{ width: '100%', borderRadius: 12, marginTop: 14 }} />
-      )}
+      {data.imageUrl && <SimplifiedImage url={data.imageUrl} style={{ marginTop: 14 }} />}
     </div>
   );
 }
@@ -243,11 +248,11 @@ export function ComparativeSimplified({ data }: { data: ComparativeData }) {
       <h1 style={styles.title}>{data.title}</h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
         <div style={styles.row}>
-          <strong style={{ color: '#0448df' }}>{data.leftHl}</strong>
+          <strong style={{ color: 'var(--ccbeu-blue)' }}>{data.leftHl}</strong>
           <p style={{ margin: '4px 0 0' }}>{data.leftText}</p>
         </div>
         <div style={styles.row}>
-          <strong style={{ color: '#fd3682' }}>{data.rightHl}</strong>
+          <strong style={{ color: 'var(--ccbeu-pink)' }}>{data.rightHl}</strong>
           <p style={{ margin: '4px 0 0' }}>{data.rightText}</p>
         </div>
       </div>
@@ -258,7 +263,7 @@ export function ComparativeSimplified({ data }: { data: ComparativeData }) {
 export function CoverImageSimplified({ data: _data }: { data: CoverImageData }) {
   return (
     <div style={styles.wrap}>
-      <p style={{ fontSize: 16, color: '#6b7280', margin: 0 }}>Acompanhe pelo telão.</p>
+      <p style={{ fontSize: 16, color: 'var(--ink-muted)', margin: 0 }}>Acompanhe pelo telão.</p>
     </div>
   );
 }
@@ -325,10 +330,7 @@ export function Fluency2Simplified({ data }: { data: Fluency2Data }) {
       <p style={styles.instruction}>
         {data.instructionPre} <strong>{data.instructionHl}</strong>
       </p>
-      {data.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={data.imageUrl} alt="" style={{ width: '100%', borderRadius: 12, marginTop: 12 }} />
-      )}
+      {data.imageUrl && <SimplifiedImage url={data.imageUrl} style={{ marginTop: 12 }} />}
     </div>
   );
 }
@@ -339,14 +341,9 @@ export function Fluency3Simplified({ data }: { data: Fluency3Data }) {
       <h1 style={styles.title}>{data.title}</h1>
       <p style={styles.instruction}>{data.instruction}</p>
       <div style={styles.imageGrid}>
-        {[data.imageUrl1, data.imageUrl2].map((url, i) =>
-          url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={i} src={url} alt="" style={{ width: '100%', borderRadius: 10, display: 'block' }} />
-          ) : (
-            <div key={i} style={styles.imagePlaceholder} />
-          )
-        )}
+        {[data.imageUrl1, data.imageUrl2].map((url, i) => (
+          <SimplifiedImage key={i} url={url} />
+        ))}
       </div>
     </div>
   );
@@ -372,8 +369,8 @@ export function WarmupOralTransformSimplified({
       </div>
       {data.ctaTitle && (
         <div style={{ marginTop: 16 }}>
-          <p style={{ fontWeight: 700, margin: 0, color: '#fd3682' }}>{data.ctaTitle}</p>
-          {data.ctaSubtitle && <p style={{ color: '#6b7280', margin: '4px 0 0' }}>{data.ctaSubtitle}</p>}
+          <p style={{ fontWeight: 700, margin: 0, color: 'var(--ccbeu-pink)' }}>{data.ctaTitle}</p>
+          {data.ctaSubtitle && <p style={{ color: 'var(--ink-muted)', margin: '4px 0 0' }}>{data.ctaSubtitle}</p>}
         </div>
       )}
     </div>
@@ -391,7 +388,7 @@ export function ListenAndRepeatSimplified({ data }: { data: ListenAndRepeatData 
           {data.step3Pre} <strong>{data.step3Hl}</strong>
         </li>
       </ol>
-      {data.tip && <p style={{ ...styles.instruction, color: '#6b7280', fontStyle: 'italic' }}>{data.tip}</p>}
+      {data.tip && <p style={{ ...styles.instruction, color: 'var(--ink-muted)', fontStyle: 'italic' }}>{data.tip}</p>}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
         <div style={styles.row}>{data.dialogueLine1}</div>
         <div style={styles.row}>{data.dialogueLine2}</div>
@@ -407,10 +404,7 @@ export function PhotoGridBlankSimplified({ data, revealed = true }: { data: Phot
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 12 }}>
         {data.items.map((item, i) => (
           <div key={i}>
-            {item.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.imageUrl} alt="" style={{ width: '100%', borderRadius: 10, display: 'block' }} />
-            )}
+            {item.imageUrl && <SimplifiedImage url={item.imageUrl} />}
             <p style={{ ...styles.instruction, margin: '8px 0 0' }}>
               <AnswerText text={item.answer} revealed={revealed} /> {item.text}
             </p>
@@ -425,38 +419,18 @@ export function GrammarBox2YesNoSimplified({ data }: { data: GrammarBox2YesNoDat
   return (
     <div style={styles.wrap}>
       {(data.photo1Caption || data.photo2Caption) && (
-        <p style={{ ...styles.instruction, color: '#6b7280' }}>
+        <p style={{ ...styles.instruction, color: 'var(--ink-muted)' }}>
           {[data.photo1Caption, data.photo2Caption].filter(Boolean).join(' · ')}
         </p>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
         {data.rows.map((row, i) => (
           <div key={i} style={styles.row}>
-            <strong>{row.subject}</strong> <strong style={{ color: '#0448df' }}>{row.qHl}</strong> {row.qPost}
-            <p style={{ margin: '4px 0 0', color: '#6b7280' }}>
+            <strong>{row.subject}</strong> <strong style={{ color: 'var(--ccbeu-blue)' }}>{row.qHl}</strong> {row.qPost}
+            <p style={{ margin: '4px 0 0', color: 'var(--ink-muted)' }}>
               {row.aPre} {row.aYes} / {row.aMid} / {row.aNo}
             </p>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function MatchVocabImageSimplified({ data }: { data: MatchVocabImageData }) {
-  return (
-    <div style={styles.wrap}>
-      <h1 style={styles.title}>{data.title}</h1>
-      {data.instruction && <p style={styles.instruction}>{data.instruction}</p>}
-      {data.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={data.imageUrl} alt="" style={{ width: '100%', borderRadius: 12, margin: '12px 0' }} />
-      )}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        {data.keywords.map((kw, i) => (
-          <span key={i} style={styles.pill}>
-            {kw}
-          </span>
         ))}
       </div>
     </div>
@@ -468,7 +442,7 @@ export function ModelExampleListSimplified({ data }: { data: ModelExampleListDat
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
       {data.example && (
-        <p style={{ ...styles.instruction, fontStyle: 'italic', color: '#6b7280' }}>{data.example}</p>
+        <p style={{ ...styles.instruction, fontStyle: 'italic', color: 'var(--ink-muted)' }}>{data.example}</p>
       )}
       <ul style={{ margin: '10px 0 0', paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
         {data.items.map((item, i) => (
@@ -493,7 +467,7 @@ export function LessonCompleteSimplified({ data }: { data: LessonCompleteData })
               {col.terms.map((term, ti) => (
                 <div key={ti} style={styles.row}>
                   <strong>{term.t}</strong>
-                  {term.d && <span style={{ color: '#6b7280' }}> — {term.d}</span>}
+                  {term.d && <span style={{ color: 'var(--ink-muted)' }}> — {term.d}</span>}
                 </div>
               ))}
             </div>
@@ -546,14 +520,11 @@ export function MatchLettersSimplified({ data, revealed = true }: { data: MatchL
     <div style={styles.wrap}>
       <h1 style={styles.title}>{data.title}</h1>
       {data.instruction && <p style={styles.instruction}>{data.instruction}</p>}
-      {data.gridImageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={data.gridImageUrl} alt="" style={{ width: '100%', borderRadius: 12, margin: '12px 0' }} />
-      )}
+      {data.gridImageUrl && <SimplifiedImage url={data.gridImageUrl} style={{ margin: '4px 0 14px' }} />}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {data.rows.map((row, i) => (
           <div key={i} style={styles.row}>
-            {row.term} <span style={{ color: '#9aa1ac' }}> → </span>
+            {row.term} <span style={{ color: 'var(--ink-footer)' }}> → </span>
             <AnswerText text={row.letter} revealed={revealed} />
           </div>
         ))}
@@ -565,63 +536,118 @@ export function MatchLettersSimplified({ data, revealed = true }: { data: MatchL
 export function BlankSimplified({ data: _data }: { data: BlankData }) {
   return (
     <div style={styles.wrap}>
-      <p style={{ fontSize: 16, color: '#6b7280', margin: 0 }}>Acompanhe pelo telão.</p>
+      <p style={{ fontSize: 16, color: 'var(--ink-muted)', margin: 0 }}>Acompanhe pelo telão.</p>
     </div>
   );
 }
 
 const styles = {
   wrap: {
-    padding: 24,
+    padding: '20px 18px 22px',
     maxWidth: 480,
     margin: '0 auto',
-    fontFamily: 'system-ui, sans-serif',
-    color: '#1c2027',
+    fontFamily: 'var(--font-body)',
+    color: 'var(--ink)',
   },
   tag: {
+    fontFamily: 'var(--font-title)',
     fontSize: 11,
     fontWeight: 700,
     letterSpacing: '0.08em',
     textTransform: 'uppercase' as const,
-    color: '#fd3682',
+    color: 'var(--ccbeu-pink)',
     marginBottom: 8,
   },
-  bigTitle: { fontSize: 30, fontWeight: 800, margin: '0 0 12px', color: '#0448df', lineHeight: 1.15 },
-  title: { fontSize: 22, fontWeight: 700, margin: '0 0 12px', color: '#0448df' },
-  subtitle: { fontSize: 16, color: '#6b7280', margin: 0, lineHeight: 1.4 },
-  instruction: { fontSize: 15, color: '#1c2027', lineHeight: 1.5 },
+  bigTitle: {
+    fontFamily: 'var(--font-title)',
+    fontSize: 28,
+    fontWeight: 800,
+    margin: '0 0 12px',
+    color: 'var(--ccbeu-blue)',
+    lineHeight: 1.15,
+    letterSpacing: '-0.01em',
+  },
+  title: {
+    fontFamily: 'var(--font-title)',
+    fontSize: 21,
+    fontWeight: 700,
+    margin: '0 0 14px',
+    color: 'var(--ccbeu-blue)',
+    lineHeight: 1.2,
+    letterSpacing: '-0.01em',
+  },
+  subtitle: { fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 400, color: 'var(--ink-muted)', margin: 0, lineHeight: 1.5 },
+  instruction: { fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400, color: 'var(--ink)', lineHeight: 1.55 },
+  name: { fontFamily: 'var(--font-title)', fontSize: 16, fontWeight: 700, color: 'var(--ccbeu-pink)', margin: 0 },
+  role: { fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 400, color: 'var(--ink-muted)', margin: '2px 0 14px' },
+  answer: { fontFamily: 'var(--font-body)', fontWeight: 700, color: 'var(--ccbeu-pink)' },
   // Placeholder shown in place of an answer before the teacher reveals it: a
   // short pink underline, sized to read as "fill-in-the-blank" without hinting
   // at the answer's length.
   answerBlank: {
     display: 'inline-block',
     width: 44,
-    borderBottom: '2px solid #fd3682',
+    height: 2,
+    borderRadius: 999,
+    background: 'linear-gradient(90deg, var(--ccbeu-pink), #ff8fb8)',
     verticalAlign: 'middle',
   },
-  row: { fontSize: 14, lineHeight: 1.5, borderBottom: '1px solid #e4e6eb', paddingBottom: 8 },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: 700,
-    letterSpacing: '0.04em',
-    textTransform: 'uppercase' as const,
-    color: '#6b7280',
-    margin: '16px 0 8px',
+  row: {
+    fontFamily: 'var(--font-body)',
+    fontSize: 14,
+    fontWeight: 400,
+    lineHeight: 1.5,
+    color: 'var(--ink)',
+    borderBottom: '1px solid var(--border-hair)',
+    padding: '9px 0',
   },
-  tips: { margin: '12px 0 0', paddingLeft: 18, fontSize: 14, color: '#6b7280', lineHeight: 1.5 },
+  sectionLabel: {
+    fontFamily: 'var(--font-title)',
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase' as const,
+    color: 'var(--ink-muted)',
+    margin: '18px 0 10px',
+  },
+  tips: { fontFamily: 'var(--font-body)', margin: '12px 0 0', paddingLeft: 18, fontSize: 14, color: 'var(--ink-muted)', lineHeight: 1.5 },
   imageGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: 8,
     marginTop: 14,
   },
-  imagePlaceholder: { width: '100%', aspectRatio: '1', borderRadius: 10, background: '#eef0f3' },
+  // Read-only mirror of the editor's .img-slot (globals.css): same tinted
+  // background, rounded frame and cover fit, so an image reads identically
+  // here and mid-edit on the desktop.
+  imageFrame: {
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    borderRadius: 14,
+    background: '#eef1f8',
+    aspectRatio: '4 / 3',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageFrameImg: { width: '100%', height: '100%', objectFit: 'cover' as const, display: 'block' as const },
+  imagePlaceholderInner: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    color: '#9aa3b5',
+    fontFamily: 'var(--font-body)',
+    fontSize: 12,
+  },
   pill: {
+    fontFamily: 'var(--font-body)',
     fontSize: 13,
     fontWeight: 600,
     padding: '4px 10px',
     borderRadius: 999,
-    background: '#eef0f3',
-    color: '#1c2027',
+    background: 'var(--chrome-bg-subtle)',
+    color: 'var(--ink)',
   },
 };

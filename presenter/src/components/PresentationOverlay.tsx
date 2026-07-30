@@ -13,6 +13,8 @@ import { usePollTallies } from '@/lib/usePollTallies';
 import { useClassSession } from '@/lib/useClassSession';
 import { PollLiveResults } from '@/components/slides/PollSlide';
 import { QaLiveResults } from '@/components/slides/PracticeQaBadgesSlide';
+import { MatchVocabImageLiveResults } from '@/components/slides/MatchVocabImageSlide';
+import { MatchingWithChartLiveResults } from '@/components/slides/MatchingWithChartSlide';
 
 type Props = {
   slides: Slide[];
@@ -396,6 +398,16 @@ export function PresentationOverlay({ slides, startIndex, onExit, partId }: Prop
               qaResults={
                 slide.template === 'practiceQaBadges'
                   ? (classSessionState?.qaPolls as QaLiveResults | undefined)
+                  : undefined
+              }
+              dragResults={
+                slide.template === 'matchVocabImage'
+                  ? (classSessionState?.dragPositions as MatchVocabImageLiveResults | undefined)
+                  : undefined
+              }
+              matchResults={
+                slide.template === 'matchingWithChart'
+                  ? (classSessionState?.matchChoices as MatchingWithChartLiveResults | undefined)
                   : undefined
               }
             />
