@@ -59,10 +59,11 @@ than "still booting."
 
 ## 2. Start the tunnel
 
-The project doesn't have `cloudflared` on PATH — the binary is vendored in
-the repo at `presenter/bin/cloudflared.exe`. Confirm it's still there before
-assuming the path; if not, glob the repo for `**/cloudflared*` rather than
-assuming it moved to a standard location.
+The project doesn't have `cloudflared` on PATH — the binary is vendored
+somewhere in the repo (seen at `poll-quicktest/bin/cloudflared.exe`, **not**
+`presenter/bin/` despite what you might expect). Don't assume either path;
+glob the repo for `**/cloudflared*` every time to confirm the current
+location before building a command around it.
 
 ```
 ./bin/cloudflared.exe tunnel --url http://localhost:3000
@@ -172,3 +173,35 @@ Give the user:
   terminals get closed). Don't assume a code regression — check `netstat`
   for a live listener on 3000 first, per the "before starting anything"
   section above.
+- **Freshly created tunnel returns Cloudflare error 1016 ("Origin DNS
+  error"), or later degrades to a bare connection timeout (curl exit 6 or
+  `code=000`), while `cloudflared.exe` is still running and its log still
+  shows `Registered tunnel connection` with no errors:** this is instability
+  in Cloudflare's free quick-tunnel edge itself (no uptime SLA — see the
+  banner cloudflared prints on every start), not a local network or config
+  problem. Confirmed by elimination: local DNS resolves unrelated domains
+  fine, `1.1.1.1` resolves the `trycloudflare.com` apex but not the random
+  subdomain, `--resolve`-ing straight to the Cloudflare edge IP still 530s,
+  and `localhost:3000` answers instantly the whole time. Don't chase DNS
+  config or firewall rules — kill the cloudflared process and start a new
+  tunnel (new random subdomain); a second or third attempt has cleared it
+  within seconds each time this has happened. If it doesn't clear after 2-3
+  restarts, tell the user the quick-tunnel service itself is degraded rather
+  than continuing to retry silently.
+- **A lesson/unit page 404s in the browser (`notFound()`-style 404, not a
+  Cloudflare error page) even though the record demonstrably exists in the
+  DB and the same query works fine when run standalone via `tsx`:** seen
+  once with `/lessons/basic-1/unit-1/lesson-a` — DB query confirmed the row
+  existed, the exact `getLessonBySlug` call chain succeeded in isolation,
+  the user was authenticated (prior page in the chain loaded `200`), yet the
+  browser hit a real 404 in ~30-70ms (too fast to have touched the DB).
+  Restarting `next dev` from scratch (not just the tunnel) made the same URL
+  return `200` immediately after. Root cause not fully isolated, but the
+  symptom profile — fast 404 that bypasses app logic, on a deep dynamic
+  route (`[level]/[unit]/[lesson]/[part]`), clearing on a cold restart —
+  points at stale Turbopack dev-mode route/data caching rather than a code
+  or data bug. Don't spend time re-auditing `src/lib/lessons.ts` or the
+  Prisma queries first; restart the dev server and retry before digging
+  deeper. If it recurs reliably (not just once after a cold start), that's
+  worth escalating as an actual Turbopack bug rather than working around
+  again.
