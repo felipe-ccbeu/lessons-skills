@@ -22,7 +22,7 @@ type Props = {
 };
 
 const CARD_H = 88;
-const CARD_GAP = 54;
+const CARD_GAP = 104;
 const FIRST_TOP = 239;
 
 export function ChangePlacesSlide({
