@@ -185,6 +185,9 @@ export const TEMPLATE_META: { [K in SlideTemplate]: TemplateMeta<K> } = {
       title: 'Complete the chart',
       group1: { label: 'CONTRACTIONS', rows: [{ sentence: 'I am', answer: "I'm" }] },
       group2: { label: 'NEGATIVES', rows: [{ sentence: 'I am not', answer: "I'm not" }] },
+      imageUrl1: '',
+      imageUrl2: '',
+      imageUrl3: '',
     }),
   },
   exercise1: {

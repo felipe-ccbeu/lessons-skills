@@ -1,5 +1,6 @@
 import { Editable } from '@/components/ui/Editable';
 import { Icon } from '@/components/ui/Icon';
+import { ImageSlot } from '@/components/ui/ImageSlot';
 import { SlideStagger, SlideStaggerItem } from '@/components/ui/SlideStagger';
 import { useRemoveItemMenu } from '@/components/ui/useRemoveItemMenu';
 import { BlockAnimations, CompleteTheChartData, CompleteTheChartGroup, CompleteTheChartRow, LayoutOffset, LayoutOverrides, StyleOverrides, TextStyleOverride } from '@/lib/types';
@@ -209,28 +210,10 @@ export function CompleteTheChartSlide({
 
         <SlideStaggerItem
           disabled={editMode}
-          style={{
-            position: 'absolute',
-            left: 851,
-            top: 143,
-            width: 333,
-            height: 138,
-            background: '#f4f6f9',
-            border: '1px dashed #C5CCDA',
-            borderRadius: 6,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxSizing: 'border-box',
-            fontFamily: 'var(--font-title)',
-            fontWeight: 700,
-            fontSize: '9pt',
-            letterSpacing: '0.06em',
-            color: '#9AA1AC',
-          }}
+          style={{ position: 'absolute', left: 851, top: 143, width: 333, height: 138 }}
           {...dragProps('imagePlaceholder1')}
         >
-          IMAGE
+          <ImageSlot url={data.imageUrl1 ?? ''} onChange={(v) => onEdit({ imageUrl1: v })} editMode={editMode} style={{ width: '100%', height: '100%', borderRadius: 6 }} />
         </SlideStaggerItem>
         <SlideStaggerItem
           disabled={editMode}
@@ -241,28 +224,10 @@ export function CompleteTheChartSlide({
 
         <SlideStaggerItem
           disabled={editMode}
-          style={{
-            position: 'absolute',
-            left: 853,
-            top: 304,
-            width: 333,
-            height: 138,
-            background: '#f4f6f9',
-            border: '1px dashed #C5CCDA',
-            borderRadius: 6,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxSizing: 'border-box',
-            fontFamily: 'var(--font-title)',
-            fontWeight: 700,
-            fontSize: '9pt',
-            letterSpacing: '0.06em',
-            color: '#9AA1AC',
-          }}
+          style={{ position: 'absolute', left: 853, top: 304, width: 333, height: 138 }}
           {...dragProps('imagePlaceholder2')}
         >
-          IMAGE
+          <ImageSlot url={data.imageUrl2 ?? ''} onChange={(v) => onEdit({ imageUrl2: v })} editMode={editMode} style={{ width: '100%', height: '100%', borderRadius: 6 }} />
         </SlideStaggerItem>
         <SlideStaggerItem
           disabled={editMode}
@@ -273,28 +238,10 @@ export function CompleteTheChartSlide({
 
         <SlideStaggerItem
           disabled={editMode}
-          style={{
-            position: 'absolute',
-            left: 852,
-            top: 459,
-            width: 333,
-            height: 130,
-            background: '#f4f6f9',
-            border: '1px dashed #C5CCDA',
-            borderRadius: 6,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxSizing: 'border-box',
-            fontFamily: 'var(--font-title)',
-            fontWeight: 700,
-            fontSize: '9pt',
-            letterSpacing: '0.06em',
-            color: '#9AA1AC',
-          }}
+          style={{ position: 'absolute', left: 852, top: 459, width: 333, height: 130 }}
           {...dragProps('imagePlaceholder3')}
         >
-          IMAGE
+          <ImageSlot url={data.imageUrl3 ?? ''} onChange={(v) => onEdit({ imageUrl3: v })} editMode={editMode} style={{ width: '100%', height: '100%', borderRadius: 6 }} />
         </SlideStaggerItem>
         <SlideStaggerItem
           disabled={editMode}

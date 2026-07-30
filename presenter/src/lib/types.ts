@@ -121,6 +121,9 @@ export type CompleteTheChartData = {
   title: string;
   group1: CompleteTheChartGroup;
   group2: CompleteTheChartGroup;
+  imageUrl1: string;
+  imageUrl2: string;
+  imageUrl3: string;
 };
 
 export type Fluency2Data = {
