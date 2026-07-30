@@ -6,6 +6,8 @@ import { requireRoleApi } from '@/lib/dal';
 import { AiSlideAction } from '@/lib/types';
 import { ADDABLE_TEMPLATES } from '@/lib/slide-templates';
 import { DRAG_KEYS_BY_TEMPLATE } from '@/lib/dragKeys';
+import { TEMPLATE_META } from '@/lib/slideMeta';
+import { pathExistsInShape } from '@/lib/dataPath';
 import { prisma } from '@/lib/prisma';
 import { isUserOverAiSpendCap } from '@/lib/aiUsage';
 import { rateLimit } from '@/lib/rateLimit';
@@ -222,7 +224,7 @@ Use as ferramentas disponíveis (get_slide_data, add_slide, reorder_slide, set_f
 
 Fluxo típico ao criar um slide: chame add_slide primeiro; nas chamadas seguintes DENTRO DO MESMO TURNO, set_field/add_list_item já se aplicam ao slide recém-criado (que passou a ser o ativo) — use isso para já preencher título, textos e itens de lista com conteúdo relevante ao pedido, em vez de deixar os placeholders genéricos do template.
 
-Imagens: campos de imagem no JSON do slide seguem o padrão de nome imageUrl, imageUrl1/imageUrl2, imageUrls (array), avatar1Url/avatar2Url, etc. Quando o professor pedir para adicionar/gerar/criar uma imagem (foto, ilustração, ícone...), chame generate_image com um prompt visual detalhado em inglês; a ferramenta retorna a URL da imagem gerada, que você deve então aplicar com set_field (ou, se o campo for um item de uma lista de fotos, add_list_item) no campo apropriado. Nunca invente uma URL de imagem nem deixe o campo vazio quando o pedido for para gerar uma imagem — sempre chame generate_image primeiro. Não chame generate_image para um campo que já tem uma imagem, a menos que o professor peça para trocar/regenerar.
+Imagens: campos de imagem no JSON do slide seguem o padrão de nome imageUrl, imageUrl1/imageUrl2, imageUrls (array), avatar1Url/avatar2Url, etc. — mas o único jeito confiável de saber se (e onde) um slide tem campo de imagem é OLHAR o JSON de dados dele: nem todo template tem um. Se o JSON do slide ativo (ou do slide buscado via get_slide_data) não tiver nenhuma chave desse tipo, ele NÃO suporta imagem — diga isso ao professor em vez de inventar um nome de campo. set_field/add_list_item/place_attached_image validam o path contra o schema real do template e retornam "error: field ... does not exist" quando o campo não existe; se isso acontecer, NÃO diga ao professor que a imagem foi colocada — releia o JSON do slide, corrija o path para um campo que realmente existe (ou informe que esse slide não tem onde colocar imagem). Quando o professor pedir para adicionar/gerar/criar uma imagem (foto, ilustração, ícone...) num campo que existe, chame generate_image com um prompt visual detalhado em inglês; a ferramenta retorna a URL da imagem gerada, que você deve então aplicar com set_field (ou, se o campo for um item de uma lista de fotos, add_list_item) no campo apropriado. Nunca invente uma URL de imagem nem deixe o campo vazio quando o pedido for para gerar uma imagem — sempre chame generate_image primeiro. Não chame generate_image para um campo que já tem uma imagem, a menos que o professor peça para trocar/regenerar.
 
 Imagens ANEXADAS pelo professor: o professor pode anexar imagens à conversa (o contexto informa quantas há e seus índices; você enxerga o conteúdo delas). Há dois usos possíveis, decida pelo que ele pediu:
 - EXTRAIR conteúdo: se ele quer transcrever/aproveitar o que está NA imagem (texto de uma página de livro, um exercício fotografado, uma lista, uma tabela...), leia a imagem e use as ferramentas normais (set_field, add_slide, add_list_item, etc.) para transformar esse conteúdo em slide(s). Nesse caso NÃO use place_attached_image — a imagem é só a fonte, não vai para o slide.
@@ -236,7 +238,7 @@ Regras:
 - Os índices do deck no contexto refletem o estado ANTES desta rodada de ferramentas. Um add_slide sempre insere no final da lista atual (índice = tamanho do deck antes de inserir); se você chamar add_slide e depois reorder_slide no mesmo turno, calcule o índice de origem do novo slide considerando essa inserção.
 - Só chame get_slide_data para slides que você realmente vai editar nesta rodada — cada chamada tem custo. Se o pedido envolver vários slides (ex: "mude do slide X ao Y"), chame get_slide_data para cada um deles que for editar, um por um.
 - Ao falar em texto com o professor sobre a posição de um slide (não em parâmetros de ferramentas, que continuam 0-based), use numeração igual à da interface: índice 0 da lista de contexto = "slide 1", índice 4 = "slide 5", etc. Nunca exponha o índice 0-based cru numa frase para o professor.
-- Depois de aplicar as mudanças, responda ao professor em texto de forma breve confirmando o que foi feito.
+- Depois de aplicar as mudanças, responda ao professor em texto de forma breve confirmando o que foi feito — mas só confirme o que as ferramentas de fato retornaram como "ok"; se alguma chamada relevante ao pedido voltou "error", reporte a limitação real em vez de dizer que deu certo.
 - Se o pedido for ambíguo, explique a limitação em vez de tentar aplicar algo incorreto.`;
 
 const IMAGE_SIZE_BY_ORIENTATION: Record<string, '1536x1024' | '1024x1536' | '1024x1024'> = {
@@ -427,6 +429,20 @@ export async function POST(req: NextRequest) {
     ...conversation,
   ];
 
+  /** Resolves which template a tool call targets (explicit slideIndex, or the active slide) and
+   *  checks `path`/`listPath` against that template's default data shape. Returns an error string
+   *  to feed back to the model, or null if the path is valid. */
+  function invalidPathError(slideIndex: number | undefined, dotPath: string): string | null {
+    const targetTemplate = typeof slideIndex === 'number' ? deckOverview[slideIndex]?.template : template;
+    if (!targetTemplate) return `error: slideIndex ${slideIndex} out of range`;
+    const shape = TEMPLATE_META[targetTemplate as keyof typeof TEMPLATE_META]?.createData();
+    if (shape === undefined) return null; // unknown template shape; don't block on it
+    if (!pathExistsInShape(shape, dotPath)) {
+      return `error: field "${dotPath}" does not exist on template "${targetTemplate}" — check the slide's JSON data shape and use an existing field path instead of inventing one`;
+    }
+    return null;
+  }
+
   let reply = '';
   let imagesGenerated = 0;
   const actions: AiSlideAction[] = [];
@@ -487,42 +503,48 @@ export async function POST(req: NextRequest) {
               resultSummary = 'error: invalid or missing template';
             }
             break;
-          case 'set_field':
-            if (typeof args.path === 'string' && typeof args.value === 'string') {
-              actions.push({
-                kind: 'setField',
-                slideIndex: typeof args.slideIndex === 'number' ? args.slideIndex : undefined,
-                path: args.path,
-                value: args.value,
-              });
-            } else {
+          case 'set_field': {
+            if (typeof args.path !== 'string' || typeof args.value !== 'string') {
               resultSummary = 'error: missing path/value';
+              break;
             }
+            const slideIndex = typeof args.slideIndex === 'number' ? args.slideIndex : undefined;
+            const pathError = invalidPathError(slideIndex, args.path);
+            if (pathError) {
+              resultSummary = pathError;
+              break;
+            }
+            actions.push({ kind: 'setField', slideIndex, path: args.path, value: args.value });
             break;
-          case 'add_list_item':
-            if (typeof args.listPath === 'string' && args.item && typeof args.item === 'object') {
-              actions.push({
-                kind: 'addListItem',
-                slideIndex: typeof args.slideIndex === 'number' ? args.slideIndex : undefined,
-                listPath: args.listPath,
-                item: args.item as Record<string, unknown>,
-              });
-            } else {
+          }
+          case 'add_list_item': {
+            if (typeof args.listPath !== 'string' || !args.item || typeof args.item !== 'object') {
               resultSummary = 'error: missing listPath/item';
+              break;
             }
+            const slideIndex = typeof args.slideIndex === 'number' ? args.slideIndex : undefined;
+            const pathError = invalidPathError(slideIndex, args.listPath);
+            if (pathError) {
+              resultSummary = pathError;
+              break;
+            }
+            actions.push({ kind: 'addListItem', slideIndex, listPath: args.listPath, item: args.item as Record<string, unknown> });
             break;
-          case 'remove_list_item':
-            if (typeof args.listPath === 'string' && typeof args.index === 'number') {
-              actions.push({
-                kind: 'removeListItem',
-                slideIndex: typeof args.slideIndex === 'number' ? args.slideIndex : undefined,
-                listPath: args.listPath,
-                index: args.index,
-              });
-            } else {
+          }
+          case 'remove_list_item': {
+            if (typeof args.listPath !== 'string' || typeof args.index !== 'number') {
               resultSummary = 'error: missing listPath/index';
+              break;
             }
+            const slideIndex = typeof args.slideIndex === 'number' ? args.slideIndex : undefined;
+            const pathError = invalidPathError(slideIndex, args.listPath);
+            if (pathError) {
+              resultSummary = pathError;
+              break;
+            }
+            actions.push({ kind: 'removeListItem', slideIndex, listPath: args.listPath, index: args.index });
             break;
+          }
           case 'reorder_slide':
             if (typeof args.fromIndex === 'number' && typeof args.toIndex === 'number') {
               actions.push({ kind: 'reorderSlide', fromIndex: args.fromIndex, toIndex: args.toIndex });
@@ -579,6 +601,12 @@ export async function POST(req: NextRequest) {
               resultSummary = 'error: missing path';
               break;
             }
+            const slideIndex = typeof args.slideIndex === 'number' ? args.slideIndex : undefined;
+            const pathError = invalidPathError(slideIndex, targetPath);
+            if (pathError) {
+              resultSummary = pathError;
+              break;
+            }
             const parsed = parseDataUrl(attachments[attachmentIndex]);
             if (!parsed) {
               resultSummary = 'error: attachment is not a valid image';
@@ -586,12 +614,7 @@ export async function POST(req: NextRequest) {
             }
             try {
               const url = await saveImageBuffer(parsed.buffer, 'chat-attachments', parsed.ext);
-              actions.push({
-                kind: 'setField',
-                slideIndex: typeof args.slideIndex === 'number' ? args.slideIndex : undefined,
-                path: targetPath,
-                value: url,
-              });
+              actions.push({ kind: 'setField', slideIndex, path: targetPath, value: url });
               resultSummary = `ok: attached image ${attachmentIndex} placed at ${targetPath} (url ${url})`;
             } catch (err) {
               const message = err instanceof Error ? err.message : 'unknown error';

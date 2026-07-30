@@ -14,10 +14,11 @@ import { Icon } from '@/components/ui/Icon';
 import { AnimationPickerMenu } from '@/components/ui/AnimationPickerMenu';
 import { SLIDE_ANIMATIONS, DEFAULT_SLIDE_ANIMATION, SlideAnimationId } from '@/lib/slideAnimations';
 import { DRAG_KEYS_BY_TEMPLATE } from '@/lib/dragKeys';
-import { getAtPath, pushAtPath, removeAtPath, setAtPath } from '@/lib/dataPath';
+import { getAtPath, pathExistsInShape, pushAtPath, removeAtPath, setAtPath } from '@/lib/dataPath';
 import { resolveRemovableRow } from '@/lib/removableLists';
 import { sampleSlides } from '@/lib/sample-slides';
 import { createSlide } from '@/lib/slide-templates';
+import { TEMPLATE_META } from '@/lib/slideMeta';
 import { RENDERERS } from '@/components/slides';
 import { PresentationOverlay } from '@/components/PresentationOverlay';
 import { AddSlideMenu } from '@/components/ui/AddSlideMenu';
@@ -124,10 +125,21 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
       let next = [...slidesRef.current];
       let targetId = activeIdRef.current;
 
-      function patchTarget(slideIndex: number | undefined, fn: (s: Slide) => Slide) {
+      function patchTarget(slideIndex: number | undefined, dataPath: string | null, fn: (s: Slide) => Slide) {
         const id = slideIndex != null ? next[slideIndex]?.id : undefined;
         if (slideIndex != null && id == null) return; // stale/out-of-range index; ignore
         const applyToId = id ?? targetId;
+        const target = next.find((s) => s.id === applyToId);
+        // Guards against a path that doesn't exist on this template's schema (e.g. the AI invented
+        // an imageUrl-like field a template doesn't have) — setAtPath would otherwise silently
+        // write an orphan key no renderer reads, and the AI would report success for nothing.
+        if (target && dataPath != null) {
+          const shape = TEMPLATE_META[target.template]?.createData();
+          if (shape !== undefined && !pathExistsInShape(shape, dataPath)) {
+            console.warn(`[ai action] ignored ${dataPath}: no such field on template "${target.template}"`);
+            return;
+          }
+        }
         next = next.map((s) => (s.id === applyToId ? fn(s) : s));
       }
 
@@ -145,13 +157,13 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
             next = reordered;
           }
         } else if (action.kind === 'setField') {
-          patchTarget(action.slideIndex, (s) => ({ ...s, data: setAtPath(s.data as object, action.path, action.value) } as Slide));
+          patchTarget(action.slideIndex, action.path, (s) => ({ ...s, data: setAtPath(s.data as object, action.path, action.value) } as Slide));
         } else if (action.kind === 'addListItem') {
-          patchTarget(action.slideIndex, (s) => ({ ...s, data: pushAtPath(s.data as object, action.listPath, action.item) } as Slide));
+          patchTarget(action.slideIndex, action.listPath, (s) => ({ ...s, data: pushAtPath(s.data as object, action.listPath, action.item) } as Slide));
         } else if (action.kind === 'removeListItem') {
-          patchTarget(action.slideIndex, (s) => ({ ...s, data: removeAtPath(s.data as object, action.listPath, action.index) } as Slide));
+          patchTarget(action.slideIndex, action.listPath, (s) => ({ ...s, data: removeAtPath(s.data as object, action.listPath, action.index) } as Slide));
         } else if (action.kind === 'moveBlock') {
-          patchTarget(action.slideIndex, (s) => {
+          patchTarget(action.slideIndex, null, (s) => {
             const current = { ...(s.layoutOverrides ?? {}) };
             const base = current[action.dragKey] ?? { dx: 0, dy: 0 };
             current[action.dragKey] = { dx: base.dx + action.dx, dy: base.dy + action.dy };

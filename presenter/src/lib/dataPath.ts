@@ -50,3 +50,28 @@ export function removeAtPath<T extends object>(obj: T, listPath: string, index: 
   const nextList = list.filter((_, i) => i !== index);
   return setAtPath(obj, listPath, nextList);
 }
+
+/**
+ * Checks whether `path` is navigable against `shape` — a template's default `data` (from
+ * `TEMPLATE_META[template].createData()`), used as a stand-in for its schema since there's no
+ * runtime type info otherwise. Object keys must exist in the shape; array indices are accepted
+ * as long as the shape has a non-empty array at that position (arrays are variable-length, so
+ * the index itself isn't checked) — this is what lets set_field/add_list_item/etc. target a
+ * field that doesn't exist yet be rejected, instead of silently created as an orphan key that no
+ * renderer reads (the bug this guards against: the AI reports success but nothing appears).
+ */
+export function pathExistsInShape(shape: unknown, path: string): boolean {
+  const segs = parsePath(path);
+  let cur = shape;
+  for (const seg of segs) {
+    if (cur == null || typeof cur !== 'object') return false;
+    if (typeof seg === 'number') {
+      if (!Array.isArray(cur) || cur.length === 0) return false;
+      cur = cur[0];
+      continue;
+    }
+    if (Array.isArray(cur) || !(seg in cur)) return false;
+    cur = (cur as Record<string, unknown>)[seg];
+  }
+  return true;
+}
