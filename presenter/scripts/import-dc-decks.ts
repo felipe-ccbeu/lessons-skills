@@ -29,6 +29,7 @@ import type {
   GrammarBoxLookTip,
   LessonCompleteData,
   LessonCompleteColumn,
+  ChangePlacesData,
 } from '../src/lib/types.ts';
 
 const SOURCE_DIR = 'C:\\Users\\felipe.fadel\\Downloads\\Design system CCBEU A1';
@@ -257,6 +258,39 @@ function extractObjectives(section: Element): ObjectivesData | null {
   };
 }
 
+function extractChangePlaces(section: Element): ChangePlacesData | null {
+  const h1 = section.querySelector('h1');
+  if (!h1) return null;
+  const instructionP = section.querySelector('p');
+  const title = instructionP ? `${text(h1)} ${text(instructionP)}`.trim() : text(h1);
+
+  // Sub-pattern A: a numbered list — <div><span>N</span>sentence</div> rows,
+  // all siblings inside one wrapper div.
+  const numberedRows = Array.from(section.querySelectorAll('div > span[style*="width:28px"]')).map((span) => {
+    const row = span.parentElement!;
+    const label = text(span);
+    const sentence = text(row).slice(label.length).trim();
+    return { label, sentence };
+  });
+  if (numberedRows.length >= 2) {
+    return { breadcrumb: extractBreadcrumb(section), title, rows: numberedRows };
+  }
+
+  // Sub-pattern B: 3 labeled boxes — <div>bar + <div>Label:</div> + <div>sentence</div></div>.
+  const boxes = Array.from(section.querySelectorAll('div[style*="tint-pink-soft"]'));
+  if (boxes.length >= 2) {
+    const boxRows = boxes.map((box) => {
+      const children = Array.from(box.children).filter((c) => text(c));
+      const label = text(children[0]).replace(/:$/, '');
+      const sentence = text(children[1]);
+      return { label, sentence };
+    });
+    return { breadcrumb: extractBreadcrumb(section), title: text(h1), rows: boxRows };
+  }
+
+  return null;
+}
+
 function extractRollCall(section: Element): RollCallData | null {
   const h1 = section.querySelector('h1');
   if (!h1) return null;
@@ -411,6 +445,10 @@ function extractSlideData(section: Element, tokenCss: string): { template: Slide
   if (label === 'Lesson Complete') {
     const data = extractLessonComplete(section);
     if (data) return { template: 'lessonComplete', data };
+  }
+  if (label.startsWith('Warm-up') || label.startsWith('Change the Sentences')) {
+    const data = extractChangePlaces(section);
+    if (data) return { template: 'changePlaces', data };
   }
 
   return { template: 'customHtml', data: { html: sectionToSlideHtml(section, tokenCss), sourceFile: label } };
