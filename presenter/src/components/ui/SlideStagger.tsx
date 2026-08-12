@@ -89,6 +89,8 @@ export function SlideStaggerItem({
 }: ItemProps) {
   const movable = editMode && !!dragKey && !!onLayoutOffsetChange;
   const base = layoutOffset ?? { dx: 0, dy: 0 };
+  const baseWidth = typeof style?.width === 'number' ? style.width : null;
+  const resizable = movable && baseWidth != null;
 
   const clipboard = useSlideBlockClipboard();
   const selected = movable && !!dragKey && clipboard.selectedKeys.has(dragKey);
@@ -97,6 +99,7 @@ export function SlideStaggerItem({
     !!template && clipboard.selection.some((s) => resolveRemovableRow(template, s.dragKey) != null);
 
   const [dragOffset, setDragOffset] = useState<LayoutOffset | null>(null);
+  const [resizeState, setResizeState] = useState<{ dw: number; dx: number } | null>(null);
   const [showAnimationPicker, setShowAnimationPicker] = useState(false);
   const [showBlockMenu, setShowBlockMenu] = useState<{ x: number; y: number } | null>(null);
   const [measuredHeight, setMeasuredHeight] = useState<number | null>(null);
@@ -128,7 +131,12 @@ export function SlideStaggerItem({
   // relative distances between blocks as the group moves together.
   const liveGroupDelta = groupDrag ? clipboard.groupDragDelta : null;
   const offset = dragOffset ?? (liveGroupDelta ? { dx: base.dx + liveGroupDelta.dx, dy: base.dy + liveGroupDelta.dy } : base);
-  const offsetStyle: CSSProperties = { transform: `translate(${offset.dx}px, ${offset.dy}px)` };
+  // Resizing from the left handle both grows the box and shifts it left, so its right edge stays
+  // put — `resizeState.dx` is that compensating translate, layered on top of the drag/group offset.
+  const translateX = offset.dx + (resizeState?.dx ?? 0);
+  const offsetStyle: CSSProperties = { transform: `translate(${translateX}px, ${offset.dy}px)` };
+  const liveWidth = baseWidth != null ? baseWidth + (resizeState?.dw ?? base.dw ?? 0) : undefined;
+  const widthStyle: CSSProperties = liveWidth != null ? { width: liveWidth } : {};
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
@@ -181,9 +189,38 @@ export function SlideStaggerItem({
           const draggedRect = { left: ownStageRect.left + dx, top: ownStageRect.top + dy, width: ownStageRect.width, height: ownStageRect.height };
           ({ snapDx, snapDy } = computeAlignmentGuides(draggedRect, others, { width: 1280, height: 720 }));
         }
-        onLayoutOffsetChange!(dragKey!, { dx: base.dx + dx + snapDx, dy: base.dy + dy + snapDy });
+        onLayoutOffsetChange!(dragKey!, { dx: base.dx + dx + snapDx, dy: base.dy + dy + snapDy, dw: base.dw });
       }
       setDragOffset(null);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  };
+
+  /** Drags the left/right edge to resize the block's width, mirroring `handlePointerDown` above.
+   *  `side: 'w'` (left edge) also compensates `dx` so the right edge stays anchored in place. */
+  const handleResizePointerDown = (side: 'w' | 'e') => (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (baseWidth == null) return;
+    const startX = e.clientX;
+    const startDw = base.dw ?? 0;
+    const MIN_WIDTH = 40;
+
+    const onMove = (ev: PointerEvent) => {
+      const delta = (ev.clientX - startX) / stageScale;
+      const signedDelta = side === 'e' ? delta : -delta;
+      const dw = Math.max(MIN_WIDTH - baseWidth, startDw + signedDelta);
+      setResizeState({ dw, dx: side === 'w' ? -(dw - startDw) : 0 });
+    };
+    const onUp = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      const delta = (ev.clientX - startX) / stageScale;
+      const signedDelta = side === 'e' ? delta : -delta;
+      const dw = Math.max(MIN_WIDTH - baseWidth, startDw + signedDelta);
+      setResizeState(null);
+      onLayoutOffsetChange!(dragKey!, { dx: base.dx - (side === 'w' ? dw - startDw : 0), dy: base.dy, dw });
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
@@ -197,6 +234,7 @@ export function SlideStaggerItem({
         data-drag-key={dragKey}
         style={{
           ...style,
+          ...widthStyle,
           ...offsetStyle,
           outline: selected ? '2px solid var(--ccbeu-blue)' : '2px solid transparent',
           outlineOffset: 4,
@@ -242,18 +280,48 @@ export function SlideStaggerItem({
             createPortal(
               <div
                 className="selection-portal-anchor"
-                style={{ ...style, ...offsetStyle, position: 'absolute', height: measuredHeight }}
+                style={{ ...style, ...widthStyle, ...offsetStyle, position: 'absolute', height: measuredHeight }}
               >
                 <div className="drag-handle" title="Arraste para reposicionar" onPointerDown={handlePointerDown}>
                   <Icon name="open_with" size={15} />
                 </div>
+                {resizable && (
+                  <>
+                    <div
+                      className="resize-handle resize-handle-w"
+                      title="Arraste para redimensionar"
+                      onPointerDown={handleResizePointerDown('w')}
+                    />
+                    <div
+                      className="resize-handle resize-handle-e"
+                      title="Arraste para redimensionar"
+                      onPointerDown={handleResizePointerDown('e')}
+                    />
+                  </>
+                )}
               </div>,
               stageOverlayEl
             )
           ) : (
-            <div className="drag-handle" title="Arraste para reposicionar" onPointerDown={handlePointerDown}>
-              <Icon name="open_with" size={15} />
-            </div>
+            <>
+              <div className="drag-handle" title="Arraste para reposicionar" onPointerDown={handlePointerDown}>
+                <Icon name="open_with" size={15} />
+              </div>
+              {resizable && (
+                <>
+                  <div
+                    className="resize-handle resize-handle-w"
+                    title="Arraste para redimensionar"
+                    onPointerDown={handleResizePointerDown('w')}
+                  />
+                  <div
+                    className="resize-handle resize-handle-e"
+                    title="Arraste para redimensionar"
+                    onPointerDown={handleResizePointerDown('e')}
+                  />
+                </>
+              )}
+            </>
           ))}
         {showBlockMenu && (
           <SlideBlockContextMenu

@@ -345,8 +345,9 @@ export type TextStyleOverride = {
 /** Keyed the same way as `AnswerFields` (a `data` field path, e.g. `"rows.0.orig"`). */
 export type StyleOverrides = Record<string, TextStyleOverride>;
 
-/** Pixel offset from a block's default position (applied at 1280x720 stage scale). */
-export type LayoutOffset = { dx: number; dy: number };
+/** Pixel offset from a block's default position and width (applied at 1280x720 stage scale).
+ *  `dw` is the delta added to the template's hardcoded `style.width` — undefined/0 means unresized. */
+export type LayoutOffset = { dx: number; dy: number; dw?: number };
 
 /** Keyed by the block's `dragKey` (a stable per-template id, e.g. `"grammarBox"`, `"tips"`). */
 export type LayoutOverrides = Record<string, LayoutOffset>;

@@ -692,6 +692,37 @@ body {
   cursor: grabbing;
 }
 
+.resize-handle {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 36px;
+  transform: translateY(-50%);
+  border-radius: 4px;
+  background: var(--ccbeu-blue);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: ew-resize;
+  z-index: 9999;
+  user-select: none;
+  touch-action: none;
+}
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 2px;
+  height: 14px;
+  background: #fff;
+  border-radius: 999px;
+}
+.resize-handle-w {
+  left: -5px;
+}
+.resize-handle-e {
+  right: -5px;
+}
+
 .pasted-block {
   cursor: default;
 }
