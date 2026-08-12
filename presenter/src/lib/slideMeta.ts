@@ -458,6 +458,88 @@ export const TEMPLATE_META: { [K in SlideTemplate]: TemplateMeta<K> } = {
     description: 'Slide vazio',
     createData: () => ({}),
   },
+  rollCall: {
+    addable: true,
+    label: 'Chamada / frases úteis',
+    description: 'Bolhas de frase + foto',
+    dragKeys: ['title', 'phrases', 'photo'],
+    removableLists: [{ rowDragKeyPrefix: 'phrases', listPath: 'phrases' }],
+    createData: () => ({
+      breadcrumb: 'BREADCRUMB',
+      title: 'Roll call! Study the sentences',
+      phrases: ['How can I say _____ in English?', 'Can you repeat please?', 'Excuse me.'],
+      imageUrl: '',
+    }),
+  },
+  dialoguePractice: {
+    addable: true,
+    label: 'Diálogo (com lacunas)',
+    description: 'Word bank + falas em par',
+    dragKeys: ['title', 'instruction', 'wordBank', 'lines'],
+    removableLists: [
+      { rowDragKeyPrefix: 'wordBank', listPath: 'wordBank' },
+      { rowDragKeyPrefix: 'lines', listPath: 'lines' },
+    ],
+    createData: () => ({
+      breadcrumb: 'BREADCRUMB',
+      title: 'Practice the conversation with a pair!',
+      instruction: 'Listen and complete 1-6 with the words in the box.',
+      wordBank: ['American', 'Brazilian'],
+      lines: [
+        { speaker: 'A', textParts: ['This is Anna. ', { hl: "She's American." }] },
+        { speaker: 'B', textParts: ['OK. And who is this?'] },
+      ],
+    }),
+  },
+  revealCardGrid: {
+    addable: true,
+    label: 'Cartões (pergunta + resposta)',
+    description: 'Grade de fotos com resposta',
+    dragKeys: ['title', 'items'],
+    removableLists: [{ rowDragKeyPrefix: 'items', listPath: 'items' }],
+    createData: () => ({
+      breadcrumb: 'BREADCRUMB',
+      title: "What's the plural form of these words?",
+      items: [
+        { imageUrl: '', term: 'BOOK', answer: 'BOOKS' },
+        { imageUrl: '', term: 'WATCH', answer: 'WATCHES' },
+      ],
+    }),
+  },
+  photoLabelGrid: {
+    addable: true,
+    label: 'Grade de fotos (vocabulário)',
+    description: 'Fotos com legenda curta',
+    dragKeys: ['title', 'items'],
+    removableLists: [{ rowDragKeyPrefix: 'items', listPath: 'items' }],
+    createData: () => ({
+      breadcrumb: 'BREADCRUMB',
+      title: 'Look, listen and repeat.',
+      items: [
+        { imageUrl: '', caption: 'a suitcase' },
+        { imageUrl: '', caption: 'a passport' },
+      ],
+    }),
+  },
+  lookLight: {
+    addable: true,
+    label: 'LOOK! (simples)',
+    description: 'Exemplos + fotos, sem tabela',
+    dragKeys: ['examples', 'tip', 'images'],
+    removableLists: [
+      { rowDragKeyPrefix: 'examples', listPath: 'examples' },
+      { rowDragKeyPrefix: 'images', listPath: 'imageUrls' },
+    ],
+    createData: () => ({
+      breadcrumb: 'BREADCRUMB',
+      examples: [
+        { pre: "It's", hl: 'a', post: 'banana.' },
+        { pre: "It's", hl: 'an', post: 'apple.' },
+      ],
+      tip: 'Use a before a consonant sound. Use an before a vowel sound.',
+      imageUrls: ['', ''],
+    }),
+  },
   // Non-addable: created only by importing a .pptx (pptxImage) or by code paths
   // that inject raw HTML (customHtml). They still need default data + metadata.
   pptxImage: {

@@ -3,10 +3,18 @@
 :root {
   --ccbeu-blue: #0448df;
   --ccbeu-pink: #fd3682;
+  --ink-strong: #000000;
   --ink: #0e1116;
   --ink-muted: #6b7280;
   --ink-footer: #9aa1ac;
   --border-hair: #ecedf0;
+  --surface-zebra: #f7f8fb;
+  --tint-pink-soft: #fff4f8;
+  --tint-blue-bubble: #f2f5ff;
+  --tint-pink-bubble: #ffedf4;
+  --img-safe: #eef1f8;
+  --shadow-card: 0 1px 3px rgba(4, 72, 223, 0.06);
+  --shadow-bubble: 0 2px 8px rgba(14, 17, 22, 0.08);
   --font-title: "Poppins", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --app-bg: #f3f4f7;

@@ -28,6 +28,11 @@ import { LessonCompleteSlide } from './LessonCompleteSlide';
 import { PracticeQaBadgesSlide } from './PracticeQaBadgesSlide';
 import { MatchingWithChartSlide } from './MatchingWithChartSlide';
 import { MatchLettersSlide } from './MatchLettersSlide';
+import { RollCallSlide } from './RollCallSlide';
+import { DialoguePracticeSlide } from './DialoguePracticeSlide';
+import { RevealCardGridSlide } from './RevealCardGridSlide';
+import { PhotoLabelGridSlide } from './PhotoLabelGridSlide';
+import { LookLightSlide } from './LookLightSlide';
 import { SlideTemplate } from '@/lib/types';
 
 export const RENDERERS: Record<SlideTemplate, React.ComponentType<any>> = {
@@ -61,4 +66,9 @@ export const RENDERERS: Record<SlideTemplate, React.ComponentType<any>> = {
   practiceQaBadges: PracticeQaBadgesSlide,
   matchingWithChart: MatchingWithChartSlide,
   matchLetters: MatchLettersSlide,
+  rollCall: RollCallSlide,
+  dialoguePractice: DialoguePracticeSlide,
+  revealCardGrid: RevealCardGridSlide,
+  photoLabelGrid: PhotoLabelGridSlide,
+  lookLight: LookLightSlide,
 };

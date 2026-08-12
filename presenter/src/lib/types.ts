@@ -280,6 +280,44 @@ export type MatchLettersData = {
   gridImageUrl: string;
 };
 
+export type RollCallData = {
+  breadcrumb: string;
+  title: string;
+  phrases: string[]; // any length, alternating blue/pink bubble tint by index
+  imageUrl: string;
+};
+
+export type DialoguePracticeLine = { speaker: string; textParts: (string | { hl: string })[] };
+export type DialoguePracticeData = {
+  breadcrumb: string;
+  title: string;
+  instruction: string;
+  wordBank: string[]; // any length
+  lines: DialoguePracticeLine[]; // any length
+};
+
+export type RevealCardGridItem = { imageUrl: string; term: string; answer: string };
+export type RevealCardGridData = {
+  breadcrumb: string;
+  title: string;
+  items: RevealCardGridItem[]; // any length
+};
+
+export type PhotoLabelGridItem = { imageUrl: string; caption: string };
+export type PhotoLabelGridData = {
+  breadcrumb: string;
+  title: string;
+  items: PhotoLabelGridItem[]; // any length
+};
+
+export type LookLightExample = { pre: string; hl: string; post: string };
+export type LookLightData = {
+  breadcrumb: string;
+  examples: LookLightExample[]; // any length, alternating blue/pink bubble tint by index
+  tip: string;
+  imageUrls: string[]; // any length
+};
+
 /** Keys of `data` (per slide) that the teacher marked as an answer, hidden until revealed. */
 export type AnswerFields = string[];
 
@@ -386,6 +424,11 @@ export interface TemplateDataMap {
   practiceQaBadges: PracticeQaBadgesData;
   matchingWithChart: MatchingWithChartData;
   matchLetters: MatchLettersData;
+  rollCall: RollCallData;
+  dialoguePractice: DialoguePracticeData;
+  revealCardGrid: RevealCardGridData;
+  photoLabelGrid: PhotoLabelGridData;
+  lookLight: LookLightData;
 }
 
 /** A single slide of a specific template `K` — its id/template/data plus the shared overrides. */
