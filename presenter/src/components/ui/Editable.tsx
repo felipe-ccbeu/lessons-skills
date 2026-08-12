@@ -23,6 +23,12 @@ type EditableProps = {
   styleOverride?: TextStyleOverride;
   /** When provided (in edit mode), right-clicking this field opens a style menu. */
   onStyleChange?: (patch: TextStyleOverride | null) => void;
+  /** Makes the answer-toggle wrap fill its positioned parent's width instead of shrinking to the
+   *  text's own content width. Set this for block-level fields (title/subtitle/paragraph) that sit
+   *  alone inside an absolutely-positioned SlideStaggerItem, so widening that block (e.g. via the
+   *  resize handles) actually lets the text wrap later — leave unset for inline fields (breadcrumbs,
+   *  badges, sentence fragments split across sibling Editables) that must keep shrinking to content. */
+  fillWidth?: boolean;
 };
 
 function applyOverride(style: CSSProperties | undefined, o: TextStyleOverride | undefined): CSSProperties | undefined {
@@ -49,6 +55,7 @@ export function Editable({
   onToggleAnswer,
   styleOverride,
   onStyleChange,
+  fillWidth = false,
 }: EditableProps) {
   const ref = useRef<HTMLElement>(null);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
@@ -128,8 +135,8 @@ export function Editable({
     top: style?.top,
     right: style?.right,
     bottom: style?.bottom,
-    width: style?.width,
-    display: 'inline-flex',
+    width: style?.width ?? (fillWidth ? '100%' : undefined),
+    display: fillWidth ? 'flex' : 'inline-flex',
     alignItems: 'flex-start',
     gap: 4,
   };

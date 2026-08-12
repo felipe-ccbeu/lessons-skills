@@ -541,7 +541,8 @@ body {
   z-index: 9998;
 }
 
-.selection-portal-anchor .drag-handle {
+.selection-portal-anchor .drag-handle,
+.selection-portal-anchor .resize-handle {
   pointer-events: auto;
 }
 
@@ -705,6 +706,7 @@ body {
   z-index: 9999;
   user-select: none;
   touch-action: none;
+  pointer-events: auto;
 }
 .resize-handle::after {
   content: '';

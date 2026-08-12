@@ -92,6 +92,7 @@ export function GettingStartedSlide({
             onChange={(v) => onEdit({ title: v })}
             editMode={editMode}
             tag="h1"
+            fillWidth
             {...answerProps('title')}
             style={{ margin: 0, fontFamily: 'var(--font-title)', fontWeight: 700, fontSize: '32pt', lineHeight: 1.1, color: '#000' }}
           />
@@ -103,6 +104,7 @@ export function GettingStartedSlide({
             onChange={(v) => onEdit({ subtitle: v })}
             editMode={editMode}
             tag="p"
+            fillWidth
             {...answerProps('subtitle')}
             style={{ margin: 0, fontFamily: 'var(--font-body)', fontWeight: 400, fontSize: '17pt', lineHeight: 1.4, color: 'var(--ink-muted)' }}
           />
