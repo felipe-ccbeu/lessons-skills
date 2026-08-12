@@ -21,6 +21,8 @@ import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { PrismaClient } from '../src/generated/prisma/client.ts';
 import type {
   Slide,
+  Exercise1Data,
+  ExerciseRow,
   GettingStartedData,
   ObjectivesData,
   RollCallData,
@@ -30,6 +32,27 @@ import type {
   LessonCompleteData,
   LessonCompleteColumn,
   ChangePlacesData,
+  PhotoExerciseWhoIsThisData,
+  MatchVocabImageData,
+  MatchingWithChartData,
+  MatchingWithChartRow,
+  PhotoGridBlankData,
+  PhotoGridBlankItem,
+  ModelExampleListData,
+  SectionTransitionData,
+  Fluency2Data,
+  Fluency3Data,
+  GrammarBox2YesNoData,
+  GrammarBox2YesNoRow,
+  GuessFourImagesData,
+  LookLightData,
+  LookLightExample,
+  DialoguePracticeData,
+  DialoguePracticeLine,
+  RevealCardGridData,
+  RevealCardGridItem,
+  PhotoLabelGridData,
+  PhotoLabelGridItem,
 } from '../src/lib/types.ts';
 
 const SOURCE_DIR = 'C:\\Users\\felipe.fadel\\Downloads\\Design system CCBEU A1';
@@ -236,7 +259,8 @@ function extractGettingStarted(section: Element): GettingStartedData | null {
 function extractObjectives(section: Element): ObjectivesData | null {
   // 3 objective rows: <b>VERB</b> rest of sentence — the pink-highlighted
   // <b> at the start of each row is the verb, everything after is the text.
-  const rows = Array.from(section.querySelectorAll('div[style*="flex-direction:column"] > div'));
+  const colWrapper = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'flex-direction:column'));
+  const rows = colWrapper ? Array.from(colWrapper.children) : [];
   if (rows.length < 3) return null;
   const parts = rows.slice(0, 3).map((row) => {
     const b = row.querySelector('b');
@@ -266,10 +290,12 @@ function extractChangePlaces(section: Element): ChangePlacesData | null {
 
   // Sub-pattern A: a numbered list — <div><span>N</span>sentence</div> rows,
   // all siblings inside one wrapper div.
-  const numberedRows = Array.from(section.querySelectorAll('div > span[style*="width:28px"]')).map((span) => {
-    const row = span.parentElement!;
-    const label = text(span);
-    const sentence = text(row).slice(label.length).trim();
+  const numberedRows = Array.from(section.querySelectorAll('div > span'))
+    .filter((s) => styleHas(s, 'width:28px'))
+    .map((span) => {
+      const row = span.parentElement!;
+      const label = text(span);
+      const sentence = text(row).slice(label.length).trim();
     return { label, sentence };
   });
   if (numberedRows.length >= 2) {
@@ -277,7 +303,7 @@ function extractChangePlaces(section: Element): ChangePlacesData | null {
   }
 
   // Sub-pattern B: 3 labeled boxes — <div>bar + <div>Label:</div> + <div>sentence</div></div>.
-  const boxes = Array.from(section.querySelectorAll('div[style*="tint-pink-soft"]'));
+  const boxes = Array.from(section.querySelectorAll('div')).filter((d) => styleHas(d, 'tint-pink-soft'));
   if (boxes.length >= 2) {
     const boxRows = boxes.map((box) => {
       const children = Array.from(box.children).filter((c) => text(c));
@@ -289,6 +315,411 @@ function extractChangePlaces(section: Element): ChangePlacesData | null {
   }
 
   return null;
+}
+
+function extractPhotoExerciseWhoIsThis(section: Element): PhotoExerciseWhoIsThisData | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1 || !p) return null;
+
+  // Name + role are the two pink 27px divs right after the h1 (excluding the
+  // breadcrumb, which is also pink-dotted but has a different font-size).
+  const pinkDivs = Array.from(section.querySelectorAll('div')).filter((d) => styleHas(d, 'color:var(--ccbeu-pink)') && styleHas(d, 'font-weight:700') && !d.querySelector('*'));
+  if (pinkDivs.length < 2) return null;
+  const [nameDiv, roleDiv] = pinkDivs;
+
+  const gapSpan = p.querySelector('span');
+  const gap = text(gapSpan);
+  const fullSentence = text(p);
+  const idx = gap ? fullSentence.indexOf(gap) : -1;
+  const sentencePre = idx < 0 ? fullSentence : fullSentence.slice(0, idx).trim();
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    personName: text(nameDiv),
+    personRole: text(roleDiv),
+    sentencePre,
+    sentenceGap: gap,
+    imageUrl: '',
+  };
+}
+
+function extractMatchVocabImage(section: Element): MatchVocabImageData | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1 || !p) return null;
+  const badgeContainer = Array.from(section.querySelectorAll('div')).find((d) => {
+    return styleHas(d, 'flex-direction:column') && d.children.length >= 2 && Array.from(d.children).every((c) => styleHas(c, 'tint-blue-bubble'));
+  });
+  if (!badgeContainer) return null;
+  const keywords = Array.from(badgeContainer.children).map((c) => text(c));
+  if (keywords.length === 0) return null;
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    instruction: text(p),
+    keywords,
+    answers: keywords,
+    imageUrl: '',
+  };
+}
+
+function extractMatchingWithChart(section: Element): MatchingWithChartData | null {
+  const h1 = section.querySelector('h1');
+  if (!h1) return null;
+
+  // Two labeled instruction lines: <span>letter</span><span>label text</span>,
+  // each followed by its own content block. First is the match section
+  // (numbered prompts + lettered options), second is the chart.
+  const instructionRows = Array.from(section.querySelectorAll('div')).filter((d) => {
+    if (d.children.length !== 2) return false;
+    const [a, b] = Array.from(d.children);
+    return a.tagName === 'SPAN' && b.tagName === 'SPAN' && styleHas(a, 'color:var(--ccbeu-pink)');
+  });
+  if (instructionRows.length < 2) return null;
+  const matchLabel = text(instructionRows[0].children[1]);
+  const chartLabel = text(instructionRows[1].children[1]);
+
+  // Numbered prompts / lettered options: rows of <div><span>N or letter</span><span>text</span></div>,
+  // grouped in two flex-column wrappers right after the match instruction row.
+  const numberOrLetterRows = Array.from(section.querySelectorAll('div > span'))
+    .filter((s) => styleHas(s, 'font-family:var(--font-title)') && styleHas(s, 'font-weight:700') && styleHas(s, 'color:var(--ccbeu-blue)'))
+    .map((s) => s.parentElement!)
+    .filter((row) => row.children.length === 2);
+  const prompts = numberOrLetterRows.filter((row) => /^\d+$/.test(text(row.children[0])));
+  const options = numberOrLetterRows.filter((row) => /^[a-z]$/.test(text(row.children[0])));
+  if (prompts.length === 0 || options.length === 0) return null;
+  const matchPrompts = prompts.map((row) => text(row.children[1]));
+  const matchOptions = options.map((row) => text(row.children[1]));
+
+  // Chart table: bordered div, first child is the "+"/header bar (skip),
+  // remaining children are flex rows of 2 cell divs.
+  const tableContainer = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'border-radius:8px') && styleHas(d, 'overflow:hidden') && styleHas(d, 'border:1pxsolidvar(--border-hair)'));
+  if (!tableContainer) return null;
+  const chartDataRows = Array.from(tableContainer.children)
+    .slice(1)
+    .filter((c) => styleHas(c, 'display:flex'));
+  const chartRows: MatchingWithChartRow[] = chartDataRows.map((row) => {
+    const label = text(row.children[0]);
+    const answer = text(row.children[1]).replace(/^\d+\s*/, '');
+    return { label, answer };
+  });
+  if (chartRows.length === 0) return null;
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    matchLabel,
+    matchPrompts,
+    matchOptions,
+    matchAnswerKey: '',
+    chartLabel,
+    chartRows,
+  };
+}
+
+function extractPhotoGridBlank(section: Element): PhotoGridBlankData | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1) return null;
+  // <p> often starts with a single letter list marker ("a  Complete...") — drop it.
+  const instruction = p ? text(p).replace(/^[a-z]\s+/, '') : '';
+  const title = instruction ? `${text(h1)}. ${instruction}`.trim() : text(h1);
+
+  const grid = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'display:grid') && styleHas(d, 'grid-template-columns'));
+  if (!grid) return null;
+  // Each grid cell is <div><div>photo</div><div><span>N</span><span><b>answer</b> rest.</span></div></div>.
+  const items: PhotoGridBlankItem[] = Array.from(grid.children)
+    .map((cell) => {
+      const textRow = cell.children[1];
+      if (!textRow) return null;
+      const textSpan = textRow.children[1]; // second span: <b>answer</b> rest.
+      if (!textSpan) return null;
+      const bold = text(textSpan.querySelector('b'));
+      const full = text(textSpan);
+      const idx = bold ? full.indexOf(bold) : -1;
+      const rest = idx < 0 ? full : full.slice(idx + bold.length).trim();
+      return { answer: bold, text: rest, imageUrl: '' };
+    })
+    .filter((it): it is PhotoGridBlankItem => !!it && !!it.answer);
+  if (items.length === 0) return null;
+
+  return { breadcrumb: extractBreadcrumb(section), title, items };
+}
+
+function extractExercise1(section: Element): Exercise1Data | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1) return null;
+  const instructionPre = p ? text(p).replace(/^[a-z]\s+/, '') : '';
+
+  // Numbered sentence rows: <div><span>N</span><span>orig <b>hl</b> post</span></div>,
+  // all siblings inside one flex-column wrapper.
+  const wrapper = Array.from(section.querySelectorAll('div')).find(
+    (d) => styleHas(d, 'flex-direction:column') && d.children.length > 0 && Array.from(d.children).every((c) => c.children.length === 2 && /^\d+$/.test(text(c.children[0])))
+  );
+  if (!wrapper) return null;
+
+  const rows: ExerciseRow[] = Array.from(wrapper.children).map((row) => {
+    const textSpan = row.children[1];
+    const bold = text(textSpan.querySelector('b'));
+    const full = text(textSpan);
+    const idx = bold ? full.indexOf(bold) : -1;
+    if (idx < 0) return { orig: full, hl: '', post: '' };
+    return { orig: full.slice(0, idx).trim(), hl: bold, post: full.slice(idx + bold.length).trim() };
+  });
+  if (rows.length === 0) return null;
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    instructionPre,
+    instructionHl: '',
+    instructionPost: '',
+    rows,
+  };
+}
+
+function extractModelExampleList(section: Element): ModelExampleListData | null {
+  const h1 = section.querySelector('h1');
+  if (!h1) return null;
+  const exampleBox = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'surface-zebra') && styleHas(d, 'border-radius:12px'));
+  if (!exampleBox) return null;
+  const example = text(exampleBox).replace(/^Example:\s*/, '');
+
+  // Numbered item rows: <div><span>circle N</span><div>sentence</div></div>,
+  // inside a flex-column wrapper.
+  const wrapper = Array.from(section.querySelectorAll('div')).find(
+    (d) => styleHas(d, 'flex-direction:column') && d.children.length > 0 && Array.from(d.children).every((c) => c.children.length === 2 && styleHas(c.children[0] as Element, 'border-radius:999px'))
+  );
+  if (!wrapper) return null;
+  const items = Array.from(wrapper.children).map((row) => text(row.children[1]));
+  if (items.length === 0) return null;
+
+  return { breadcrumb: extractBreadcrumb(section), title: text(h1), example, items };
+}
+
+function extractSectionTransition(section: Element): SectionTransitionData | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1) return null;
+  // Bail if there's an image-slot — that visual weight is lost entirely by
+  // this template (no image field), better left as customHtml.
+  if (section.querySelector('image-slot')) return null;
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    tag: '',
+    title: text(h1),
+    subtitle: text(p),
+  };
+}
+
+function extractFluency2(section: Element): Fluency2Data | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1 || !p) return null;
+  if (!section.querySelector('image-slot')) return null;
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    instructionPre: text(p),
+    instructionHl: '',
+    imageUrl: '',
+  };
+}
+
+function extractFluency3(section: Element): Fluency3Data | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1) return null;
+  const slots = section.querySelectorAll('image-slot');
+  if (slots.length !== 2) return null;
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    instruction: text(p),
+    imageUrl1: '',
+    imageUrl2: '',
+  };
+}
+
+function extractGrammarBox2YesNo(section: Element): GrammarBox2YesNoData | null {
+  const h1 = section.querySelector('h1');
+  if (!h1) return null;
+  const tableContainer = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'border-radius:8px') && styleHas(d, 'overflow:hidden') && styleHas(d, 'border:1pxsolidvar(--border-hair)') && d.children.length >= 2);
+  if (!tableContainer) return null;
+  const rowsEl = Array.from(tableContainer.children).filter((c) => styleHas(c, 'display:flex'));
+  if (rowsEl.length < 2) return null;
+
+  const [headerRow, ...dataRows] = rowsEl;
+  const col2Header = text(headerRow.children[1]);
+  const col3Header = text(headerRow.children[2]);
+
+  const rows: GrammarBox2YesNoRow[] = dataRows.map((row) => {
+    const subject = text(row.children[0]);
+    const q = splitOnFirstBold(row.children[1]);
+    const answerCell = row.children[2];
+    const answerItalics = Array.from(answerCell.querySelectorAll('i'));
+    const yesText = answerItalics[0] ? splitOnFirstBold(answerItalics[0]) : { pre: '', hl: '' };
+    const noText = answerItalics[1] ? splitOnFirstBold(answerItalics[1]) : { pre: '', hl: '' };
+    return {
+      subject,
+      qHl: q.hl,
+      qPost: q.post,
+      aPre: yesText.pre.replace(/,$/, ''),
+      aYes: yesText.hl,
+      aMid: noText.pre.replace(/,$/, ''),
+      aNo: noText.hl,
+    };
+  });
+  if (rows.length === 0) return null;
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    photo1Caption: rows[0] ? `"${rows[0].qHl} ${rows[0].qPost}"` : '',
+    photo2Caption: rows[1] ? `"${rows[1].qHl} ${rows[1].qPost}"` : '',
+    col2Header,
+    col3Header,
+    rows,
+    imageUrl1: '',
+    imageUrl2: '',
+  };
+}
+
+function extractGuessFourImages(section: Element): GuessFourImagesData | null {
+  const h1 = section.querySelector('h1');
+  if (!h1) return null;
+  const slots = section.querySelectorAll('image-slot');
+  if (slots.length !== 4) return null;
+  const exampleBox = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'tint-blue-bubble') && d.children.length === 2 && text(d.children[0]).trim() === 'Ex.');
+  if (!exampleBox) return null;
+  const example = splitOnFirstBold(exampleBox.children[1]);
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    instruction: '',
+    examplePre: example.hl ? example.pre : text(exampleBox.children[1]),
+    exampleHl: example.hl,
+    imageUrls: ['', '', '', ''],
+  };
+}
+
+function extractLookLight(section: Element): LookLightData | null {
+  // Colored bubble boxes (blue/pink alternating) with a bold highlighted word
+  // each, plus a tip paragraph and 1-2 photos. No table — that's what
+  // distinguishes this pattern from grammarBoxLook.
+  const exampleBoxes = Array.from(section.querySelectorAll('div')).filter((d) => styleHas(d, 'tint-blue-bubble') || styleHas(d, 'tint-pink-bubble'));
+  if (exampleBoxes.length === 0) return null;
+  const tip = section.querySelector('p');
+  if (!tip) return null;
+
+  const examples: LookLightExample[] = exampleBoxes.map((box) => {
+    const bold = text(box.querySelector('b'));
+    const full = text(box);
+    const idx = bold ? full.indexOf(bold) : -1;
+    if (idx < 0) return { pre: full, hl: '', post: '' };
+    return { pre: full.slice(0, idx).trim(), hl: bold, post: full.slice(idx + bold.length).trim() };
+  });
+
+  const imageUrls = Array.from(section.querySelectorAll('image-slot')).map(() => '');
+  if (imageUrls.length === 0) return null;
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    examples,
+    tip: text(tip),
+    imageUrls,
+  };
+}
+
+function extractDialoguePractice(section: Element): DialoguePracticeData | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1 || !p) return null;
+
+  const wordBankBox = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'tint-blue-bubble') && d.children.length > 0 && Array.from(d.children).every((c) => c.tagName === 'SPAN'));
+  if (!wordBankBox) return null;
+  const wordBank = Array.from(wordBankBox.children).map((c) => text(c));
+
+  const linesWrapper = Array.from(section.querySelectorAll('div')).find(
+    (d) => styleHas(d, 'flex-direction:column') && d.children.length >= 2 && Array.from(d.children).every((c) => c.querySelector('b'))
+  );
+  if (!linesWrapper) return null;
+
+  const lines: DialoguePracticeLine[] = Array.from(linesWrapper.children).map((row) => {
+    const boldEls = Array.from(row.querySelectorAll('b'));
+    // Speaker span has no fixed gap to the line text in the renderer, so give
+    // it visible trailing whitespace here (source itself uses &nbsp;&nbsp;
+    // for this) — a single space collapses invisibly once rendered as HTML.
+    const speaker = `${text(boldEls[0]).trim()}  `;
+    // Walk the row's child nodes, splitting into text/hl parts. Skip the
+    // first <b> (the speaker label already extracted above). Only collapse
+    // internal whitespace — do NOT trim node-by-node, or the space that
+    // separates plain text from an adjacent <b> highlight is lost.
+    const parts: DialoguePracticeLine['textParts'] = [];
+    let sawSpeaker = false;
+    for (const node of Array.from(row.childNodes)) {
+      if (node.nodeType === 1 && (node as Element).tagName === 'B') {
+        if (!sawSpeaker) {
+          sawSpeaker = true;
+          continue;
+        }
+        parts.push({ hl: text(node as Element) });
+      } else {
+        const t = (node.textContent ?? '').replace(/\s+/g, ' ');
+        if (t.trim()) parts.push(t);
+      }
+    }
+    return { speaker, textParts: parts };
+  });
+  if (lines.length === 0) return null;
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    instruction: text(p),
+    wordBank,
+    lines,
+  };
+}
+
+function extractRevealCardGrid(section: Element): RevealCardGridData | null {
+  const h1 = section.querySelector('h1');
+  if (!h1) return null;
+  const grid = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'display:grid') && styleHas(d, 'grid-template-columns'));
+  if (!grid) return null;
+
+  const items: RevealCardGridItem[] = Array.from(grid.children)
+    .map((card) => {
+      const textCol = card.children[1];
+      if (!textCol) return null;
+      const term = text(textCol.children[0]);
+      const answer = text(textCol.children[1]); // inside <sc-if>, still queryable
+      if (!term) return null;
+      return { imageUrl: '', term, answer: answer || term };
+    })
+    .filter((it): it is RevealCardGridItem => !!it);
+  if (items.length === 0) return null;
+
+  return { breadcrumb: extractBreadcrumb(section), title: text(h1), items };
+}
+
+function extractPhotoLabelGrid(section: Element): PhotoLabelGridData | null {
+  const h1 = section.querySelector('h1');
+  if (!h1) return null;
+  // Each item is <figure><div>photo</div><figcaption>caption</figcaption></figure>.
+  const figures = Array.from(section.querySelectorAll('figure'));
+  if (figures.length < 2) return null;
+
+  const items: PhotoLabelGridItem[] = figures
+    .map((fig) => ({ imageUrl: '', caption: text(fig.querySelector('figcaption')) }))
+    .filter((it) => it.caption);
+  if (items.length !== figures.length || items.length === 0) return null;
+
+  return { breadcrumb: extractBreadcrumb(section), title: text(h1), items };
 }
 
 function extractRollCall(section: Element): RollCallData | null {
@@ -332,7 +763,15 @@ function extractGrammarBoxLook(section: Element): GrammarBoxLookData | null {
 
   const rows: GrammarBoxLookRow[] = dataRows.map((row) => {
     const subject = text(row.children[0]);
-    const { hl, post } = splitOnFirstBold(row.children[1] ?? row);
+    const cell = row.children[1] ?? row;
+    // Some decks highlight the whole cell (a plain <div style="color:pink">)
+    // instead of wrapping a <b> inside a longer sentence — splitOnFirstBold
+    // only looks for <b>, so in that case treat the whole cell as the hl.
+    const wholeCellIsHighlight = !cell.querySelector('b') && styleHas(cell, 'ccbeu-pink');
+    if (wholeCellIsHighlight) {
+      return { subject, hl: text(cell), text: '' };
+    }
+    const { hl, post } = splitOnFirstBold(cell);
     return { subject, hl, text: post };
   });
   if (rows.length === 0) return null;
@@ -343,9 +782,9 @@ function extractGrammarBoxLook(section: Element): GrammarBoxLookData | null {
   const ex1 = fig1 ? splitOnFirstBold(fig1.querySelector('figcaption') ?? fig1) : { pre: '', hl: '', post: '' };
   const ex2 = fig2 ? splitOnFirstBold(fig2.querySelector('figcaption') ?? fig2) : { pre: '', hl: '', post: '' };
 
-  const topicHeader = Array.from(section.querySelectorAll('div')).find((d) => {
-    return styleHas(d, 'font-weight:700') && styleHas(d, 'font-size:24px') && !d.querySelector('*');
-  });
+  // Some decks wrap the topic text in an inner <span> (<div ...><span>Plurals</span></div>);
+  // don't require "no element children", just match on the distinctive style.
+  const topicHeader = Array.from(section.querySelectorAll('div')).find((d) => styleHas(d, 'font-weight:700') && styleHas(d, 'font-size:24px'));
 
   // Tips box: pink icon column + a column of "He is → He's" rows (each row
   // is a flex div of 3 spans: full form, arrow, contracted form). Select only
@@ -442,6 +881,22 @@ function extractSlideData(section: Element, tokenCss: string): { template: Slide
     const data = extractGrammarBoxLook(section);
     if (data) return { template: 'grammarBoxLook', data };
   }
+  if (label.startsWith('LOOK')) {
+    const data = extractLookLight(section);
+    if (data) return { template: 'lookLight', data };
+  }
+  if (label.includes('Conversation') || label.includes('Dialogue')) {
+    const data = extractDialoguePractice(section);
+    if (data) return { template: 'dialoguePractice', data };
+  }
+  if (label.startsWith('Plural Quiz')) {
+    const data = extractRevealCardGrid(section);
+    if (data) return { template: 'revealCardGrid', data };
+  }
+  if (label.startsWith('Vocabulary')) {
+    const data = extractPhotoLabelGrid(section);
+    if (data) return { template: 'photoLabelGrid', data };
+  }
   if (label === 'Lesson Complete') {
     const data = extractLessonComplete(section);
     if (data) return { template: 'lessonComplete', data };
@@ -449,6 +904,50 @@ function extractSlideData(section: Element, tokenCss: string): { template: Slide
   if (label.startsWith('Warm-up') || label.startsWith('Change the Sentences')) {
     const data = extractChangePlaces(section);
     if (data) return { template: 'changePlaces', data };
+  }
+  if (label.startsWith('Who is this?')) {
+    const data = extractPhotoExerciseWhoIsThis(section);
+    if (data) return { template: 'photoExerciseWhoIsThis', data };
+  }
+  if (label === 'Match' || label === 'Pronunciation') {
+    const data = extractMatchVocabImage(section);
+    if (data) return { template: 'matchVocabImage', data };
+  }
+  if (label.startsWith('Exercise 2A') || label.startsWith('Exercise 2B')) {
+    const chartData = extractMatchingWithChart(section);
+    if (chartData) return { template: 'matchingWithChart', data: chartData };
+  }
+  if (label.startsWith('Exercise')) {
+    const gridData = extractPhotoGridBlank(section);
+    if (gridData) return { template: 'photoGridBlank', data: gridData };
+  }
+  if (label.startsWith('Exercise') || label.includes('sentences') || label.includes('Sentences')) {
+    const data = extractExercise1(section);
+    if (data) return { template: 'exercise1', data };
+  }
+  if (label === 'Practice') {
+    const data = extractModelExampleList(section);
+    if (data) return { template: 'modelExampleList', data };
+  }
+  if (label.startsWith("Let's Play") || label.startsWith("Let's play") || label.startsWith('Fluency')) {
+    const f2 = extractFluency2(section);
+    if (f2) return { template: 'fluency2', data: f2 };
+  }
+  if (label === 'Not OK at the Airport') {
+    const f3 = extractFluency3(section);
+    if (f3) return { template: 'fluency3', data: f3 };
+  }
+  if (label.startsWith('Yes/No Questions')) {
+    const data = extractGrammarBox2YesNo(section);
+    if (data) return { template: 'grammarBox2YesNo', data };
+  }
+  if (label.startsWith('Pair Work')) {
+    const data = extractGuessFourImages(section);
+    if (data) return { template: 'guessFourImages', data };
+  }
+  if (label === 'Choose 3 people' || label === 'Assign Practice' || label.startsWith("Let's Play") || label.startsWith("Let's play")) {
+    const data = extractSectionTransition(section);
+    if (data) return { template: 'sectionTransition', data };
   }
 
   return { template: 'customHtml', data: { html: sectionToSlideHtml(section, tokenCss), sourceFile: label } };
