@@ -55,6 +55,9 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
   const historyRef = useRef<{ slides: Slide[]; activeId: string }[]>([]);
   const slidesRef = useRef(slides);
   const activeIdRef = useRef(activeId);
+  // Mirrors historyRef.current.length so the UI (e.g. the chat's "undo" button) can reactively
+  // enable/disable itself — historyRef alone doesn't trigger re-renders.
+  const [canUndo, setCanUndo] = useState(false);
   useEffect(() => {
     slidesRef.current = slides;
     activeIdRef.current = activeId;
@@ -64,6 +67,7 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
     historyRef.current = [...historyRef.current, { slides: slidesRef.current, activeId: activeIdRef.current }].slice(
       -MAX_HISTORY
     );
+    setCanUndo(true);
   }, []);
 
   const undo = useCallback(() => {
@@ -71,6 +75,7 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
     if (!prev) return;
     setSlides(prev.slides);
     setActiveId(prev.activeId);
+    setCanUndo(historyRef.current.length > 0);
   }, []);
 
   useEffect(() => {
@@ -937,6 +942,8 @@ function PresenterAppInner({ partApiUrl, partId, initialSlides, partTitle, bread
           deckOverview={slides.map((s) => ({ template: s.template, data: s.data }))}
           activeIndex={idx}
           onApplyActions={applyAiActions}
+          onUndo={undo}
+          canUndo={canUndo}
           open={chatOpen}
           onOpenChange={setChatOpen}
         />

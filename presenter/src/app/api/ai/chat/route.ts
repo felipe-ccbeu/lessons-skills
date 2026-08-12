@@ -722,5 +722,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 502 });
   }
 
-  return NextResponse.json({ reply, actions });
+  return NextResponse.json({ reply, actions, imagesUsed: imagesGenerated, imagesLimit: MAX_IMAGES_PER_REQUEST });
 }

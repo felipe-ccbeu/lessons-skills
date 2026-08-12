@@ -4,7 +4,15 @@ import { useRef, useState, ChangeEvent, ClipboardEvent } from 'react';
 import { AiSlideAction } from '@/lib/types';
 import { Icon } from '@/components/ui/Icon';
 
-type ChatMessage = { role: 'user' | 'assistant'; content: string; images?: string[] };
+type ChatMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+  images?: string[];
+  /** True for an assistant reply that applied slide changes — lets the UI offer to undo it. */
+  appliedActions?: boolean;
+  /** Set on an assistant reply that generated/searched at least one image, e.g. "2/3". */
+  imageUsage?: string;
+};
 
 type Props = {
   slideData: unknown;
@@ -13,6 +21,10 @@ type Props = {
   deckOverview: { template: string; data: unknown }[];
   activeIndex: number;
   onApplyActions: (actions: AiSlideAction[]) => void;
+  /** Reverts the single most recent change (from the AI or from manual editing) — the same undo stack as Ctrl+Z. */
+  onUndo: () => void;
+  /** Whether there's anything left to undo right now. */
+  canUndo: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -27,6 +39,8 @@ export function ChatSidebar({
   deckOverview,
   activeIndex,
   onApplyActions,
+  onUndo,
+  canUndo,
   open,
   onOpenChange,
 }: Props) {
@@ -35,6 +49,9 @@ export function ChatSidebar({
   const [attachments, setAttachments] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Index of the most recent assistant message with an active "undo this" offer, so it stops being
+  // offered once the user clicks it (undoing the same message twice would revert unrelated edits).
+  const [undoableIndex, setUndoableIndex] = useState<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -84,14 +101,25 @@ export function ChatSidebar({
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Falha ao falar com a IA');
-      if (json.actions?.length) onApplyActions(json.actions);
-      setMessages((prev) => [...prev, { role: 'assistant', content: json.reply || '(concluído)' }]);
+      const appliedActions = Boolean(json.actions?.length);
+      if (appliedActions) onApplyActions(json.actions);
+      const imageUsage = json.imagesUsed > 0 ? `${json.imagesUsed}/${json.imagesLimit} imagens usadas nesta resposta` : undefined;
+      setMessages((prev) => {
+        const next = [...prev, { role: 'assistant' as const, content: json.reply || '(concluído)', appliedActions, imageUsage }];
+        if (appliedActions) setUndoableIndex(next.length - 1);
+        return next;
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro desconhecido');
     } finally {
       setSending(false);
       requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight }));
     }
+  };
+
+  const handleUndoClick = (index: number) => {
+    onUndo();
+    setUndoableIndex((cur) => (cur === index ? null : cur));
   };
 
   return (
@@ -128,6 +156,18 @@ export function ChatSidebar({
                 </div>
               )}
               {m.content}
+              {m.imageUsage && <div className="chat-msg-image-usage">{m.imageUsage}</div>}
+              {i === undoableIndex && (
+                <button
+                  type="button"
+                  className="chat-undo-btn"
+                  onClick={() => handleUndoClick(i)}
+                  disabled={!canUndo}
+                  title="Reverter as alterações que essa resposta aplicou no slide"
+                >
+                  <Icon name="undo" size={13} style={{ verticalAlign: 'middle' }} /> Desfazer
+                </button>
+              )}
             </div>
           ))}
           {sending && <div className="chat-msg chat-msg-assistant chat-msg-pending">Pensando…</div>}

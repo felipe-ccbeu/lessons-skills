@@ -500,6 +500,31 @@ body {
   border-radius: 8px;
   display: block;
 }
+.chat-msg-image-usage {
+  margin-top: 6px;
+  font-size: 9.5pt;
+  color: var(--chrome-text-muted);
+}
+.chat-undo-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 4px 9px;
+  border: 1px solid var(--chrome-border);
+  border-radius: 999px;
+  background: var(--chrome-bg-subtle);
+  color: var(--ink);
+  font-size: 10.5pt;
+  cursor: pointer;
+}
+.chat-undo-btn:hover:not(:disabled) {
+  background: var(--chrome-border);
+}
+.chat-undo-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 .stage {
   position: relative;
   width: 1280px;
