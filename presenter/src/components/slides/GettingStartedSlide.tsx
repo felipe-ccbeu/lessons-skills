@@ -86,7 +86,7 @@ export function GettingStartedSlide({
 
         <div style={{ position: 'absolute', left: 80, top: 330, width: 93, height: 6, borderRadius: 999, background: 'var(--ccbeu-pink)' }} />
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 350, width: 430 }} {...dragProps('title')}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 350, width: 470 }} {...dragProps('title')}>
           <Editable
             value={data.title}
             onChange={(v) => onEdit({ title: v })}
@@ -97,7 +97,7 @@ export function GettingStartedSlide({
           />
         </SlideStaggerItem>
 
-        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 430, width: 420 }} {...dragProps('subtitle')}>
+        <SlideStaggerItem disabled={editMode} style={{ position: 'absolute', left: 80, top: 430, width: 470 }} {...dragProps('subtitle')}>
           <Editable
             value={data.subtitle}
             onChange={(v) => onEdit({ subtitle: v })}
