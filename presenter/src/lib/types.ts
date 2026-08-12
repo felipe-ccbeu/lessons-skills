@@ -318,6 +318,18 @@ export type LookLightData = {
   imageUrls: string[]; // any length
 };
 
+export type GroupedFlagChartRow = { imageUrl: string; term: string; answer: string };
+export type GroupedFlagChartGroup = { label: string; rows: GroupedFlagChartRow[] };
+export type GroupedFlagChartColumn = { groups: GroupedFlagChartGroup[] };
+export type GroupedFlagChartData = {
+  breadcrumb: string;
+  title: string;
+  instruction: string;
+  columnHeader1: string;
+  columnHeader2: string;
+  columns: [GroupedFlagChartColumn, GroupedFlagChartColumn];
+};
+
 /** Keys of `data` (per slide) that the teacher marked as an answer, hidden until revealed. */
 export type AnswerFields = string[];
 
@@ -429,6 +441,7 @@ export interface TemplateDataMap {
   revealCardGrid: RevealCardGridData;
   photoLabelGrid: PhotoLabelGridData;
   lookLight: LookLightData;
+  groupedFlagChart: GroupedFlagChartData;
 }
 
 /** A single slide of a specific template `K` — its id/template/data plus the shared overrides. */

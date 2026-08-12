@@ -540,6 +540,23 @@ export const TEMPLATE_META: { [K in SlideTemplate]: TemplateMeta<K> } = {
       imageUrls: ['', ''],
     }),
   },
+  groupedFlagChart: {
+    addable: true,
+    label: 'Tabela agrupada (bandeiras)',
+    description: '2 tabelas de país/termo por grupo',
+    dragKeys: ['title', 'instruction', 'column0', 'column1'],
+    createData: () => ({
+      breadcrumb: 'BREADCRUMB',
+      title: 'Nationalities',
+      instruction: 'Complete the charts with the countries:',
+      columnHeader1: 'Country',
+      columnHeader2: 'Country',
+      columns: [
+        { groups: [{ label: '-ian', rows: [{ imageUrl: '', term: 'Brazil', answer: 'Brazilian' }] }] },
+        { groups: [{ label: '-an', rows: [{ imageUrl: '', term: 'Mexico', answer: 'Mexican' }] }] },
+      ],
+    }),
+  },
   // Non-addable: created only by importing a .pptx (pptxImage) or by code paths
   // that inject raw HTML (customHtml). They still need default data + metadata.
   pptxImage: {

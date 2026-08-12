@@ -33,6 +33,7 @@ import { DialoguePracticeSlide } from './DialoguePracticeSlide';
 import { RevealCardGridSlide } from './RevealCardGridSlide';
 import { PhotoLabelGridSlide } from './PhotoLabelGridSlide';
 import { LookLightSlide } from './LookLightSlide';
+import { GroupedFlagChartSlide } from './GroupedFlagChartSlide';
 import { SlideTemplate } from '@/lib/types';
 
 export const RENDERERS: Record<SlideTemplate, React.ComponentType<any>> = {
@@ -71,4 +72,5 @@ export const RENDERERS: Record<SlideTemplate, React.ComponentType<any>> = {
   revealCardGrid: RevealCardGridSlide,
   photoLabelGrid: PhotoLabelGridSlide,
   lookLight: LookLightSlide,
+  groupedFlagChart: GroupedFlagChartSlide,
 };

@@ -53,6 +53,9 @@ import type {
   RevealCardGridItem,
   PhotoLabelGridData,
   PhotoLabelGridItem,
+  GroupedFlagChartData,
+  GroupedFlagChartColumn,
+  GroupedFlagChartGroup,
 } from '../src/lib/types.ts';
 
 const SOURCE_DIR = 'C:\\Users\\felipe.fadel\\Downloads\\Design system CCBEU A1';
@@ -686,6 +689,54 @@ function extractDialoguePractice(section: Element): DialoguePracticeData | null 
   };
 }
 
+function extractGroupedFlagChart(section: Element): GroupedFlagChartData | null {
+  const h1 = section.querySelector('h1');
+  const p = section.querySelector('p');
+  if (!h1) return null;
+
+  // Two side-by-side bordered tables. Each is <div border><header row><group
+  // label rows interleaved with data rows>. Group label rows have no
+  // `display:flex` (they're a single italic text block); data rows do
+  // (2 cells: flag+country, nationality).
+  const tableContainers = Array.from(section.querySelectorAll('div')).filter(
+    (d) => styleHas(d, 'border:1pxsolidvar(--border-hair)') && styleHas(d, 'border-radius:6px') && d.children.length >= 2
+  );
+  if (tableContainers.length !== 2) return null;
+
+  const columnHeaders: string[] = [];
+  const columns = tableContainers.map((container) => {
+    const rows = Array.from(container.children);
+    const headerRow = rows[0];
+    columnHeaders.push(text(headerRow.children[0]));
+
+    const groups: GroupedFlagChartGroup[] = [];
+    for (const row of rows.slice(1)) {
+      if (styleHas(row, 'display:flex')) {
+        // Data row: first cell has the flag <image-slot> + country name, second cell is the nationality.
+        const countryCell = row.children[0];
+        const country = text(countryCell.querySelector('span:last-child') ?? countryCell);
+        const nationality = text(row.children[1]);
+        const currentGroup = groups[groups.length - 1];
+        if (currentGroup) currentGroup.rows.push({ imageUrl: '', term: country, answer: nationality });
+      } else {
+        // Group label row (e.g. "-ian").
+        groups.push({ label: text(row), rows: [] });
+      }
+    }
+    return { groups: groups.filter((g) => g.rows.length > 0) } as GroupedFlagChartColumn;
+  });
+  if (columns.some((c) => c.groups.length === 0)) return null;
+
+  return {
+    breadcrumb: extractBreadcrumb(section),
+    title: text(h1),
+    instruction: text(p),
+    columnHeader1: columnHeaders[0] ?? 'Country',
+    columnHeader2: columnHeaders[1] ?? 'Country',
+    columns: [columns[0], columns[1]],
+  };
+}
+
 function extractRevealCardGrid(section: Element): RevealCardGridData | null {
   const h1 = section.querySelector('h1');
   if (!h1) return null;
@@ -896,6 +947,10 @@ function extractSlideData(section: Element, tokenCss: string): { template: Slide
   if (label.startsWith('Vocabulary')) {
     const data = extractPhotoLabelGrid(section);
     if (data) return { template: 'photoLabelGrid', data };
+  }
+  if (label.includes('Chart') && label.includes('Nationalities')) {
+    const data = extractGroupedFlagChart(section);
+    if (data) return { template: 'groupedFlagChart', data };
   }
   if (label === 'Lesson Complete') {
     const data = extractLessonComplete(section);
