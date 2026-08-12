@@ -176,6 +176,25 @@ const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
   {
     type: 'function',
     function: {
+      name: 'search_web_image',
+      description:
+        'Searches the real web (Google Images) for a photo matching a query and returns its URL, already downloaded and saved. Use this INSTEAD OF generate_image whenever the teacher asks for a REAL photo of a specific, identifiable subject — a named person (celebrity, historical figure, politician...), a real place, landmark, logo, book/movie cover, or similar — where a generated illustration would not be the actual real thing. Keep the query short and specific (e.g. "Justin Bieber portrait photo", "Eiffel Tower daytime photo"). The URL is NOT applied to the slide automatically — after calling this, use set_field (or add_list_item, for a list of image items) with the returned URL to actually place the image. Do not use this for generic/decorative imagery (icons, illustrations, abstract concepts) — use generate_image for those instead.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'Short, specific search query describing the real photo to find.',
+          },
+        },
+        required: ['query'],
+        additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'place_attached_image',
       description:
         'Places an image the teacher ATTACHED to the chat (not a generated one) onto an imageUrl-like field of a slide. Use this when the teacher wants their own uploaded photo/screenshot to appear on the slide (as reference material, a real photo, etc.), instead of generating a new one. The attachment is identified by its 0-based index in the "imagens anexadas" list from the context. Do NOT use this to transcribe/extract text from an image — for that, just read the attached image and use set_field/add_slide/etc.',
@@ -220,11 +239,14 @@ Você enxerga o deck inteiro como uma lista (índice + template de cada slide), 
 Catálogo de templates disponíveis para add_slide:
 ${TEMPLATE_CATALOG}
 
-Use as ferramentas disponíveis (get_slide_data, add_slide, reorder_slide, set_field, add_list_item, remove_list_item, move_block, generate_image, place_attached_image) para aplicar mudanças reais; não basta descrever em texto o que mudaria, você deve chamar a ferramenta.
+Use as ferramentas disponíveis (get_slide_data, add_slide, reorder_slide, set_field, add_list_item, remove_list_item, move_block, generate_image, search_web_image, place_attached_image) para aplicar mudanças reais; não basta descrever em texto o que mudaria, você deve chamar a ferramenta.
 
 Fluxo típico ao criar um slide: chame add_slide primeiro; nas chamadas seguintes DENTRO DO MESMO TURNO, set_field/add_list_item já se aplicam ao slide recém-criado (que passou a ser o ativo) — use isso para já preencher título, textos e itens de lista com conteúdo relevante ao pedido, em vez de deixar os placeholders genéricos do template.
 
-Imagens: campos de imagem no JSON do slide seguem o padrão de nome imageUrl, imageUrl1/imageUrl2, imageUrls (array), avatar1Url/avatar2Url, etc. — mas o único jeito confiável de saber se (e onde) um slide tem campo de imagem é OLHAR o JSON de dados dele: nem todo template tem um. Se o JSON do slide ativo (ou do slide buscado via get_slide_data) não tiver nenhuma chave desse tipo, ele NÃO suporta imagem — diga isso ao professor em vez de inventar um nome de campo. IMPORTANTE: os dragKeys (listados separadamente no contexto, usados só em move_block) são um vocabulário de LAYOUT, não de dados — um bloco de imagem pode ter um dragKey como "imagePlaceholder1" ou "photo1" enquanto o campo de dado real é outro nome (ex.: "imageUrl1"); nunca use um dragKey como path em set_field/add_list_item/place_attached_image, mesmo que o nome pareça óbvio — sempre confirme o path certo olhando as chaves do JSON de dados. set_field/add_list_item/place_attached_image validam o path contra o schema real do template e retornam "error: field ... does not exist" quando o campo não existe; se isso acontecer, NÃO diga ao professor que a imagem foi colocada — releia o JSON do slide, corrija o path para um campo que realmente existe (ou informe que esse slide não tem onde colocar imagem). Quando o professor pedir para adicionar/gerar/criar uma imagem (foto, ilustração, ícone...) num campo que existe, chame generate_image com um prompt visual detalhado em inglês; a ferramenta retorna a URL da imagem gerada, que você deve então aplicar com set_field (ou, se o campo for um item de uma lista de fotos, add_list_item) no campo apropriado. Nunca invente uma URL de imagem nem deixe o campo vazio quando o pedido for para gerar uma imagem — sempre chame generate_image primeiro. Não chame generate_image para um campo que já tem uma imagem, a menos que o professor peça para trocar/regenerar.
+Imagens: campos de imagem no JSON do slide seguem o padrão de nome imageUrl, imageUrl1/imageUrl2, imageUrls (array), avatar1Url/avatar2Url, etc. — mas o único jeito confiável de saber se (e onde) um slide tem campo de imagem é OLHAR o JSON de dados dele: nem todo template tem um. Se o JSON do slide ativo (ou do slide buscado via get_slide_data) não tiver nenhuma chave desse tipo, ele NÃO suporta imagem — diga isso ao professor em vez de inventar um nome de campo. IMPORTANTE: os dragKeys (listados separadamente no contexto, usados só em move_block) são um vocabulário de LAYOUT, não de dados — um bloco de imagem pode ter um dragKey como "imagePlaceholder1" ou "photo1" enquanto o campo de dado real é outro nome (ex.: "imageUrl1"); nunca use um dragKey como path em set_field/add_list_item/place_attached_image, mesmo que o nome pareça óbvio — sempre confirme o path certo olhando as chaves do JSON de dados. set_field/add_list_item/place_attached_image validam o path contra o schema real do template e retornam "error: field ... does not exist" quando o campo não existe; se isso acontecer, NÃO diga ao professor que a imagem foi colocada — releia o JSON do slide, corrija o path para um campo que realmente existe (ou informe que esse slide não tem onde colocar imagem). Quando o professor pedir para adicionar/gerar/criar uma imagem (foto, ilustração, ícone...) num campo que existe, escolha entre duas ferramentas conforme o pedido:
+- generate_image: para imagem genérica/ilustrativa (ícone, ilustração, cena, avatar fictício...) ou quando o professor pede algo "no estilo de"/"inspirado em". Chame com um prompt visual detalhado em inglês.
+- search_web_image: para uma FOTO REAL de um sujeito específico e identificável — uma pessoa nomeada (celebridade, figura histórica, político...), lugar real, monumento, logo, capa de livro/filme, etc. Chame com uma query curta e específica (ex.: "Justin Bieber portrait photo"). Não recuse nem tente gerar esses casos com generate_image — o modelo de geração de imagem recusa retratos realistas de pessoas identificáveis; use search_web_image, que busca uma foto real já existente na web.
+Qualquer uma das duas retorna a URL da imagem (gerada ou encontrada), que você deve então aplicar com set_field (ou, se o campo for um item de uma lista de fotos, add_list_item) no campo apropriado. Nunca invente uma URL de imagem nem deixe o campo vazio quando o pedido for para colocar uma imagem — sempre chame generate_image ou search_web_image primeiro. Não chame nenhuma das duas para um campo que já tem uma imagem, a menos que o professor peça para trocar/regenerar. Se search_web_image retornar erro (ex.: busca não configurada), diga isso ao professor em vez de tentar generate_image como substituto silencioso para um pedido de foto real de alguém.
 
 Imagens ANEXADAS pelo professor: o professor pode anexar imagens à conversa (o contexto informa quantas há e seus índices; você enxerga o conteúdo delas). Há dois usos possíveis, decida pelo que ele pediu:
 - EXTRAIR conteúdo: se ele quer transcrever/aproveitar o que está NA imagem (texto de uma página de livro, um exercício fotografado, uma lista, uma tabela...), leia a imagem e use as ferramentas normais (set_field, add_slide, add_list_item, etc.) para transformar esse conteúdo em slide(s). Nesse caso NÃO use place_attached_image — a imagem é só a fonte, não vai para o slide.
@@ -313,6 +335,39 @@ function parseDataUrl(dataUrl: string): { buffer: Buffer; ext: string } | null {
   const mime = (match[1] || 'image/png').toLowerCase();
   if (!mime.startsWith('image/')) return null;
   return { buffer: Buffer.from(match[3], 'base64'), ext: EXT_BY_MIME[mime] ?? 'png' };
+}
+
+/** Searches Google Images via SerpAPI and returns the top result's title + thumbnail URL for each candidate. */
+async function searchWebImages(query: string): Promise<{ title: string; thumbnail: string }[]> {
+  const apiKey = process.env.SERPAPI_KEY;
+  if (!apiKey) throw new Error('busca de imagem na web não configurada (SERPAPI_KEY ausente).');
+
+  const url = new URL('https://serpapi.com/search.json');
+  url.searchParams.set('engine', 'google_images');
+  url.searchParams.set('q', query);
+  url.searchParams.set('api_key', apiKey);
+  url.searchParams.set('safe', 'active');
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`SerpAPI respondeu ${res.status}`);
+  const json = (await res.json()) as { images_results?: { title?: string; original?: string; thumbnail?: string }[] };
+
+  const results = (json.images_results ?? [])
+    .map((r) => ({ title: r.title ?? '', thumbnail: r.original ?? r.thumbnail ?? '' }))
+    .filter((r) => r.thumbnail);
+
+  if (results.length === 0) throw new Error('nenhum resultado encontrado');
+  return results;
+}
+
+/** Downloads an image from an arbitrary URL and saves it under public/uploads/web-search, returning its public URL. */
+async function downloadAndSaveImage(sourceUrl: string): Promise<string> {
+  const res = await fetch(sourceUrl);
+  if (!res.ok) throw new Error(`falha ao baixar imagem (status ${res.status})`);
+  const contentType = res.headers.get('content-type')?.split(';')[0]?.toLowerCase() ?? 'image/jpeg';
+  const ext = EXT_BY_MIME[contentType] ?? 'jpg';
+  const buffer = Buffer.from(await res.arrayBuffer());
+  return saveImageBuffer(buffer, 'web-search', ext);
 }
 
 /** Generates an image via gpt-image-1 and saves it under public/uploads/ai-generated, returning its public URL. */
@@ -594,6 +649,30 @@ export async function POST(req: NextRequest) {
               resultSummary = 'error: missing prompt/orientation';
             }
             break;
+          case 'search_web_image': {
+            if (typeof args.query !== 'string' || !args.query.trim()) {
+              resultSummary = 'error: missing query';
+              break;
+            }
+            if (imagesGenerated >= MAX_IMAGES_PER_REQUEST) {
+              resultSummary = `error: image limit reached (${MAX_IMAGES_PER_REQUEST} per request) — stop searching; tell the teacher to ask again in a new message if more images are needed`;
+              break;
+            }
+            if (guard.user.role !== 'ADMIN' && (await isUserOverAiSpendCap(guard.user.id))) {
+              resultSummary = 'error: user reached their AI spend cap — stop and tell the teacher to contact an admin';
+              break;
+            }
+            try {
+              const results = await searchWebImages(args.query);
+              const url = await downloadAndSaveImage(results[0].thumbnail);
+              imagesGenerated++;
+              resultSummary = `ok: found image "${results[0].title}" at url ${url} — use set_field/add_list_item to place it on the appropriate imageUrl field`;
+            } catch (err) {
+              const message = err instanceof Error ? err.message : 'unknown error';
+              resultSummary = `error: web image search failed — ${message}`;
+            }
+            break;
+          }
           case 'place_attached_image': {
             const attachmentIndex = args.attachmentIndex;
             const targetPath = args.path;
